@@ -11,6 +11,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     ratatui::restore();
     match app_result {
         Err(error) => Err(Box::new(error)),
-        Ok(()) => Ok(())
+        Ok(()) => Ok(()),
     }
 }
