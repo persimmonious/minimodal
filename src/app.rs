@@ -9,6 +9,32 @@ use ratatui::{
 };
 use std::{fs, io};
 
+struct BufferPosition {
+    line: usize,
+    col: usize,
+}
+
+enum Mode {
+    Normal,
+    Command,
+}
+
+struct EditorState {
+    buffer_id: usize,
+    mode: Mode,
+    cursor: BufferPosition,
+}
+
+impl EditorState {
+    fn new() -> Self {
+        EditorState {
+            buffer_id: 0,
+            mode: Mode::Normal,
+            cursor: BufferPosition { line: 0, col: 0 },
+        }
+    }
+}
+
 pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
     if config.file_names.is_empty() {
         return Ok(vec![Buffer::untitled()]);
@@ -26,6 +52,7 @@ pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
 
 pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     let buffers = initialize_buffers(&config)?;
+    let state = EditorState::new();
     let sampletext = match buffers.len() {
         0 => format!("No files loaded.\nPress 'q' to quit."),
         _ => format!(
