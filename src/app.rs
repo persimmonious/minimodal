@@ -2,15 +2,11 @@ mod buffer;
 use crate::config::Config;
 use buffer::{Buffer, HorizontalDirection as Horizontal};
 use ratatui::{
-    buffer::Buffer as RatBuffer,
-    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    text::{Line, Span, Text},
-    widgets::{
+    buffer::Buffer as RatBuffer, crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind}, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::Stylize, text::{Line, Span, Text}, widgets::{
         block::{Position, Title},
         Block, Borders, Paragraph, Tabs, Widget,
-    },
-    DefaultTerminal, Frame,
+    }, DefaultTerminal, Frame,
+    style::{Style, Color}
 };
 use std::{fs, io};
 
@@ -58,6 +54,10 @@ impl Editor {
             .map(|buf| buf.read_name().map_or("Untitled", |x| x));
         let tabline = Tabs::from_iter(buffer_titles)
             .select(self.current_buffer)
+            .style(Style::default()
+                   .fg(Color::Rgb(255, 190, 140))
+                   .bg(Color::Black)
+                   .bold())
             .block(Block::new().borders(Borders::BOTTOM));
 
         frame.render_widget(tabline, layout[0]);
@@ -113,6 +113,8 @@ impl Widget for &Editor {
         Paragraph::new(text)
             .left_aligned()
             .block(block)
+            .white()
+            .on_black()
             .render(area, buf);
     }
 }
