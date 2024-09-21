@@ -4,11 +4,11 @@ use buffer::{Buffer, HorizontalDirection as Horizontal};
 use ratatui::{
     buffer::Buffer as RatBuffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Alignment, Rect},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     text::{Line, Span, Text},
     widgets::{
         block::{Position, Title},
-        Block, Paragraph, Widget,
+        Block, Paragraph, Tabs, Widget,
     },
     DefaultTerminal, Frame,
 };
@@ -47,7 +47,19 @@ impl Editor {
     }
 
     fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Constraint::Length(1), Constraint::Fill(1)])
+            .split(frame.area());
+
+        let buffer_titles = self
+            .buffers
+            .iter()
+            .map(|buf| buf.read_name().map_or("Untitled", |x| x));
+        let tabline = Tabs::from_iter(buffer_titles).select(self.current_buffer);
+
+        frame.render_widget(tabline, layout[0]);
+        frame.render_widget(self, layout[1]);
     }
 
     fn handle_input(&mut self) -> io::Result<()> {
@@ -86,14 +98,7 @@ impl Editor {
 
 impl Widget for &Editor {
     fn render(self, area: Rect, buf: &mut RatBuffer) {
-        let buffer_titles: Vec<Span> = self
-            .buffers
-            .iter()
-            .map(|buf| buf.read_name().map_or("Untitled", |x| x))
-            .map(|buf_name| format!(" {buf_name} |").into())
-            .collect();
-        let titlebar = Title::from(Line::from(buffer_titles));
-        let block = Block::new().title(titlebar.alignment(Alignment::Left).position(Position::Top));
+        let block = Block::new();
         let buffer = &self.buffers[self.current_buffer];
         let lines: Vec<_> = buffer
             .lines
