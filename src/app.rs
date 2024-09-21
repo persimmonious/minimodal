@@ -1,6 +1,6 @@
 mod buffer;
 use crate::config::Config;
-use buffer::Buffer;
+use buffer::{Buffer, HorizontalDirection as Horizontal};
 use ratatui::{
     buffer::Buffer as RatBuffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
@@ -63,12 +63,23 @@ impl Editor {
     fn handle_key_press(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Char('q') => self.exit(),
+            KeyCode::Tab => self.cycle_buffer(Horizontal::Forwards),
             _ => {}
         }
     }
 
     fn exit(&mut self) {
         self.active = false;
+    }
+
+    fn cycle_buffer(&mut self, dir: Horizontal) {
+        self.current_buffer = match dir {
+            Horizontal::Forwards => (self.current_buffer + 1) % self.buffers.len(),
+            Horizontal::Backwards => match self.current_buffer {
+                0 => self.buffers.len() - 1,
+                current => (current - 1) % self.buffers.len(),
+            },
+        }
     }
 }
 

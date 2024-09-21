@@ -1,6 +1,12 @@
 use std::{fs, io};
 
 #[derive(Debug)]
+pub enum HorizontalDirection {
+    Forwards,
+    Backwards,
+}
+
+#[derive(Debug)]
 pub struct Buffer {
     name: Option<String>,
     path: Option<String>,
