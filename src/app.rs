@@ -64,6 +64,7 @@ impl Editor {
         match key.code {
             KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_buffer(Horizontal::Forwards),
+            KeyCode::BackTab => self.cycle_buffer(Horizontal::Backwards),
             _ => {}
         }
     }
