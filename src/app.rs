@@ -8,7 +8,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{
         block::{Position, Title},
-        Block, Paragraph, Tabs, Widget,
+        Block, Borders, Paragraph, Tabs, Widget,
     },
     DefaultTerminal, Frame,
 };
@@ -49,14 +49,16 @@ impl Editor {
     fn draw(&self, frame: &mut Frame) {
         let layout = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(vec![Constraint::Length(1), Constraint::Fill(1)])
+            .constraints(vec![Constraint::Length(2), Constraint::Fill(1)])
             .split(frame.area());
 
         let buffer_titles = self
             .buffers
             .iter()
             .map(|buf| buf.read_name().map_or("Untitled", |x| x));
-        let tabline = Tabs::from_iter(buffer_titles).select(self.current_buffer);
+        let tabline = Tabs::from_iter(buffer_titles)
+            .select(self.current_buffer)
+            .block(Block::new().borders(Borders::BOTTOM));
 
         frame.render_widget(tabline, layout[0]);
         frame.render_widget(self, layout[1]);
