@@ -7,6 +7,8 @@ use ratatui::{
 };
 use std::io;
 
+mod buffer;
+
 pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     let sampletext = match config.file_names.len() {
         0 => format!("No files loaded.\nPress 'q' to quit."),
