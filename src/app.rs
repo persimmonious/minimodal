@@ -2,36 +2,99 @@ mod buffer;
 use crate::config::Config;
 use buffer::Buffer;
 use ratatui::{
-    crossterm::event::{self, KeyCode, KeyEventKind},
-    style::Stylize,
-    widgets::Paragraph,
-    DefaultTerminal,
+    buffer::Buffer as RatBuffer,
+    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
+    layout::{Alignment, Rect},
+    text::{Line, Span, Text},
+    widgets::{
+        block::{Position, Title},
+        Block, Paragraph, Widget,
+    },
+    DefaultTerminal, Frame,
 };
 use std::{fs, io};
 
+#[derive(Debug)]
 struct BufferPosition {
     line: usize,
     col: usize,
 }
 
+#[derive(Debug)]
 enum Mode {
     Normal,
     Command,
 }
 
-struct EditorState {
+#[derive(Debug)]
+struct Editor {
+    pub active: bool,
     current_buffer: usize,
     mode: Mode,
     cursor: BufferPosition,
+    buffers: Vec<Buffer>,
 }
 
-impl EditorState {
-    fn new() -> Self {
-        EditorState {
+impl Editor {
+    fn new(buffers: Vec<Buffer>) -> Self {
+        Editor {
+            active: true,
             current_buffer: 0,
             mode: Mode::Normal,
             cursor: BufferPosition { line: 0, col: 0 },
+            buffers,
         }
+    }
+
+    fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area());
+    }
+
+    fn handle_input(&mut self) -> io::Result<()> {
+        match event::read()? {
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                self.handle_key_press(key_event)
+            }
+            _ => {}
+        };
+        Ok(())
+    }
+
+    fn handle_key_press(&mut self, key: KeyEvent) {
+        match key.code {
+            KeyCode::Char('q') => self.exit(),
+            _ => {}
+        }
+    }
+
+    fn exit(&mut self) {
+        self.active = false;
+    }
+}
+
+impl Widget for &Editor {
+    fn render(self, area: Rect, buf: &mut RatBuffer) {
+        let buffer_titles: Vec<Span> = self
+            .buffers
+            .iter()
+            .map(|buf| buf.read_name().map_or("Untitled", |x| x))
+            .map(|buf_name| format!(" {buf_name} |").into())
+            .collect();
+        let titlebar = Title::from(Line::from(buffer_titles));
+        let block = Block::new().title(titlebar.alignment(Alignment::Left).position(Position::Top));
+        let buffer = &self.buffers[self.current_buffer];
+        let lines: Vec<_> = buffer
+            .lines
+            .iter()
+            .map(|line| line.into())
+            .map(|line: Span| Line::from(line))
+            .collect();
+        let text = Text::from(lines);
+
+        Paragraph::new(text)
+            .left_aligned()
+            .block(block)
+            .render(area, buf);
     }
 }
 
@@ -52,32 +115,11 @@ pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
 
 pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     let buffers = initialize_buffers(&config)?;
-    let editor = EditorState::new();
-    let sampletext = match buffers.len() {
-        0 => format!("No files loaded.\nPress 'q' to quit."),
-        _ => format!(
-            "{}Press 'q' to quit.",
-            buffers
-                .iter()
-                .map(|buf| buf.read_name().map_or("Untitled", |x| x))
-                .map(|name| format!("File: {name}\n"))
-                .fold(String::new(), |mut acc, x| {
-                    acc.push_str(&x);
-                    acc
-                })
-        ),
-    };
+    let mut editor = Editor::new(buffers);
 
-    loop {
-        terminal.draw(|frame| {
-            let test_par = Paragraph::new(sampletext.to_owned()).white().on_blue();
-            frame.render_widget(test_par, frame.area());
-        })?;
-
-        if let event::Event::Key(key) = event::read()? {
-            if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('q') {
-                return Ok(());
-            }
-        }
+    while editor.active {
+        terminal.draw(|frame| editor.draw(frame))?;
+        editor.handle_input()?;
     }
+    return Ok(());
 }

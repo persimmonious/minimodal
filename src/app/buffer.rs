@@ -1,5 +1,6 @@
 use std::{fs, io};
 
+#[derive(Debug)]
 pub struct Buffer {
     name: Option<String>,
     path: Option<String>,
