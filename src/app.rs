@@ -2,11 +2,17 @@ mod buffer;
 use crate::config::Config;
 use buffer::{Buffer, HorizontalDirection as Horizontal};
 use ratatui::{
-    buffer::Buffer as RatBuffer, crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind}, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::Stylize, text::{Line, Span, Text}, widgets::{
-        block::{Position, Title},
+    buffer::Buffer as RatBuffer,
+    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    style::Stylize,
+    style::{Color, Style},
+    text::{Line, Span, Text},
+    widgets::{
+        block::{BorderType, Position, Title},
         Block, Borders, Paragraph, Tabs, Widget,
-    }, DefaultTerminal, Frame,
-    style::{Style, Color}
+    },
+    DefaultTerminal, Frame,
 };
 use std::{fs, io};
 
@@ -52,13 +58,19 @@ impl Editor {
             .buffers
             .iter()
             .map(|buf| buf.read_name().map_or("Untitled", |x| x));
+        let tabs_style = Style::default()
+            .fg(Color::Rgb(255, 190, 140))
+            .bg(Color::Black)
+            .bold();
         let tabline = Tabs::from_iter(buffer_titles)
             .select(self.current_buffer)
-            .style(Style::default()
-                   .fg(Color::Rgb(255, 190, 140))
-                   .bg(Color::Black)
-                   .bold())
-            .block(Block::new().borders(Borders::BOTTOM));
+            .style(tabs_style)
+            .block(
+                Block::new()
+                    .borders(Borders::BOTTOM)
+                    .border_type(BorderType::QuadrantInside)
+                    .border_style(Style::default().fg(Color::Rgb(180, 120, 80)))
+            );
 
         frame.render_widget(tabline, layout[0]);
         frame.render_widget(self, layout[1]);
