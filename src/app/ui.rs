@@ -44,7 +44,7 @@ pub struct TextWindow {
 
 impl Widget for &TextWindow {
     fn render(self, area: Rect, tui_buf: &mut TUI_Buffer) {
-        let mut lines = self.build_lines(area.height.into());
+        let mut lines = self.build_lines(area.height.into(), area.width.into());
         self.highlight_cursor(&mut lines);
         Paragraph::new(lines).render(area, tui_buf);
     }
@@ -59,7 +59,7 @@ impl TextWindow {
         }
     }
 
-    fn build_lines(&self, height: usize) -> Vec<Line> {
+    fn build_lines(&self, height: usize, width: usize) -> Vec<Line> {
         let buffer = self
             .buffer
             .upgrade()
@@ -69,6 +69,7 @@ impl TextWindow {
         return buffer.lines[self.top_line..last_line]
             .iter()
             .cloned()
+            .map(|line| format!("{line: <width$}"))
             .map(|line| Line::from(line))
             .collect();
     }
