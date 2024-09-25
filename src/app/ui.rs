@@ -2,11 +2,12 @@ use super::{buffer::Buffer, BufferPosition};
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::Rect,
+    style::{Color, Modifier, Style, Stylize},
     text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
 use std::{
-    cmp::{min},
+    cmp::min,
     rc::{Rc, Weak},
 };
 
@@ -43,7 +44,8 @@ pub struct TextWindow {
 
 impl Widget for &TextWindow {
     fn render(self, area: Rect, tui_buf: &mut TUI_Buffer) {
-        let lines = self.build_lines(area.height.into());
+        let mut lines = self.build_lines(area.height.into());
+        self.highlight_cursor(&mut lines);
         Paragraph::new(lines).render(area, tui_buf);
     }
 }
@@ -69,5 +71,26 @@ impl TextWindow {
             .cloned()
             .map(|line| Line::from(line))
             .collect();
+    }
+
+    fn highlight_cursor(&self, lines: &mut Vec<Line>) {
+        if self.cursor.line < self.top_line {
+            return;
+        }
+        let line = self.cursor.line - self.top_line;
+        if line >= lines.len() {
+            return;
+        }
+        let col = self.cursor.col;
+
+        let line_style = Style::default().bg(Color::Rgb(80, 80, 80));
+        let cur_style = line_style.add_modifier(Modifier::REVERSED);
+
+        let old_line: String = lines[line].to_owned().into();
+        let left_span = Span::styled(old_line[..col].to_string(), line_style);
+        let cur_span = Span::styled(old_line[col..col + 1].to_string(), cur_style);
+        let right_span = Span::styled(old_line[col + 1..].to_string(), line_style);
+
+        lines[line] = Line::from(vec![left_span, cur_span, right_span]);
     }
 }

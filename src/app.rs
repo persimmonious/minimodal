@@ -1,6 +1,5 @@
 mod buffer;
 mod ui;
-use ui::{Tab, TextWindow};
 use crate::config::Config;
 use buffer::{Buffer, HorizontalDirection as Horizontal};
 use ratatui::{
@@ -9,13 +8,11 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::Stylize,
     style::{Color, Style},
-    widgets::{
-        block::BorderType,
-        Block, Borders, Paragraph, Tabs, Widget,
-    },
+    widgets::{block::BorderType, Block, Borders, Paragraph, Tabs, Widget},
     DefaultTerminal, Frame,
 };
 use std::{fs, io};
+use ui::{Tab, TextWindow};
 
 #[derive(Debug)]
 struct BufferPosition {
@@ -43,9 +40,7 @@ impl Editor {
             active: true,
             current_tab: 0,
             mode: Mode::Normal,
-            tabs: buffers.into_iter()
-                .map(|buffer| Tab::new(buffer))
-                .collect()
+            tabs: buffers.into_iter().map(|buffer| Tab::new(buffer)).collect(),
         }
     }
 
@@ -70,9 +65,9 @@ impl Editor {
                 Block::new()
                     .borders(Borders::BOTTOM)
                     .border_type(BorderType::QuadrantInside)
-                    .border_style(Style::default().fg(Color::Rgb(180, 120, 80)))
+                    .border_style(Style::default().fg(Color::Rgb(180, 120, 80))),
             );
-        
+
         frame.render_widget(tabline, layout[0]);
         frame.render_widget(&self.tabs[self.current_tab], layout[1]);
     }
