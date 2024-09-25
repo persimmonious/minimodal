@@ -13,6 +13,12 @@ pub enum VerticalDirection {
 }
 
 #[derive(Debug)]
+pub struct BufferPosition {
+    pub line: usize,
+    pub col: usize,
+}
+
+#[derive(Debug)]
 pub struct Buffer {
     name: Option<String>,
     path: Option<String>,

@@ -1,7 +1,4 @@
-use super::{
-    buffer::{Buffer, VerticalDirection},
-    BufferPosition,
-};
+use super::buffer::{Buffer, BufferPosition, VerticalDirection};
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::Rect,

@@ -15,12 +15,6 @@ use std::{fs, io};
 use ui::{Tab, TextWindow};
 
 #[derive(Debug)]
-struct BufferPosition {
-    line: usize,
-    col: usize,
-}
-
-#[derive(Debug)]
 enum Mode {
     Normal,
     Command,
