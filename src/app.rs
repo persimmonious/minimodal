@@ -1,7 +1,7 @@
 mod buffer;
 mod ui;
 use crate::config::Config;
-use buffer::{Buffer, HorizontalDirection as Horizontal};
+use buffer::{Buffer, HorizontalDirection as Horizontal, VerticalDirection as Vertical};
 use ratatui::{
     buffer::Buffer as RatBuffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
@@ -87,6 +87,8 @@ impl Editor {
             KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
             KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
+            KeyCode::Char('j') => self.move_cursor(Vertical::Down),
+            KeyCode::Char('k') => self.move_cursor(Vertical::Up),
             _ => {}
         }
     }
@@ -103,6 +105,10 @@ impl Editor {
                 current => (current - 1) % self.tabs.len(),
             },
         }
+    }
+
+    fn move_cursor(&mut self, dir: Vertical) {
+        self.tabs[self.current_tab].windows.move_cursor(dir);
     }
 }
 

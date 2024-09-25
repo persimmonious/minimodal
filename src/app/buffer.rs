@@ -7,6 +7,12 @@ pub enum HorizontalDirection {
 }
 
 #[derive(Debug)]
+pub enum VerticalDirection {
+    Up,
+    Down,
+}
+
+#[derive(Debug)]
 pub struct Buffer {
     name: Option<String>,
     path: Option<String>,

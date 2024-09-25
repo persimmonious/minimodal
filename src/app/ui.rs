@@ -1,8 +1,11 @@
-use super::{buffer::Buffer, BufferPosition};
+use super::{
+    buffer::{Buffer, VerticalDirection},
+    BufferPosition,
+};
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::Rect,
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Paragraph, Widget},
 };
@@ -14,7 +17,7 @@ use std::{
 #[derive(Debug)]
 pub struct Tab {
     pub buffer: Rc<Buffer>,
-    windows: TextWindow,
+    pub windows: TextWindow,
     current_window: usize,
 }
 
@@ -37,9 +40,9 @@ impl Widget for &Tab {
 
 #[derive(Debug)]
 pub struct TextWindow {
-    top_line: usize,
+    pub top_line: usize,
     buffer: Weak<Buffer>,
-    cursor: BufferPosition,
+    pub cursor: BufferPosition,
 }
 
 impl Widget for &TextWindow {
@@ -87,10 +90,38 @@ impl TextWindow {
         let cur_style = line_style.add_modifier(Modifier::REVERSED);
 
         let old_line: String = lines[line].to_owned().into();
+        if old_line.is_empty() {
+            lines[line] = Line::styled(" ", cur_style);
+            return;
+        }
+
         let left_span = Span::styled(old_line[..col].to_string(), line_style);
         let cur_span = Span::styled(old_line[col..col + 1].to_string(), cur_style);
         let right_span = Span::styled(old_line[col + 1..].to_string(), line_style);
 
         lines[line] = Line::from(vec![left_span, cur_span, right_span]);
+    }
+
+    fn lines_count(&self) -> usize {
+        self.buffer
+            .upgrade()
+            .expect("counting lines in a dead buffer!")
+            .lines
+            .len()
+    }
+
+    pub fn move_cursor(&mut self, dir: VerticalDirection) {
+        match dir {
+            VerticalDirection::Up => {
+                if self.cursor.line > 0 {
+                    self.cursor.line -= 1;
+                }
+            }
+            VerticalDirection::Down => {
+                if self.cursor.line < self.lines_count() {
+                    self.cursor.line += 1;
+                }
+            }
+        }
     }
 }
