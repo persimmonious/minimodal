@@ -3,16 +3,15 @@ mod ui;
 use crate::config::Config;
 use buffer::{Buffer, HorizontalDirection as Horizontal, VerticalDirection as Vertical};
 use ratatui::{
-    buffer::Buffer as RatBuffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout},
     style::Stylize,
     style::{Color, Style},
-    widgets::{block::BorderType, Block, Borders, Paragraph, Tabs, Widget},
+    widgets::{block::BorderType, Block, Borders, Tabs},
     DefaultTerminal, Frame,
 };
 use std::{fs, io};
-use ui::{Tab, TextWindow};
+use ui::Tab;
 
 #[derive(Debug)]
 enum Mode {
