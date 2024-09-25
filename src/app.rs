@@ -1,15 +1,16 @@
 mod buffer;
+mod ui;
+use ui::{Tab, TextWindow};
 use crate::config::Config;
 use buffer::{Buffer, HorizontalDirection as Horizontal};
 use ratatui::{
     buffer::Buffer as RatBuffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::Stylize,
     style::{Color, Style},
-    text::{Line, Span, Text},
     widgets::{
-        block::{BorderType, Position, Title},
+        block::BorderType,
         Block, Borders, Paragraph, Tabs, Widget,
     },
     DefaultTerminal, Frame,
@@ -31,20 +32,20 @@ enum Mode {
 #[derive(Debug)]
 struct Editor {
     pub active: bool,
-    current_buffer: usize,
+    current_tab: usize,
     mode: Mode,
-    cursor: BufferPosition,
-    buffers: Vec<Buffer>,
+    tabs: Vec<Tab>,
 }
 
 impl Editor {
     fn new(buffers: Vec<Buffer>) -> Self {
         Editor {
             active: true,
-            current_buffer: 0,
+            current_tab: 0,
             mode: Mode::Normal,
-            cursor: BufferPosition { line: 0, col: 0 },
-            buffers,
+            tabs: buffers.into_iter()
+                .map(|buffer| Tab::new(buffer))
+                .collect()
         }
     }
 
@@ -55,15 +56,15 @@ impl Editor {
             .split(frame.area());
 
         let buffer_titles = self
-            .buffers
+            .tabs
             .iter()
-            .map(|buf| buf.read_name().map_or("Untitled", |x| x));
+            .map(|tab| tab.buffer.read_name().map_or("Untitled", |x| x));
         let tabs_style = Style::default()
             .fg(Color::Rgb(255, 190, 140))
             .bg(Color::Black)
             .bold();
         let tabline = Tabs::from_iter(buffer_titles)
-            .select(self.current_buffer)
+            .select(self.current_tab)
             .style(tabs_style)
             .block(
                 Block::new()
@@ -71,9 +72,9 @@ impl Editor {
                     .border_type(BorderType::QuadrantInside)
                     .border_style(Style::default().fg(Color::Rgb(180, 120, 80)))
             );
-
+        
         frame.render_widget(tabline, layout[0]);
-        frame.render_widget(self, layout[1]);
+        frame.render_widget(&self.tabs[self.current_tab], layout[1]);
     }
 
     fn handle_input(&mut self) -> io::Result<()> {
@@ -89,8 +90,8 @@ impl Editor {
     fn handle_key_press(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Char('q') => self.exit(),
-            KeyCode::Tab => self.cycle_buffer(Horizontal::Forwards),
-            KeyCode::BackTab => self.cycle_buffer(Horizontal::Backwards),
+            KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
+            KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
             _ => {}
         }
     }
@@ -99,35 +100,14 @@ impl Editor {
         self.active = false;
     }
 
-    fn cycle_buffer(&mut self, dir: Horizontal) {
-        self.current_buffer = match dir {
-            Horizontal::Forwards => (self.current_buffer + 1) % self.buffers.len(),
-            Horizontal::Backwards => match self.current_buffer {
-                0 => self.buffers.len() - 1,
-                current => (current - 1) % self.buffers.len(),
+    fn cycle_tab(&mut self, dir: Horizontal) {
+        self.current_tab = match dir {
+            Horizontal::Forwards => (self.current_tab + 1) % self.tabs.len(),
+            Horizontal::Backwards => match self.current_tab {
+                0 => self.tabs.len() - 1,
+                current => (current - 1) % self.tabs.len(),
             },
         }
-    }
-}
-
-impl Widget for &Editor {
-    fn render(self, area: Rect, buf: &mut RatBuffer) {
-        let block = Block::new();
-        let buffer = &self.buffers[self.current_buffer];
-        let lines: Vec<_> = buffer
-            .lines
-            .iter()
-            .map(|line| line.into())
-            .map(|line: Span| Line::from(line))
-            .collect();
-        let text = Text::from(lines);
-
-        Paragraph::new(text)
-            .left_aligned()
-            .block(block)
-            .white()
-            .on_black()
-            .render(area, buf);
     }
 }
 
