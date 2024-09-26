@@ -207,14 +207,17 @@ impl TextWindow {
             .buffer
             .upgrade()
             .expect("building lines from a dead buffer!");
+        let theme = self.theme.upgrade().expect("referencing dropped theme!");
 
         state.last_height = height.into();
         state.last_width = width;
         let cursor_rel_line: usize =
             (state.cur_vertical_percent * (height - 1) as f32).floor() as usize;
         let top_line: usize = state.cursor.line - cursor_rel_line;
-
         let last_line: usize = min(top_line + height as usize, state.lines_count());
+        let line_style = Style::default()
+            .fg(theme.text_foreground)
+            .bg(theme.text_background);
         return buffer.lines[top_line..last_line]
             .iter()
             .map(|line| {
@@ -224,7 +227,7 @@ impl TextWindow {
                     "".to_string()
                 }
             })
-            .map(|line| Line::from(format!("{line: <width$}")))
+            .map(|line| Line::styled(format!("{line: <width$}"), line_style))
             .collect();
     }
 

@@ -53,11 +53,15 @@ impl Editor {
             .constraints(vec![Constraint::Length(2), Constraint::Fill(1)])
             .split(frame.area());
 
-        let buffer_titles = self.tab_states.iter().map(|tab| {
-            tab.buffer
-                .read_name()
-                .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
-        });
+        let buffer_titles = self
+            .tab_states
+            .iter()
+            .map(|tab| {
+                tab.buffer
+                    .read_name()
+                    .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
+            })
+            .map(|name| format!(" {name} "));
         let tabs_style = Style::default()
             .fg(self.theme.tabline_foreground)
             .bg(self.theme.tabline_background)
@@ -65,12 +69,17 @@ impl Editor {
         let tabline = Tabs::from_iter(buffer_titles)
             .select(self.current_tab)
             .divider("")
+            .padding("", "")
             .style(tabs_style)
             .block(
                 Block::new()
                     .borders(Borders::BOTTOM)
-                    .border_type(BorderType::QuadrantInside)
-                    .border_style(Style::default().fg(self.theme.tabline_border)),
+                    .border_type(BorderType::Double)
+                    .border_style(
+                        Style::default()
+                            .fg(self.theme.tabline_border_foreground)
+                            .bg(self.theme.tabline_border_background),
+                    ),
             );
 
         frame.render_widget(tabline, layout[0]);

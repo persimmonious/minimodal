@@ -8,20 +8,21 @@ pub struct Theme {
     pub selected_line_foreground: Color,
     pub tabline_foreground: Color,
     pub tabline_background: Color,
-    pub tabline_border: Color,
-    
+    pub tabline_border_foreground: Color,
+    pub tabline_border_background: Color,
 }
 
 impl Default for Theme {
     fn default() -> Self {
         return Theme {
-            text_background: Color::Rgb(10, 30, 30),
-            text_foreground: Color::Rgb(240, 230, 220),
-            selected_line_background: Color::Rgb(80, 80, 80),
-            selected_line_foreground: Color::Rgb(240, 230, 220),
+            text_background: Color::Rgb(35, 35, 40),
+            text_foreground: Color::Rgb(220, 200, 180),
+            selected_line_background: Color::Rgb(45, 45, 50),
+            selected_line_foreground: Color::Rgb(200, 200, 190),
             tabline_foreground: Color::Rgb(144, 190, 255),
             tabline_background: Color::Rgb(20, 20, 40),
-            tabline_border: Color::Rgb(80, 120, 180),
-        }
+            tabline_border_foreground: Color::Rgb(80, 120, 180),
+            tabline_border_background: Color::Rgb(20, 20, 40),
+        };
     }
 }
