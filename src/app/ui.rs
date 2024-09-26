@@ -87,6 +87,8 @@ impl TextWindowState {
                     return;
                 }
                 let mut relative_line = self.cursor.line - self.top_line;
+                let line_length = self.line_length(self.cursor.line);
+                let cur_at_EOL = line_length == 0 || self.cursor.col == line_length - 1;
                 self.cursor.line -= 1;
                 if self.cursor.line < self.top_line {
                     self.cur_vertical_percent = 0.0;
@@ -96,12 +98,19 @@ impl TextWindowState {
                     self.cur_vertical_percent =
                         relative_line as f32 / (self.last_height - 1) as f32;
                 }
+                let new_line_length = self.line_length(self.cursor.line);
+                if self.cursor.col >= new_line_length || cur_at_EOL {
+                    self.jump_to_EOL();
+                }
             }
+
             Rectilinear::Down => {
                 if self.cursor.line + 1 >= self.lines_count() {
                     return;
                 }
                 let mut relative_line = self.cursor.line - self.top_line;
+                let line_length = self.line_length(self.cursor.line);
+                let cur_at_EOL = line_length == 0 || self.cursor.col == line_length - 1;
                 self.cursor.line += 1;
                 // float comparison OK here because it is exact
                 if self.cur_vertical_percent == 1.0 {
@@ -110,6 +119,10 @@ impl TextWindowState {
                     relative_line += 1;
                     self.cur_vertical_percent =
                         relative_line as f32 / (self.last_height - 1) as f32;
+                }
+                let new_line_length = self.line_length(self.cursor.line);
+                if self.cursor.col >= new_line_length || cur_at_EOL {
+                    self.jump_to_EOL();
                 }
             }
             Rectilinear::Right => {
@@ -136,9 +149,14 @@ impl TextWindowState {
 
     pub fn jump_to_EOL(&mut self) {
         let line_length = self.line_length(self.cursor.line);
-        self.cursor.col = if line_length > 0 { line_length - 1 } else { 0 };
+        if line_length == 0 {
+            self.cursor.col = 0;
+            self.leftmost_col = 0;
+            return;
+        }
+        self.cursor.col = line_length - 1;
         let to_the_right = self.cursor.col >= self.leftmost_col + self.last_width;
-        let out_of_bounds = to_the_right || line_length < self.leftmost_col;
+        let out_of_bounds = to_the_right || self.cursor.col < self.leftmost_col;
         if !out_of_bounds {
             return;
         }
@@ -216,6 +234,8 @@ impl TextWindow {
         if line >= lines.len() {
             return;
         }
+        let cur_col = state.cursor.col;
+        let left = state.leftmost_col;
         let col = state.cursor.col - state.leftmost_col;
 
         let line_style = Style::default().bg(Color::Rgb(80, 80, 80));
