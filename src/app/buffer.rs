@@ -1,4 +1,8 @@
-use std::{fs, io};
+use std::{
+    ffi::{OsStr, OsString},
+    fs, io,
+    path::Path,
+};
 
 #[derive(Debug)]
 pub enum HorizontalDirection {
@@ -28,15 +32,15 @@ pub struct BufferPosition {
 
 #[derive(Debug)]
 pub struct Buffer {
-    name: Option<String>,
-    path: Option<String>,
+    name: Option<OsString>,
+    path: Option<OsString>,
     pub lines: Vec<String>,
 }
 
 impl Buffer {
-    pub fn read_name<'a>(&'a self) -> Option<&'a str> {
+    pub fn read_name<'a>(&'a self) -> Option<&'a OsStr> {
         match &self.name {
-            Some(name) => Some(&name),
+            Some(name) => Some(name),
             None => None,
         }
     }
@@ -49,19 +53,19 @@ impl Buffer {
         };
     }
 
-    pub fn load(name: &str, path: &str) -> io::Result<Self> {
-        let contents = fs::read_to_string(path)?;
+    pub fn load(name: OsString, path: OsString) -> io::Result<Self> {
+        let contents = fs::read_to_string(&path)?;
         Ok(Buffer {
-            name: Some(name.to_owned()),
-            path: Some(path.to_owned()),
+            name: Some(name),
+            path: Some(path),
             lines: contents.lines().map(|line| line.to_owned()).collect(),
         })
     }
 
-    pub fn empty(name: &str, path: &str) -> Self {
+    pub fn empty(name: OsString, path: OsString) -> Self {
         Buffer {
-            name: Some(name.to_owned()),
-            path: Some(path.to_owned()),
+            name: Some(name),
+            path: Some(path),
             lines: vec![],
         }
     }

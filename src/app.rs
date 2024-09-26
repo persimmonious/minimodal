@@ -10,7 +10,7 @@ use ratatui::{
     widgets::{block::BorderType, Block, Borders, Tabs},
     DefaultTerminal, Frame,
 };
-use std::{fs, io};
+use std::{ffi::OsString, fs, io, path::Path};
 use ui::{Tab, TabState};
 
 #[derive(Debug)]
@@ -48,10 +48,11 @@ impl Editor {
             .constraints(vec![Constraint::Length(2), Constraint::Fill(1)])
             .split(frame.area());
 
-        let buffer_titles = self
-            .tab_states
-            .iter()
-            .map(|tab| tab.buffer.read_name().map_or("Untitled", |x| x));
+        let buffer_titles = self.tab_states.iter().map(|tab| {
+            tab.buffer
+                .read_name()
+                .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
+        });
         let tabs_style = Style::default()
             .fg(Color::Rgb(255, 190, 140))
             .bg(Color::Black)
@@ -131,10 +132,15 @@ pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
     }
     let mut buffers: Vec<Buffer> = vec![];
     for name in &config.file_names {
-        if fs::exists(name)? {
-            buffers.push(Buffer::load(name, name)?);
+        let path = Path::new(name);
+        let name = path
+            .file_name()
+            .expect("cannot open a directory!")
+            .to_owned();
+        if path.try_exists()? {
+            buffers.push(Buffer::load(name, path.into())?);
         } else {
-            buffers.push(Buffer::empty(name, name));
+            buffers.push(Buffer::empty(name, path.into()));
         }
     }
     Ok(buffers)
