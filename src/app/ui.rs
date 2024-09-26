@@ -150,9 +150,6 @@ impl TextWindow {
 
         state.last_height = height.into();
         let cursor_rel_line: usize = (state.cur_position * (height - 1) as f32).floor() as usize;
-        let curp = state.cur_position;
-        let ln = state.cursor.line;
-        eprintln!("{ln}, {cursor_rel_line}, {curp}");
         let top_line: usize = state.cursor.line - cursor_rel_line;
 
         let last_line: usize = min(top_line + height as usize - 1, state.lines_count());
