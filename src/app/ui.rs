@@ -116,7 +116,7 @@ impl TextWindow {
                 }
             }
             VerticalDirection::Down => {
-                if self.cursor.line < self.lines_count() {
+                if self.cursor.line + 1 < self.lines_count() {
                     self.cursor.line += 1;
                 }
             }
