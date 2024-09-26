@@ -1,4 +1,7 @@
-use super::buffer::{Buffer, BufferPosition, VerticalDirection};
+use super::buffer::{
+    Buffer, BufferPosition, HorizontalDirection, RectilinearDirection as Rectilinear,
+    VerticalDirection,
+};
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::Rect,
@@ -108,16 +111,35 @@ impl TextWindow {
             .len()
     }
 
-    pub fn move_cursor(&mut self, dir: VerticalDirection) {
+    fn line_length(&self, line: usize) -> usize {
+        self.buffer
+            .upgrade()
+            .expect("checking line length in a dead buffer!")
+            .lines[line]
+            .len()
+    }
+
+    pub fn move_cursor(&mut self, dir: Rectilinear) {
         match dir {
-            VerticalDirection::Up => {
+            Rectilinear::Up => {
                 if self.cursor.line > 0 {
                     self.cursor.line -= 1;
                 }
             }
-            VerticalDirection::Down => {
+            Rectilinear::Down => {
                 if self.cursor.line + 1 < self.lines_count() {
                     self.cursor.line += 1;
+                }
+            }
+            Rectilinear::Right => {
+                let line_length = self.line_length(self.cursor.line);
+                if self.cursor.col + 1 < line_length {
+                    self.cursor.col += 1;
+                }               
+            }
+            Rectilinear::Left => {
+                if self.cursor.col > 0 {
+                    self.cursor.col -= 1;
                 }
             }
         }

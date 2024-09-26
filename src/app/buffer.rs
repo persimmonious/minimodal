@@ -13,6 +13,14 @@ pub enum VerticalDirection {
 }
 
 #[derive(Debug)]
+pub enum RectilinearDirection {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+#[derive(Debug)]
 pub struct BufferPosition {
     pub line: usize,
     pub col: usize,

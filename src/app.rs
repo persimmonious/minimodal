@@ -1,7 +1,10 @@
 mod buffer;
 mod ui;
 use crate::config::Config;
-use buffer::{Buffer, HorizontalDirection as Horizontal, VerticalDirection as Vertical};
+use buffer::{
+    Buffer, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
+    VerticalDirection as Vertical,
+};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout},
@@ -80,8 +83,10 @@ impl Editor {
             KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
             KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
-            KeyCode::Char('j') => self.move_cursor(Vertical::Down),
-            KeyCode::Char('k') => self.move_cursor(Vertical::Up),
+            KeyCode::Char('j') => self.move_cursor(Rectilinear::Down),
+            KeyCode::Char('k') => self.move_cursor(Rectilinear::Up),
+            KeyCode::Char('h') => self.move_cursor(Rectilinear::Left),
+            KeyCode::Char('l') => self.move_cursor(Rectilinear::Right),
             _ => {}
         }
     }
@@ -100,7 +105,7 @@ impl Editor {
         }
     }
 
-    fn move_cursor(&mut self, dir: Vertical) {
+    fn move_cursor(&mut self, dir: Rectilinear) {
         self.tabs[self.current_tab].windows.move_cursor(dir);
     }
 }
