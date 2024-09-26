@@ -1,4 +1,7 @@
-use super::buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear};
+use super::{
+    buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
+    theme::Theme,
+};
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::Rect,
@@ -23,12 +26,12 @@ pub struct TabState {
 }
 
 impl TabState {
-    pub fn new(buf: Buffer) -> Self {
+    pub fn new(buf: Buffer, theme: Weak<Theme>) -> Self {
         let buf_rc = Rc::new(buf);
         return TabState {
             buffer: Rc::clone(&buf_rc),
-            window_states: TextWindowState::new(Rc::downgrade(&buf_rc)),
-            windows: TextWindow::new(Rc::downgrade(&buf_rc)),
+            window_states: TextWindowState::new(Rc::downgrade(&buf_rc), theme.clone()),
+            windows: TextWindow::new(Rc::downgrade(&buf_rc), theme.clone()),
             current_window: 0,
         };
     }
@@ -54,6 +57,7 @@ impl StatefulWidget for Tab {
 #[derive(Debug, Clone)]
 pub struct TextWindow {
     buffer: Weak<Buffer>,
+    theme: Weak<Theme>,
 }
 
 #[derive(Debug)]
@@ -65,10 +69,11 @@ pub struct TextWindowState {
     pub cur_vertical_percent: f32,
     pub cursor: BufferPosition,
     buffer: Weak<Buffer>,
+    theme: Weak<Theme>,
 }
 
 impl TextWindowState {
-    pub fn new(buffer: Weak<Buffer>) -> Self {
+    pub fn new(buffer: Weak<Buffer>, theme: Weak<Theme>) -> Self {
         return TextWindowState {
             top_line: 0,
             leftmost_col: 0,
@@ -77,6 +82,7 @@ impl TextWindowState {
             cur_vertical_percent: 0.0,
             cursor: BufferPosition { line: 0, col: 0 },
             buffer,
+            theme,
         };
     }
 
@@ -192,8 +198,8 @@ impl TextWindowState {
 }
 
 impl TextWindow {
-    pub fn new(buf_rc: Weak<Buffer>) -> TextWindow {
-        TextWindow { buffer: buf_rc }
+    pub fn new(buffer: Weak<Buffer>, theme: Weak<Theme>) -> TextWindow {
+        TextWindow { buffer, theme }
     }
 
     fn build_lines(&self, height: u16, width: usize, state: &mut TextWindowState) -> Vec<Line> {
@@ -234,11 +240,12 @@ impl TextWindow {
         if line >= lines.len() {
             return;
         }
-        let cur_col = state.cursor.col;
-        let left = state.leftmost_col;
-        let col = state.cursor.col - state.leftmost_col;
 
-        let line_style = Style::default().bg(Color::Rgb(80, 80, 80));
+        let theme = self.theme.upgrade().expect("referencing dropped theme!");
+        let col = state.cursor.col - state.leftmost_col;
+        let line_style = Style::default()
+            .bg(theme.selected_line_background)
+            .fg(theme.selected_line_foreground);
         let cur_style = line_style.add_modifier(Modifier::REVERSED);
 
         let old_line: String = lines[line].to_owned().into();

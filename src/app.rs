@@ -1,4 +1,5 @@
 mod buffer;
+mod theme;
 mod ui;
 use crate::config::Config;
 use buffer::{Buffer, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear};
@@ -10,7 +11,8 @@ use ratatui::{
     widgets::{block::BorderType, Block, Borders, Tabs},
     DefaultTerminal, Frame,
 };
-use std::{ffi::OsString, fs, io, path::Path};
+use std::{ffi::OsString, fs, io, path::Path, rc::Rc};
+use theme::Theme;
 use ui::{Tab, TabState};
 
 #[derive(Debug)]
@@ -26,18 +28,21 @@ struct Editor {
     mode: Mode,
     tabs: Vec<Tab>,
     tab_states: Vec<TabState>,
+    theme: Rc<Theme>,
 }
 
 impl Editor {
-    fn new(buffers: Vec<Buffer>) -> Self {
+    fn new(buffers: Vec<Buffer>, theme_struct: Theme) -> Self {
+        let theme_rc = Rc::new(theme_struct);
         Editor {
             active: true,
             current_tab: 0,
             mode: Mode::Normal,
+            theme: Rc::clone(&theme_rc),
             tabs: buffers.iter().map(|_| Tab::new()).collect(),
             tab_states: buffers
                 .into_iter()
-                .map(|buffer| TabState::new(buffer))
+                .map(|buffer| TabState::new(buffer, Rc::downgrade(&theme_rc)))
                 .collect(),
         }
     }
@@ -54,17 +59,18 @@ impl Editor {
                 .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
         });
         let tabs_style = Style::default()
-            .fg(Color::Rgb(255, 190, 140))
-            .bg(Color::Black)
+            .fg(self.theme.tabline_foreground)
+            .bg(self.theme.tabline_background)
             .bold();
         let tabline = Tabs::from_iter(buffer_titles)
             .select(self.current_tab)
+            .divider("")
             .style(tabs_style)
             .block(
                 Block::new()
                     .borders(Borders::BOTTOM)
                     .border_type(BorderType::QuadrantInside)
-                    .border_style(Style::default().fg(Color::Rgb(180, 120, 80))),
+                    .border_style(Style::default().fg(self.theme.tabline_border)),
             );
 
         frame.render_widget(tabline, layout[0]);
@@ -155,7 +161,7 @@ pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
 
 pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     let buffers = initialize_buffers(&config)?;
-    let mut editor = Editor::new(buffers);
+    let mut editor = Editor::new(buffers, Theme::default());
 
     while editor.active {
         terminal.draw(|frame| editor.draw(frame))?;
