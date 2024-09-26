@@ -151,6 +151,11 @@ impl TextWindowState {
         }
     }
 
+    pub fn jump_to_home(&mut self) {
+        self.cursor.col = 0;
+        self.leftmost_col = 0;
+    }
+
     fn lines_count(&self) -> usize {
         self.buffer
             .upgrade()

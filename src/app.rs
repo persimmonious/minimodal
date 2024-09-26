@@ -95,6 +95,7 @@ impl Editor {
             KeyCode::Char('h') => self.move_cursor(Rectilinear::Left),
             KeyCode::Char('l') => self.move_cursor(Rectilinear::Right),
             KeyCode::Char('$') => self.jump_to_EOL(),
+            KeyCode::Char('0') => self.jump_to_home(),
             _ => {}
         }
     }
@@ -123,6 +124,12 @@ impl Editor {
         self.tab_states[self.current_tab]
             .window_states
             .jump_to_EOL();
+    }
+
+    fn jump_to_home(&mut self) {
+        self.tab_states[self.current_tab]
+            .window_states
+            .jump_to_home();
     }
 }
 
