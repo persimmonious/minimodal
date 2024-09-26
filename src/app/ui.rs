@@ -134,6 +134,23 @@ impl TextWindowState {
         }
     }
 
+    pub fn jump_to_EOL(&mut self) {
+        let line_length = self.line_length(self.cursor.line);
+        self.cursor.col = if line_length > 0 { line_length - 1 } else { 0 };
+        let to_the_right = self.cursor.col >= self.leftmost_col + self.last_width;
+        let out_of_bounds = to_the_right || line_length < self.leftmost_col;
+        if !out_of_bounds {
+            return;
+        }
+        if to_the_right {
+            self.leftmost_col = self.cursor.col + 1 - self.last_width;
+        } else if self.cursor.col >= self.last_width {
+            self.leftmost_col = self.cursor.col + 1 - self.last_width;
+        } else {
+            self.leftmost_col = 0;
+        }
+    }
+
     fn lines_count(&self) -> usize {
         self.buffer
             .upgrade()

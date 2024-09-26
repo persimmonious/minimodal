@@ -93,6 +93,7 @@ impl Editor {
             KeyCode::Char('k') => self.move_cursor(Rectilinear::Up),
             KeyCode::Char('h') => self.move_cursor(Rectilinear::Left),
             KeyCode::Char('l') => self.move_cursor(Rectilinear::Right),
+            KeyCode::Char('$') => self.jump_to_EOL(),
             _ => {}
         }
     }
@@ -115,6 +116,12 @@ impl Editor {
         self.tab_states[self.current_tab]
             .window_states
             .move_cursor(dir);
+    }
+
+    fn jump_to_EOL(&mut self) {
+        self.tab_states[self.current_tab]
+            .window_states
+            .jump_to_EOL();
     }
 }
 
