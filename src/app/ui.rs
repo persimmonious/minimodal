@@ -78,6 +78,10 @@ impl TextWindow {
     }
 
     fn highlight_cursor(&self, lines: &mut Vec<Line>) {
+        if lines.is_empty() {
+            lines.push(Line::from(" "));
+        }
+
         if self.cursor.line < self.top_line {
             return;
         }
