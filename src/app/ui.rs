@@ -4,10 +4,10 @@ use super::{
 };
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
-    layout::Rect,
-    style::{Color, Modifier, Style},
+    layout::{Constraint, Direction, Layout, Rect},
+    style::{Modifier, Style, Styled},
     text::{Line, Span},
-    widgets::{Paragraph, StatefulWidget, Widget},
+    widgets::{Block, Clear, Paragraph, StatefulWidget, Widget},
 };
 use std::{
     cmp::min,
@@ -269,8 +269,25 @@ impl StatefulWidget for TextWindow {
     type State = TextWindowState;
 
     fn render(self, area: Rect, tui_buf: &mut TUI_Buffer, state: &mut Self::State) {
-        let mut lines = self.build_lines(area.height, area.width.into(), state);
+        let line_numbers_width: u16 = (format!("{}", state.lines_count()).chars().count() + 1)
+            .try_into()
+            .expect("line number too large!");
+        let window_layout = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(vec![
+                Constraint::Length(line_numbers_width),
+                Constraint::Length(2),
+                Constraint::Fill(1),
+            ])
+            .split(area);
+        let theme = self.theme.upgrade().expect("referencing dropped theme!");
+        let line_hints_area = window_layout[1];
+        let lines_area = window_layout[2];
+        let line_hints = Paragraph::new("").style(Style::default().bg(theme.text_background));
+        let line_numbers = Clear {};
+        line_hints.render(line_hints_area, tui_buf);
+        let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
         self.highlight_cursor(&mut lines, state);
-        Paragraph::new(lines).render(area, tui_buf);
+        Paragraph::new(lines).render(lines_area, tui_buf);
     }
 }
