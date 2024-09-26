@@ -59,8 +59,10 @@ pub struct TextWindow {
 #[derive(Debug)]
 pub struct TextWindowState {
     pub top_line: usize,
+    pub leftmost_col: usize,
     pub last_height: usize,
-    pub cur_position: f32,
+    pub last_width: usize,
+    pub cur_vertical_percent: f32,
     pub cursor: BufferPosition,
     buffer: Weak<Buffer>,
 }
@@ -69,8 +71,10 @@ impl TextWindowState {
     pub fn new(buffer: Weak<Buffer>) -> Self {
         return TextWindowState {
             top_line: 0,
-            last_height: 1,
-            cur_position: 0.0,
+            leftmost_col: 0,
+            last_height: 2,
+            last_width: 2,
+            cur_vertical_percent: 0.0,
             cursor: BufferPosition { line: 0, col: 0 },
             buffer,
         };
@@ -85,11 +89,12 @@ impl TextWindowState {
                 let mut relative_line = self.cursor.line - self.top_line;
                 self.cursor.line -= 1;
                 if self.cursor.line < self.top_line {
-                    self.cur_position = 0.0;
+                    self.cur_vertical_percent = 0.0;
                     self.top_line = self.cursor.line;
                 } else {
                     relative_line -= 1;
-                    self.cur_position = relative_line as f32 / (self.last_height - 1) as f32;
+                    self.cur_vertical_percent =
+                        relative_line as f32 / (self.last_height - 1) as f32;
                 }
             }
             Rectilinear::Down => {
@@ -99,22 +104,31 @@ impl TextWindowState {
                 let mut relative_line = self.cursor.line - self.top_line;
                 self.cursor.line += 1;
                 // float comparison OK here because it is exact
-                if self.cur_position == 1.0 {
+                if self.cur_vertical_percent == 1.0 {
                     self.top_line += 1;
                 } else {
                     relative_line += 1;
-                    self.cur_position = relative_line as f32 / (self.last_height - 1) as f32;
+                    self.cur_vertical_percent =
+                        relative_line as f32 / (self.last_height - 1) as f32;
                 }
             }
             Rectilinear::Right => {
                 let line_length = self.line_length(self.cursor.line);
-                if self.cursor.col + 1 < line_length {
-                    self.cursor.col += 1;
+                if self.cursor.col + 1 >= line_length {
+                    return;
+                }
+                self.cursor.col += 1;
+                if self.cursor.col >= self.leftmost_col + self.last_width {
+                    self.leftmost_col += 1;
                 }
             }
             Rectilinear::Left => {
-                if self.cursor.col > 0 {
-                    self.cursor.col -= 1;
+                if self.cursor.col <= 0 {
+                    return;
+                }
+                self.cursor.col -= 1;
+                if self.cursor.col < self.leftmost_col {
+                    self.leftmost_col = self.cursor.col;
                 }
             }
         }
@@ -149,15 +163,22 @@ impl TextWindow {
             .expect("building lines from a dead buffer!");
 
         state.last_height = height.into();
-        let cursor_rel_line: usize = (state.cur_position * (height - 1) as f32).floor() as usize;
+        state.last_width = width;
+        let cursor_rel_line: usize =
+            (state.cur_vertical_percent * (height - 1) as f32).floor() as usize;
         let top_line: usize = state.cursor.line - cursor_rel_line;
 
-        let last_line: usize = min(top_line + height as usize - 1, state.lines_count());
-        return buffer.lines[top_line..last_line + 1]
+        let last_line: usize = min(top_line + height as usize, state.lines_count());
+        return buffer.lines[top_line..last_line]
             .iter()
-            .cloned()
-            .map(|line| format!("{line: <width$}"))
-            .map(|line| Line::from(line))
+            .map(|line| {
+                if state.leftmost_col < line.len() {
+                    line[state.leftmost_col..].to_string()
+                } else {
+                    "".to_string()
+                }
+            })
+            .map(|line| Line::from(format!("{line: <width$}")))
             .collect();
     }
 
@@ -173,7 +194,7 @@ impl TextWindow {
         if line >= lines.len() {
             return;
         }
-        let col = state.cursor.col;
+        let col = state.cursor.col - state.leftmost_col;
 
         let line_style = Style::default().bg(Color::Rgb(80, 80, 80));
         let cur_style = line_style.add_modifier(Modifier::REVERSED);
