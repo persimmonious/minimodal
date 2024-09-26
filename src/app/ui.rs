@@ -6,7 +6,10 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Paragraph, StatefulWidget, Widget},
 };
-use std::{cmp::min, rc::{Rc, Weak}};
+use std::{
+    cmp::min,
+    rc::{Rc, Weak},
+};
 
 #[derive(Debug, Clone)]
 pub struct Tab {}
@@ -56,6 +59,7 @@ pub struct TextWindow {
 #[derive(Debug)]
 pub struct TextWindowState {
     pub top_line: usize,
+    pub last_height: usize,
     pub cur_position: f32,
     pub cursor: BufferPosition,
     buffer: Weak<Buffer>,
@@ -65,6 +69,7 @@ impl TextWindowState {
     pub fn new(buffer: Weak<Buffer>) -> Self {
         return TextWindowState {
             top_line: 0,
+            last_height: 1,
             cur_position: 0.0,
             cursor: BufferPosition { line: 0, col: 0 },
             buffer,
@@ -74,13 +79,31 @@ impl TextWindowState {
     pub fn move_cursor(&mut self, dir: Rectilinear) {
         match dir {
             Rectilinear::Up => {
-                if self.cursor.line > 0 {
-                    self.cursor.line -= 1;
+                if self.cursor.line <= 0 {
+                    return;
+                }
+                let mut relative_line = self.cursor.line - self.top_line;
+                self.cursor.line -= 1;
+                if self.cursor.line < self.top_line {
+                    self.cur_position = 0.0;
+                    self.top_line = self.cursor.line;
+                } else {
+                    relative_line -= 1;
+                    self.cur_position = relative_line as f32 / (self.last_height - 1) as f32;
                 }
             }
             Rectilinear::Down => {
-                if self.cursor.line + 1 < self.lines_count() {
-                    self.cursor.line += 1;
+                if self.cursor.line + 1 >= self.lines_count() {
+                    return;
+                }
+                let mut relative_line = self.cursor.line - self.top_line;
+                self.cursor.line += 1;
+                // float comparison OK here because it is exact
+                if self.cur_position == 1.0 {
+                    self.top_line += 1;
+                } else {
+                    relative_line += 1;
+                    self.cur_position = relative_line as f32 / (self.last_height - 1) as f32;
                 }
             }
             Rectilinear::Right => {
@@ -125,15 +148,15 @@ impl TextWindow {
             .upgrade()
             .expect("building lines from a dead buffer!");
 
-        let cursor_rel_line: usize = (state.cur_position * height as f32).floor() as usize;
-        let mut top_line: usize = state.cursor.line;
-        if cursor_rel_line > state.cursor.line {
-            top_line = 0;
-            state.cur_position = state.cursor.line as f32 / height as f32;
-        }
+        state.last_height = height.into();
+        let cursor_rel_line: usize = (state.cur_position * (height - 1) as f32).floor() as usize;
+        let curp = state.cur_position;
+        let ln = state.cursor.line;
+        eprintln!("{ln}, {cursor_rel_line}, {curp}");
+        let top_line: usize = state.cursor.line - cursor_rel_line;
 
-        let last_line: usize = min(top_line + height as usize, state.lines_count());
-        return buffer.lines[top_line..last_line]
+        let last_line: usize = min(top_line + height as usize - 1, state.lines_count());
+        return buffer.lines[top_line..last_line + 1]
             .iter()
             .cloned()
             .map(|line| format!("{line: <width$}"))
