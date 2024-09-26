@@ -1,10 +1,7 @@
 mod buffer;
 mod ui;
 use crate::config::Config;
-use buffer::{
-    Buffer, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
-    VerticalDirection as Vertical,
-};
+use buffer::{Buffer, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout},
@@ -14,7 +11,7 @@ use ratatui::{
     DefaultTerminal, Frame,
 };
 use std::{fs, io};
-use ui::Tab;
+use ui::{Tab, TabState};
 
 #[derive(Debug)]
 enum Mode {
@@ -28,6 +25,7 @@ struct Editor {
     current_tab: usize,
     mode: Mode,
     tabs: Vec<Tab>,
+    tab_states: Vec<TabState>,
 }
 
 impl Editor {
@@ -36,18 +34,22 @@ impl Editor {
             active: true,
             current_tab: 0,
             mode: Mode::Normal,
-            tabs: buffers.into_iter().map(|buffer| Tab::new(buffer)).collect(),
+            tabs: buffers.iter().map(|_| Tab::new()).collect(),
+            tab_states: buffers
+                .into_iter()
+                .map(|buffer| TabState::new(buffer))
+                .collect(),
         }
     }
 
-    fn draw(&self, frame: &mut Frame) {
+    fn draw(&mut self, frame: &mut Frame) {
         let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Length(2), Constraint::Fill(1)])
             .split(frame.area());
 
         let buffer_titles = self
-            .tabs
+            .tab_states
             .iter()
             .map(|tab| tab.buffer.read_name().map_or("Untitled", |x| x));
         let tabs_style = Style::default()
@@ -65,7 +67,11 @@ impl Editor {
             );
 
         frame.render_widget(tabline, layout[0]);
-        frame.render_widget(&self.tabs[self.current_tab], layout[1]);
+        frame.render_stateful_widget(
+            self.tabs[self.current_tab].clone(),
+            layout[1],
+            &mut self.tab_states[self.current_tab],
+        );
     }
 
     fn handle_input(&mut self) -> io::Result<()> {
@@ -106,7 +112,9 @@ impl Editor {
     }
 
     fn move_cursor(&mut self, dir: Rectilinear) {
-        self.tabs[self.current_tab].windows.move_cursor(dir);
+        self.tab_states[self.current_tab]
+            .window_states
+            .move_cursor(dir);
     }
 }
 
