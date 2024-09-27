@@ -143,6 +143,9 @@ impl TextWindowState {
                 }
             }
             Rectilinear::Right => {
+                if self.lines_count() == 0 {
+                    return;
+                }
                 let line_length = self.line_length(self.cursor.line);
                 if self.cursor.col + 1 >= line_length {
                     return;
@@ -191,6 +194,11 @@ impl TextWindowState {
     }
 
     fn snap_to_EOL(&mut self) {
+        if self.lines_count() == 0 {
+            self.cursor.col = 0;
+            self.leftmost_col = 0;
+            return;
+        }
         let line_length = self.line_length(self.cursor.line);
         if self.cursor.col >= line_length {
             self.jump_to_EOL();
