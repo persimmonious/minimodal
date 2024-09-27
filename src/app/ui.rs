@@ -217,7 +217,7 @@ impl TextWindowState {
             leftmost_col,
             rightmost_col,
         } = self.screen_bounds();
-        
+
         let vertically_out_of_bounds = line < top_line || line > bottom_line;
         if self.lines_count() > 0 && vertically_out_of_bounds {
             let line = min(line, self.lines_count() - 1);
@@ -262,8 +262,18 @@ impl TextWindowState {
         self.leftmost_col = 0;
     }
 
-    pub fn jump_to_EOF(&mut self) {
-        
+    pub fn jump_to_last_line(&mut self) {
+        let line = if self.lines_count() > 0 {
+            self.lines_count() - 1
+        } else {
+            0
+        };
+        self.top_line = if line >= self.last_height {
+            line - self.last_height + 1
+        } else {
+            0
+        };
+        self.snap_to_EOL();
     }
 
     fn lines_count(&self) -> usize {
