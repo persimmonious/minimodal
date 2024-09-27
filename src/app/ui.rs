@@ -63,6 +63,14 @@ pub struct TextWindow {
     theme: Weak<Theme>,
 }
 
+#[derive(Debug, Clone)]
+pub struct ScreenBounds {
+    top_line: usize,
+    bottom_line: usize,
+    leftmost_col: usize,
+    rightmost_col: usize,
+}
+
 #[derive(Debug)]
 pub struct TextWindowState {
     pub top_line: usize,
@@ -156,6 +164,25 @@ impl TextWindowState {
         }
     }
 
+    fn screen_bounds(&self) -> ScreenBounds {
+        let top_line = self.top_line;
+        let bottom_line = top_line + self.last_height - 1;
+        let leftmost_col = self.leftmost_col;
+        let rightmost_col = leftmost_col + self.last_width - 1;
+        return ScreenBounds {
+            top_line,
+            bottom_line,
+            leftmost_col,
+            rightmost_col,
+        };
+    }
+
+    fn is_on_screen(&self, pos: &BufferPosition) {
+
+    }
+
+    pub fn jump(&mut self) {}
+
     pub fn jump_to_EOL(&mut self) {
         let line_length = self.line_length(self.cursor.line);
         if line_length == 0 {
@@ -181,6 +208,10 @@ impl TextWindowState {
     pub fn jump_to_home(&mut self) {
         self.cursor.col = 0;
         self.leftmost_col = 0;
+    }
+
+    pub fn jump_to_EOF(&mut self) {
+        todo!();
     }
 
     fn lines_count(&self) -> usize {
