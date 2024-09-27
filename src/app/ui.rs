@@ -177,8 +177,17 @@ impl TextWindowState {
         };
     }
 
-    fn is_on_screen(&self, pos: &BufferPosition) {
-
+    fn is_on_screen(&self, pos: &BufferPosition) -> bool {
+        let ScreenBounds {
+            top_line,
+            bottom_line,
+            leftmost_col,
+            rightmost_col,
+        } = self.screen_bounds();
+        let BufferPosition { line, col } = *pos;
+        let within_vertically = line >= top_line && line <= bottom_line;
+        let within_horizontally = col >= leftmost_col && col <= rightmost_col;
+        return within_vertically && within_horizontally;
     }
 
     pub fn jump(&mut self) {}
