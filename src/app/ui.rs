@@ -215,8 +215,12 @@ impl TextWindow {
         state.last_height = height.into();
         state.last_width = width;
         let cursor_rel_line: usize =
-            (state.cur_vertical_percent * (height - 1) as f32).floor() as usize;
-        let top_line: usize = state.cursor.line - cursor_rel_line;
+            (state.cur_vertical_percent * (height - 1) as f32).round() as usize;
+        let top_line: usize = if state.cursor.line > cursor_rel_line {
+            state.cursor.line - cursor_rel_line
+        } else {
+            0
+        };
         let last_line: usize = min(top_line + height as usize, state.lines_count());
         let line_style = Style::default()
             .fg(theme.text_foreground)
