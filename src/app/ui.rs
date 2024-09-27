@@ -14,6 +14,7 @@ use ratatui::{
 };
 use std::{
     cmp::{max, min},
+    iter::repeat,
     rc::{Rc, Weak},
 };
 
@@ -341,7 +342,9 @@ impl TextWindow {
 
     fn highlight_cursor(&self, lines: &mut Vec<Line>, state: &mut TextWindowState) {
         if lines.is_empty() {
-            lines.push(Line::from(" "));
+            lines.push(Line::from(String::from_iter(
+                repeat(" ").take(state.last_width - 1),
+            )));
         }
 
         if state.cursor.line < state.top_line {
