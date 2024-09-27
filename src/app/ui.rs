@@ -80,6 +80,7 @@ pub struct TextWindowState {
     pub last_width: usize,
     pub cur_vertical_percent: f32,
     pub cursor: BufferPosition,
+    pub last_manual_col: usize,
     buffer: Weak<Buffer>,
     theme: Weak<Theme>,
 }
@@ -93,6 +94,7 @@ impl TextWindowState {
             last_width: 2,
             cur_vertical_percent: 0.0,
             cursor: BufferPosition { line: 0, col: 0 },
+            last_manual_col: 0,
             buffer,
             theme,
         };
@@ -105,8 +107,6 @@ impl TextWindowState {
                     return;
                 }
                 let mut relative_line = self.cursor.line - self.top_line;
-                let line_length = self.line_length(self.cursor.line);
-                let cur_at_EOL = line_length == 0 || self.cursor.col == line_length - 1;
                 self.cursor.line -= 1;
                 if self.cursor.line < self.top_line {
                     self.cur_vertical_percent = 0.0;
@@ -116,9 +116,15 @@ impl TextWindowState {
                     self.cur_vertical_percent =
                         relative_line as f32 / (self.last_height - 1) as f32;
                 }
+
                 let new_line_length = self.line_length(self.cursor.line);
-                if self.cursor.col >= new_line_length || cur_at_EOL {
+                if self.cursor.col >= new_line_length {
                     self.jump_to_EOL();
+                } else {
+                    self.jump(&BufferPosition {
+                        line: self.cursor.line,
+                        col: min(self.last_manual_col, max(new_line_length, 1) - 1),
+                    });
                 }
             }
 
@@ -127,8 +133,7 @@ impl TextWindowState {
                     return;
                 }
                 let mut relative_line = self.cursor.line - self.top_line;
-                let line_length = self.line_length(self.cursor.line);
-                let cur_at_EOL = line_length == 0 || self.cursor.col == line_length - 1;
+
                 self.cursor.line += 1;
                 // float comparison OK here because it is exact
                 if self.cur_vertical_percent == 1.0 {
@@ -138,9 +143,15 @@ impl TextWindowState {
                     self.cur_vertical_percent =
                         relative_line as f32 / (self.last_height - 1) as f32;
                 }
+
                 let new_line_length = self.line_length(self.cursor.line);
-                if self.cursor.col >= new_line_length || cur_at_EOL {
+                if self.cursor.col >= new_line_length {
                     self.jump_to_EOL();
+                } else {
+                    self.jump(&BufferPosition {
+                        line: self.cursor.line,
+                        col: min(self.last_manual_col, max(new_line_length, 1) - 1),
+                    });
                 }
             }
             Rectilinear::Right => {
@@ -152,6 +163,7 @@ impl TextWindowState {
                     return;
                 }
                 self.cursor.col += 1;
+                self.last_manual_col = self.cursor.col;
                 if self.cursor.col >= self.leftmost_col + self.last_width {
                     self.leftmost_col += 1;
                 }
@@ -161,6 +173,7 @@ impl TextWindowState {
                     return;
                 }
                 self.cursor.col -= 1;
+                self.last_manual_col = self.cursor.col;
                 if self.cursor.col < self.leftmost_col {
                     self.leftmost_col = self.cursor.col;
                 }
@@ -242,6 +255,7 @@ impl TextWindowState {
         }
 
         self.snap_to_EOL();
+        self.last_manual_col = self.cursor.col;
     }
 
     pub fn jump_to_EOL(&mut self) {
@@ -269,6 +283,7 @@ impl TextWindowState {
     pub fn jump_to_home(&mut self) {
         self.cursor.col = 0;
         self.leftmost_col = 0;
+        self.last_manual_col = 0;
     }
 
     pub fn jump_to_last_line(&mut self) {
@@ -286,6 +301,7 @@ impl TextWindowState {
         let relative_line = line - self.top_line;
         self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
         self.snap_to_EOL();
+        self.last_manual_col = self.cursor.col;
     }
 
     fn lines_count(&self) -> usize {
