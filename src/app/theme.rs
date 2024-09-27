@@ -28,7 +28,7 @@ impl Default for Theme {
         let text_background = Color::Rgb(35, 35, 40);
         let text_foreground = Color::Rgb(220, 200, 180);
         let selected_line_background = Color::Rgb(50, 50, 55);
-        let selected_line_foreground = Color::Rgb(200, 200, 190);
+        let selected_line_foreground = text_foreground;
         let tabline_foreground = Color::Rgb(144, 190, 255);
         let tabline_background = Color::Rgb(20, 20, 40);
         let tabline_border_foreground = Color::Rgb(80, 120, 180);
