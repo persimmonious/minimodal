@@ -64,7 +64,11 @@ impl LineNumbers {
         }
     }
 
-    pub fn set_styles(&mut self, normal: Style, selected: Style) {}
+    pub fn set_styles(mut self, normal: Style, selected: Style) -> Self {
+        self.style.normal = normal;
+        self.style.selected = selected;
+        self
+    }
 }
 
 impl Widget for &LineNumbers {

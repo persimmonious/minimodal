@@ -293,6 +293,10 @@ impl StatefulWidget for TextWindow {
             state.top_line + 1,
             state.top_line + area.height as usize,
             state.cursor.line + 1,
+        )
+        .set_styles(
+            theme.styles.line_numbers_normal,
+            theme.styles.line_numbers_selected,
         );
         line_hints.render(line_hints_area, tui_buf);
         line_numbers.render(line_numbers_area, tui_buf);
