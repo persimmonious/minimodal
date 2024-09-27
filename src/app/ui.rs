@@ -1,7 +1,10 @@
+mod line_numbers;
 use super::{
     buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
     theme::Theme,
 };
+use line_numbers::LineNumberType::{Absolute, Relative};
+use line_numbers::LineNumbers;
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::{Constraint, Direction, Layout, Rect},
@@ -281,11 +284,18 @@ impl StatefulWidget for TextWindow {
             ])
             .split(area);
         let theme = self.theme.upgrade().expect("referencing dropped theme!");
+        let line_numbers_area = window_layout[0];
         let line_hints_area = window_layout[1];
         let lines_area = window_layout[2];
         let line_hints = Paragraph::new("").style(Style::default().bg(theme.text_background));
-        let line_numbers = Clear {};
+        let line_numbers = LineNumbers::new(
+            Relative,
+            state.top_line + 1,
+            state.top_line + area.height as usize,
+            state.cursor.line + 1,
+        );
         line_hints.render(line_hints_area, tui_buf);
+        line_numbers.render(line_numbers_area, tui_buf);
         let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
         self.highlight_cursor(&mut lines, state);
         Paragraph::new(lines).render(lines_area, tui_buf);
