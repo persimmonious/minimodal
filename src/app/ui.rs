@@ -8,7 +8,7 @@ use line_numbers::LineNumbers;
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Modifier, Style, Styled},
+    style::{Modifier, Style, Styled, Stylize},
     text::{Line, Span},
     widgets::{Block, Clear, Paragraph, StatefulWidget, Widget},
 };
@@ -284,9 +284,11 @@ impl StatefulWidget for TextWindow {
             ])
             .split(area);
         let theme = self.theme.upgrade().expect("referencing dropped theme!");
+        let lines_area = window_layout[2];
+        let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
+        self.highlight_cursor(&mut lines, state);
         let line_numbers_area = window_layout[0];
         let line_hints_area = window_layout[1];
-        let lines_area = window_layout[2];
         let line_hints = Paragraph::new("").style(Style::default().bg(theme.text_background));
         let line_numbers = LineNumbers::new(
             Relative,
@@ -298,10 +300,20 @@ impl StatefulWidget for TextWindow {
             theme.styles.line_numbers_normal,
             theme.styles.line_numbers_selected,
         );
-        line_hints.render(line_hints_area, tui_buf);
+
         line_numbers.render(line_numbers_area, tui_buf);
-        let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
-        self.highlight_cursor(&mut lines, state);
+        line_hints.render(line_hints_area, tui_buf);
+        if lines.len() < lines_area.height as usize {
+            let gap = lines_area.height - lines.len() as u16;
+            let gap_area = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints(vec![Constraint::Fill(1), Constraint::Length(gap)])
+                .split(area)[1];
+            Block::new()
+                .bg(theme.text_background)
+                .fg(theme.text_background)
+                .render(gap_area, tui_buf);
+        }
         Paragraph::new(lines).render(lines_area, tui_buf);
     }
 }

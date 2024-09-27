@@ -1,4 +1,4 @@
-use ratatui::style::{Color, Style};
+use ratatui::style::{Color, Modifier, Style};
 
 #[derive(Debug)]
 pub struct Styles {
@@ -43,7 +43,8 @@ impl Default for Theme {
             .bg(line_numbers_normal_background);
         let line_numbers_selected = Style::default()
             .fg(line_numbers_selected_foreground)
-            .bg(line_numbers_selected_background);
+            .bg(line_numbers_selected_background)
+            .add_modifier(Modifier::BOLD);
 
         let styles = Styles {
             line_numbers_normal,
