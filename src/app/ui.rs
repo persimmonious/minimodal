@@ -13,7 +13,7 @@ use ratatui::{
     widgets::{Block, Clear, Paragraph, StatefulWidget, Widget},
 };
 use std::{
-    cmp::min,
+    cmp::{max, min},
     rc::{Rc, Weak},
 };
 
@@ -190,7 +190,48 @@ impl TextWindowState {
         return within_vertically && within_horizontally;
     }
 
-    pub fn jump(&mut self) {}
+    fn snap_to_EOL(&mut self) {
+        let line_length = self.line_length(self.cursor.line);
+        if self.cursor.col >= line_length {
+            self.jump_to_EOL();
+        }
+    }
+
+    fn jump_within_screen(&mut self, pos: &BufferPosition) {
+        self.cursor.line = pos.line;
+        self.cursor.col = pos.col;
+        let relative_line = pos.line - self.top_line;
+        self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
+        self.snap_to_EOL();
+    }
+
+    pub fn jump(&mut self, pos: &BufferPosition) {
+        if self.is_on_screen(pos) {
+            self.jump_within_screen(pos);
+            return;
+        }
+        let BufferPosition { line, col } = *pos;
+        let ScreenBounds {
+            top_line,
+            bottom_line,
+            leftmost_col,
+            rightmost_col,
+        } = self.screen_bounds();
+
+        if line < top_line || line > bottom_line {
+            let relative_line = min(self.last_height / 2, line);
+            self.cursor.line = line;
+            self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
+        }
+
+        if col < leftmost_col || col > rightmost_col {
+            let relative_col = min(self.last_width * 3 / 4, col);
+            self.leftmost_col = col - relative_col;
+            self.cursor.col = col;
+        }
+
+        self.snap_to_EOL();
+    }
 
     pub fn jump_to_EOL(&mut self) {
         let line_length = self.line_length(self.cursor.line);
