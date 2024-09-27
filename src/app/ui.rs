@@ -282,6 +282,9 @@ impl TextWindowState {
         } else {
             0
         };
+        self.cursor.line = line;
+        let relative_line = line - self.top_line;
+        self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
         self.snap_to_EOL();
     }
 
