@@ -217,8 +217,10 @@ impl TextWindowState {
             leftmost_col,
             rightmost_col,
         } = self.screen_bounds();
-
-        if line < top_line || line > bottom_line {
+        
+        let vertically_out_of_bounds = line < top_line || line > bottom_line;
+        if self.lines_count() > 0 && vertically_out_of_bounds {
+            let line = min(line, self.lines_count() - 1);
             let relative_line = min(self.last_height / 2, line);
             self.cursor.line = line;
             self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
@@ -261,7 +263,7 @@ impl TextWindowState {
     }
 
     pub fn jump_to_EOF(&mut self) {
-        todo!();
+        
     }
 
     fn lines_count(&self) -> usize {
