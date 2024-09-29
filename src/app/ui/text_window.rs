@@ -265,7 +265,7 @@ impl TextWindowState {
         self.last_manual_col = self.cursor.col;
     }
 
-    fn lines_count(&self) -> usize {
+    pub fn lines_count(&self) -> usize {
         self.buffer
             .upgrade()
             .expect("counting lines in a dead buffer!")
