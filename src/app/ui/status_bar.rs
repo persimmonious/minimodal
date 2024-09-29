@@ -67,16 +67,13 @@ impl Widget for &StatusBar {
         )
         .split(area);
         let mode_area = layout[0];
-        let middle_area = layout[1];
         let pos_area = layout[2];
-        let pos_right_pad = layout[3];
         let percent_area = layout[4];
         let rightmost_padding = layout[5];
 
+        Block::new().render(area, buf);
         mode_span.render(mode_area, buf);
-        Block::new().render(middle_area, buf);
         pos_span.render(pos_area, buf);
-        Block::new().render(pos_right_pad, buf);
         percent_span.render(percent_area, buf);
         Block::new().render(rightmost_padding, buf);
     }
