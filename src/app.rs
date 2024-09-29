@@ -6,16 +6,15 @@ use buffer::{Buffer, HorizontalDirection as Horizontal, RectilinearDirection as 
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout},
-    style::Stylize,
-    style::{Color, Style},
-    widgets::{block::BorderType, Block, Borders, Tabs},
+    style::{Color, Style, Stylize},
+    widgets::{block::BorderType, Block, Borders, Tabs, Widget},
     DefaultTerminal, Frame,
 };
 use std::{ffi::OsString, fs, io, path::Path, rc::Rc};
 use theme::Theme;
-use ui::{Tab, TabState};
+use ui::{status_bar::StatusBar, Tab, TabState};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Mode {
     Normal,
     Command,
@@ -50,7 +49,11 @@ impl Editor {
     fn draw(&mut self, frame: &mut Frame) {
         let layout = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(vec![Constraint::Length(1), Constraint::Fill(1)])
+            .constraints(vec![
+                Constraint::Length(1),
+                Constraint::Fill(1),
+                Constraint::Length(1),
+            ])
             .split(frame.area());
 
         let buffer_titles = self
@@ -78,6 +81,10 @@ impl Editor {
             layout[1],
             &mut self.tab_states[self.current_tab],
         );
+
+        let tab = &self.tab_states[self.current_tab];
+        let status_bar = StatusBar::new(&tab.window_states, self.mode.clone());
+        frame.render_widget(&status_bar, layout[2]);
     }
 
     fn handle_input(&mut self) -> io::Result<()> {

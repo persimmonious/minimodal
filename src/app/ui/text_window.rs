@@ -1,9 +1,9 @@
+use super::line_numbers::LineNumberType::{Absolute, Relative};
+use super::line_numbers::LineNumbers;
 use crate::app::{
     buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
     theme::Theme,
 };
-use super::line_numbers::LineNumberType::{Absolute, Relative};
-use super::line_numbers::LineNumbers;
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::{Constraint, Direction, Layout, Rect},

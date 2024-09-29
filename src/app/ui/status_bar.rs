@@ -44,7 +44,8 @@ impl Widget for &StatusBar {
                 Constraint::Length(pos_width),
                 Constraint::Length(1),
             ],
-        ).split(area);
+        )
+        .split(area);
         let mode_area = layout[0];
         let middle_area = layout[1];
         let pos_area = layout[2];

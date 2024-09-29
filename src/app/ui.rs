@@ -1,10 +1,14 @@
 mod line_numbers;
+pub mod status_bar;
 mod text_window;
-mod status_bar;
 use super::{buffer::Buffer, theme::Theme};
-use text_window::{TextWindow, TextWindowState};
-use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
+use ratatui::{
+    buffer::Buffer as TUI_Buffer,
+    layout::{Constraint, Direction, Layout, Rect},
+    widgets::StatefulWidget,
+};
 use std::rc::{Rc, Weak};
+use text_window::{TextWindow, TextWindowState};
 
 #[derive(Debug, Clone)]
 pub struct Tab {}
