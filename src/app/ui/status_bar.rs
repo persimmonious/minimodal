@@ -47,8 +47,12 @@ impl Widget for &StatusBar {
             .width()
             .try_into()
             .expect("position span too long!");
-        let percent_span = Span::from(format!("{: >2}%", self.percent));
-        let percent_width = 3;
+        let percent_span = Span::from(match self.percent {
+            0 => "Top".to_owned(),
+            100 => "Bot".to_owned(),
+            _ => format!("{: >2}%", self.percent),
+        });
+        let percent_width = 3; // "Top", "Bot", or "XX%"
 
         let layout = Layout::new(
             Direction::Horizontal,
