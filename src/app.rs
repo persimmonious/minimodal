@@ -15,7 +15,7 @@ use theme::Theme;
 use ui::{status_bar::StatusBar, Tab, TabState};
 
 #[derive(Debug, Clone)]
-enum Mode {
+pub enum Mode {
     Normal,
     Command,
 }

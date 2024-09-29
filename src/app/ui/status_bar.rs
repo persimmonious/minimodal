@@ -30,7 +30,7 @@ impl Widget for &StatusBar {
             Mode::Command => " COMMAND ",
         });
         let mode_width = mode_span.width().try_into().expect("mode span too long!");
-        let pos_span = Span::from(format!("{}:{}", self.line, self.col));
+        let pos_span = Span::from(format!("{}:{}", self.line + 1, self.col + 1));
         let pos_width = pos_span
             .width()
             .try_into()
