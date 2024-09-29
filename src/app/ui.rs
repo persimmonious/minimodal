@@ -1,5 +1,6 @@
 mod line_numbers;
 mod text_window;
+mod status_bar;
 use super::{buffer::Buffer, theme::Theme};
 use text_window::{TextWindow, TextWindowState};
 use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
