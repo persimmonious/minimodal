@@ -220,6 +220,10 @@ impl TextWindowState {
     }
 
     pub fn jump_to_EOL(&mut self) {
+        if self.lines_count() == 0 {
+            self.jump_to_home();
+            return;
+        }
         let line_length = self.line_length(self.cursor.line);
         if line_length == 0 {
             self.cursor.col = 0;
