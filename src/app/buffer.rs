@@ -69,4 +69,13 @@ impl Buffer {
             lines: vec![],
         }
     }
+
+    pub fn insert_char(&mut self, c: char, pos: &BufferPosition) {
+        if self.lines.len() == 0 {
+            self.lines.push(String::from(c));
+            return;
+        }
+        let BufferPosition { line, col } = *pos;
+        self.lines[line].insert(col, c);
+    }
 }

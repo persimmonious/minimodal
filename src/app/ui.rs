@@ -1,7 +1,10 @@
 mod line_numbers;
 pub mod status_bar;
 mod text_window;
-use super::{buffer::Buffer, theme::Theme};
+use super::{
+    buffer::{Buffer, RectilinearDirection},
+    theme::Theme,
+};
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::{Constraint, Direction, Layout, Rect},
@@ -35,7 +38,11 @@ impl TabState {
         };
     }
 
-    pub fn insert_char(&self, c: char) {}
+    pub fn insert_char(&mut self, c: char) {
+        let current_pos = &self.window_states.cursor;
+        self.buffer.borrow_mut().insert_char(c, current_pos);
+        self.window_states.move_cursor(RectilinearDirection::Right);
+    }
 }
 
 impl Tab {
