@@ -76,13 +76,14 @@ impl Widget for &StatusBar {
                 Constraint::Length(1),
                 Constraint::Length(percent_width),
                 Constraint::Length(1),
+                Constraint::Length(1),
             ],
         )
         .split(area);
         let mode_area = layout[0];
         let pos_area = layout[2];
         let percent_area = layout[4];
-        let rightmost_padding = layout[5];
+        let rightmost_padding = layout[6];
 
         Block::new().bg(theme.status_background).render(area, buf);
         mode_span.render(mode_area, buf);
