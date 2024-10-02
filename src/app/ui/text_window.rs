@@ -143,6 +143,17 @@ impl TextWindowState {
         }
     }
 
+    pub fn advance_insertion_cursor(&mut self) {
+        if self.lines_count() == 0 {
+            return;
+        }
+        self.cursor.col += 1;
+        self.last_manual_col = self.cursor.col;
+        if self.cursor.col >= self.leftmost_col + self.last_width {
+            self.leftmost_col += 1;
+        }
+    }
+
     fn screen_bounds(&self) -> ScreenBounds {
         let top_line = self.top_line;
         let bottom_line = top_line + self.last_height - 1;
@@ -169,7 +180,7 @@ impl TextWindowState {
         return within_vertically && within_horizontally;
     }
 
-    fn snap_to_EOL(&mut self) {
+    pub fn snap_to_EOL(&mut self) {
         if self.lines_count() == 0 {
             self.cursor.col = 0;
             self.leftmost_col = 0;

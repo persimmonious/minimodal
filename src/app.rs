@@ -12,6 +12,7 @@ use ratatui::{
 };
 use std::{io, path::Path, rc::Rc};
 use theme::Theme;
+use ui::text_window::TextWindowState;
 use ui::{status_bar::StatusBar, Tab, TabState};
 
 #[derive(Debug, Clone)]
@@ -141,12 +142,17 @@ impl Editor {
         }
     }
 
+    fn current_winstate(&mut self) -> &mut TextWindowState {
+        &mut self.tab_states[self.current_tab].window_states
+    }
+
     fn enter_insert(&mut self) {
         self.mode = Mode::Insert;
     }
 
     fn exit_insert(&mut self) {
         self.mode = Mode::Normal;
+        self.current_winstate().snap_to_EOL();
     }
 
     fn insert_char(&mut self, c: char) {

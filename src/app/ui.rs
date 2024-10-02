@@ -1,6 +1,6 @@
 mod line_numbers;
 pub mod status_bar;
-mod text_window;
+pub mod text_window;
 use super::{
     buffer::{Buffer, RectilinearDirection},
     theme::Theme,
@@ -37,7 +37,7 @@ impl TabState {
     pub fn insert_char(&mut self, c: char) {
         let current_pos = &self.window_states.cursor;
         self.buffer.borrow_mut().insert_char(c, current_pos);
-        self.window_states.move_cursor(RectilinearDirection::Right);
+        self.window_states.advance_insertion_cursor();
     }
 }
 
