@@ -43,6 +43,7 @@ impl Widget for &StatusBar {
         let mode_span = match self.mode {
             Mode::Normal => Span::styled(" NORMAL ", theme.styles.status_mode_normal),
             Mode::Command => Span::styled(" COMMAND ", theme.styles.status_mode_command),
+            Mode::Insert => Span::styled(" INSERT ", theme.styles.status_mode_insert),
         };
         let mode_width = mode_span.width().try_into().expect("mode span too long!");
         let pos_span = Span::styled(
@@ -93,6 +94,7 @@ impl Widget for &StatusBar {
             .bg(match self.mode {
                 Mode::Normal => theme.status_mode_normal_background,
                 Mode::Command => theme.status_mode_command_background,
+                Mode::Insert => theme.status_mode_insert_background,
             })
             .render(rightmost_padding, buf);
     }

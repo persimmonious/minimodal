@@ -18,6 +18,7 @@ use ui::{status_bar::StatusBar, Tab, TabState};
 pub enum Mode {
     Normal,
     Command,
+    Insert,
 }
 
 #[derive(Debug)]

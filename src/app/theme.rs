@@ -6,6 +6,7 @@ pub struct Styles {
     pub line_numbers_selected: Style,
     pub status_mode_normal: Style,
     pub status_mode_command: Style,
+    pub status_mode_insert: Style,
 }
 
 #[derive(Debug)]
@@ -26,6 +27,8 @@ pub struct Theme {
     pub status_mode_normal_foreground: Color,
     pub status_mode_command_background: Color,
     pub status_mode_command_foreground: Color,
+    pub status_mode_insert_background: Color,
+    pub status_mode_insert_foreground: Color,
     pub status_background: Color,
     pub status_foreground: Color,
     pub styles: Styles,
@@ -49,6 +52,8 @@ impl Default for Theme {
         let status_mode_normal_foreground = text_background;
         let status_mode_command_background = Color::Rgb(220, 220, 140);
         let status_mode_command_foreground = text_background;
+        let status_mode_insert_background = Color::Rgb(120, 240, 140);
+        let status_mode_insert_foreground = text_background;
         let status_background = Color::Rgb(10, 10, 10);
         let status_foreground = text_foreground;
 
@@ -65,12 +70,16 @@ impl Default for Theme {
         let status_mode_command = Style::default()
             .fg(status_mode_command_foreground)
             .bg(status_mode_command_background);
+        let status_mode_insert = Style::default()
+            .fg(status_mode_insert_foreground)
+            .bg(status_mode_insert_background);
 
         let styles = Styles {
             line_numbers_normal,
             line_numbers_selected,
             status_mode_normal,
             status_mode_command,
+            status_mode_insert,
         };
 
         return Theme {
@@ -90,6 +99,8 @@ impl Default for Theme {
             status_mode_normal_foreground,
             status_mode_command_background,
             status_mode_command_foreground,
+            status_mode_insert_background,
+            status_mode_insert_foreground,
             status_background,
             status_foreground,
             styles,
