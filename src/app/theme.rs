@@ -45,7 +45,7 @@ impl Default for Theme {
         let line_numbers_normal_background = text_background;
         let line_numbers_selected_foreground = text_foreground;
         let line_numbers_selected_background = text_background;
-        let status_mode_normal_background = Color::Rgb(180, 180, 255);
+        let status_mode_normal_background = tabline_foreground;
         let status_mode_normal_foreground = text_background;
         let status_mode_command_background = Color::Rgb(220, 220, 140);
         let status_mode_command_foreground = text_background;
