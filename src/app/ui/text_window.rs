@@ -1,4 +1,4 @@
-use super::line_numbers::LineNumberType::{Absolute, Relative};
+use super::line_numbers::LineNumberType::Relative;
 use super::line_numbers::LineNumbers;
 use crate::app::{
     buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
@@ -11,9 +11,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
-
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
+use std::cell::RefCell;
 use std::{
     cmp::{max, min},
     iter::repeat,

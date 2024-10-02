@@ -1,7 +1,6 @@
 use std::{
     ffi::{OsStr, OsString},
     fs, io,
-    path::Path,
 };
 
 #[derive(Debug)]

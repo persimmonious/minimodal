@@ -1,7 +1,7 @@
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::Rect,
-    style::{Modifier, Style, Styled, Stylize},
+    style::{Modifier, Style},
     text::Line,
     widgets::{Paragraph, Widget},
 };

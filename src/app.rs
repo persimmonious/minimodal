@@ -6,11 +6,11 @@ use buffer::{Buffer, HorizontalDirection as Horizontal, RectilinearDirection as 
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style, Stylize},
-    widgets::{block::BorderType, Block, Borders, Tabs, Widget},
+    style::{Style, Stylize},
+    widgets::Tabs,
     DefaultTerminal, Frame,
 };
-use std::{ffi::OsString, fs, io, path::Path, rc::Rc};
+use std::{io, path::Path, rc::Rc};
 use theme::Theme;
 use ui::{status_bar::StatusBar, Tab, TabState};
 

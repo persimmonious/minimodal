@@ -3,7 +3,7 @@ use crate::app::{theme::Theme, Mode};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     prelude::{Buffer as TUI_Buffer, Rect},
-    style::{Style, Styled, Stylize},
+    style::{Style, Stylize},
     text::Span,
     widgets::{Block, Widget},
 };

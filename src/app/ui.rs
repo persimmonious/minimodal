@@ -5,11 +5,7 @@ use super::{
     buffer::{Buffer, RectilinearDirection},
     theme::Theme,
 };
-use ratatui::{
-    buffer::Buffer as TUI_Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
-    widgets::StatefulWidget,
-};
+use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
 use std::{
     cell::RefCell,
     rc::{Rc, Weak},
