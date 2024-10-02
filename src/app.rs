@@ -103,7 +103,16 @@ impl Editor {
     }
 
     fn handle_key_press(&mut self, key: KeyEvent) {
+        match self.mode {
+            Mode::Normal => self.handle_key_press_normal(key),
+            Mode::Command => todo!(),
+            Mode::Insert => self.handle_key_press_insert(key),
+        }
+    }
+
+    fn handle_key_press_normal(&mut self, key: KeyEvent) {
         match key.code {
+            KeyCode::Char('i') => self.enter_insert(),
             KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
             KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
@@ -116,6 +125,21 @@ impl Editor {
             KeyCode::Char('G') => self.jump_to_last_line(),
             _ => {}
         }
+    }
+
+    fn handle_key_press_insert(&mut self, key: KeyEvent) {
+        match key.code {
+            KeyCode::Esc => self.exit_insert(),
+            _ => {}
+        }
+    }
+
+    fn enter_insert(&mut self) {
+        self.mode = Mode::Insert;
+    }
+
+    fn exit_insert(&mut self) {
+        self.mode = Mode::Normal;
     }
 
     fn exit(&mut self) {
