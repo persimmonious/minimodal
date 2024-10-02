@@ -83,7 +83,11 @@ impl Editor {
         );
 
         let tab = &self.tab_states[self.current_tab];
-        let status_bar = StatusBar::new(&tab.window_states, self.mode.clone());
+        let status_bar = StatusBar::new(
+            &tab.window_states,
+            self.mode.clone(),
+            Rc::downgrade(&self.theme),
+        );
         frame.render_widget(&status_bar, layout[2]);
     }
 

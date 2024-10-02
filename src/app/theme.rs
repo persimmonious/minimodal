@@ -4,6 +4,8 @@ use ratatui::style::{Color, Modifier, Style};
 pub struct Styles {
     pub line_numbers_normal: Style,
     pub line_numbers_selected: Style,
+    pub status_mode_normal: Style,
+    pub status_mode_command: Style,
 }
 
 #[derive(Debug)]
@@ -20,6 +22,12 @@ pub struct Theme {
     pub line_numbers_normal_background: Color,
     pub line_numbers_selected_foreground: Color,
     pub line_numbers_selected_background: Color,
+    pub status_mode_normal_background: Color,
+    pub status_mode_normal_foreground: Color,
+    pub status_mode_command_background: Color,
+    pub status_mode_command_foreground: Color,
+    pub status_background: Color,
+    pub status_foreground: Color,
     pub styles: Styles,
 }
 
@@ -37,6 +45,12 @@ impl Default for Theme {
         let line_numbers_normal_background = text_background;
         let line_numbers_selected_foreground = text_foreground;
         let line_numbers_selected_background = text_background;
+        let status_mode_normal_background = Color::Rgb(180, 180, 255);
+        let status_mode_normal_foreground = text_background;
+        let status_mode_command_background = Color::Rgb(220, 220, 140);
+        let status_mode_command_foreground = text_background;
+        let status_background = Color::Rgb(10, 10, 10);
+        let status_foreground = text_foreground;
 
         let line_numbers_normal = Style::default()
             .fg(line_numbers_normal_foreground)
@@ -45,10 +59,18 @@ impl Default for Theme {
             .fg(line_numbers_selected_foreground)
             .bg(line_numbers_selected_background)
             .add_modifier(Modifier::BOLD);
+        let status_mode_normal = Style::default()
+            .fg(status_mode_normal_foreground)
+            .bg(status_mode_normal_background);
+        let status_mode_command = Style::default()
+            .fg(status_mode_command_foreground)
+            .bg(status_mode_command_background);
 
         let styles = Styles {
             line_numbers_normal,
             line_numbers_selected,
+            status_mode_normal,
+            status_mode_command,
         };
 
         return Theme {
@@ -64,6 +86,12 @@ impl Default for Theme {
             line_numbers_normal_background,
             line_numbers_selected_foreground,
             line_numbers_selected_background,
+            status_mode_normal_background,
+            status_mode_normal_foreground,
+            status_mode_command_background,
+            status_mode_command_foreground,
+            status_background,
+            status_foreground,
             styles,
         };
     }
