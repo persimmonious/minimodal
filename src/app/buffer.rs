@@ -77,4 +77,13 @@ impl Buffer {
         let BufferPosition { line, col } = *pos;
         self.lines[line].insert(col, c);
     }
+
+    pub fn replace_line(&mut self, pos: &BufferPosition) {
+        if self.lines.len() == 0 {
+            self.lines.push(String::new());
+            return;
+        }
+        let line = pos.line;
+        self.lines[line] = String::new();
+    }
 }

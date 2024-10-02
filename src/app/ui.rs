@@ -39,6 +39,12 @@ impl TabState {
         self.buffer.borrow_mut().insert_char(c, current_pos);
         self.window_states.advance_insertion_cursor();
     }
+
+    pub fn replace_line(&mut self) {
+        let current_pos = &self.window_states.cursor;
+        self.buffer.borrow_mut().replace_line(current_pos);
+        self.window_states.snap_to_EOL();
+    }
 }
 
 impl Tab {

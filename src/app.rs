@@ -120,6 +120,7 @@ impl Editor {
                 self.jump_to_home();
                 self.enter_insert();
             }
+            KeyCode::Char('S') => self.replace_line(),
             KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
             KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
@@ -142,8 +143,12 @@ impl Editor {
         }
     }
 
+    fn current_tabstate(&mut self) -> &mut TabState {
+        &mut self.tab_states[self.current_tab]
+    }
+
     fn current_winstate(&mut self) -> &mut TextWindowState {
-        &mut self.tab_states[self.current_tab].window_states
+        &mut self.current_tabstate().window_states
     }
 
     fn enter_insert(&mut self) {
@@ -156,7 +161,12 @@ impl Editor {
     }
 
     fn insert_char(&mut self, c: char) {
-        self.tab_states[self.current_tab].insert_char(c);
+        self.current_tabstate().insert_char(c);
+    }
+
+    fn replace_line(&mut self) {
+        self.enter_insert();
+        self.current_tabstate().replace_line();
     }
 
     fn exit(&mut self) {
