@@ -113,6 +113,10 @@ impl Editor {
     fn handle_key_press_normal(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Char('i') => self.enter_insert(),
+            KeyCode::Char('I') => {
+                self.jump_to_home();
+                self.enter_insert();
+            }
             KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
             KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
