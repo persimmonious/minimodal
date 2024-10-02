@@ -7,7 +7,10 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     widgets::StatefulWidget,
 };
-use std::rc::{Rc, Weak};
+use std::{
+    cell::RefCell,
+    rc::{Rc, Weak},
+};
 use text_window::{TextWindow, TextWindowState};
 
 #[derive(Debug, Clone)]
@@ -16,14 +19,14 @@ pub struct Tab {}
 #[derive(Debug)]
 pub struct TabState {
     pub window_states: TextWindowState,
-    pub buffer: Rc<Buffer>,
+    pub buffer: Rc<RefCell<Buffer>>,
     pub windows: TextWindow,
     current_window: usize,
 }
 
 impl TabState {
     pub fn new(buf: Buffer, theme: Weak<Theme>) -> Self {
-        let buf_rc = Rc::new(buf);
+        let buf_rc = Rc::new(RefCell::new(buf));
         return TabState {
             buffer: Rc::clone(&buf_rc),
             window_states: TextWindowState::new(Rc::downgrade(&buf_rc), theme.clone()),
@@ -31,6 +34,8 @@ impl TabState {
             current_window: 0,
         };
     }
+
+    pub fn insert_char(&self, c: char) {}
 }
 
 impl Tab {

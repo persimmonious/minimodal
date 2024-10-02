@@ -60,10 +60,12 @@ impl Editor {
         let buffer_titles = self
             .tab_states
             .iter()
-            .map(|tab| {
+            .map(|tab| -> String {
                 tab.buffer
+                    .borrow()
                     .read_name()
                     .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
+                    .to_owned()
             })
             .map(|name| format!(" {name} "));
         let tabs_style = Style::default()
@@ -134,6 +136,7 @@ impl Editor {
     fn handle_key_press_insert(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Esc => self.exit_insert(),
+            KeyCode::Char(c) => self.insert_char(c),
             _ => {}
         }
     }
@@ -144,6 +147,10 @@ impl Editor {
 
     fn exit_insert(&mut self) {
         self.mode = Mode::Normal;
+    }
+
+    fn insert_char(&mut self, c: char) {
+        self.tab_states[self.current_tab].insert_char(c);
     }
 
     fn exit(&mut self) {

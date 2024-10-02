@@ -11,6 +11,9 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
+
+use std::cell::{Ref, RefCell};
+use std::rc::Rc;
 use std::{
     cmp::{max, min},
     iter::repeat,
@@ -19,7 +22,7 @@ use std::{
 
 #[derive(Debug, Clone)]
 pub struct TextWindow {
-    buffer: Weak<Buffer>,
+    buffer: Weak<RefCell<Buffer>>,
     theme: Weak<Theme>,
 }
 
@@ -40,12 +43,12 @@ pub struct TextWindowState {
     pub cur_vertical_percent: f32,
     pub cursor: BufferPosition,
     pub last_manual_col: usize,
-    buffer: Weak<Buffer>,
+    buffer: Weak<RefCell<Buffer>>,
     theme: Weak<Theme>,
 }
 
 impl TextWindowState {
-    pub fn new(buffer: Weak<Buffer>, theme: Weak<Theme>) -> Self {
+    pub fn new(buffer: Weak<RefCell<Buffer>>, theme: Weak<Theme>) -> Self {
         return TextWindowState {
             top_line: 0,
             leftmost_col: 0,
@@ -273,6 +276,7 @@ impl TextWindowState {
         self.buffer
             .upgrade()
             .expect("counting lines in a dead buffer!")
+            .borrow()
             .lines
             .len()
     }
@@ -281,13 +285,14 @@ impl TextWindowState {
         self.buffer
             .upgrade()
             .expect("checking line length in a dead buffer!")
+            .borrow()
             .lines[line]
             .len()
     }
 }
 
 impl TextWindow {
-    pub fn new(buffer: Weak<Buffer>, theme: Weak<Theme>) -> TextWindow {
+    pub fn new(buffer: Weak<RefCell<Buffer>>, theme: Weak<Theme>) -> TextWindow {
         TextWindow { buffer, theme }
     }
 
@@ -311,7 +316,7 @@ impl TextWindow {
         let line_style = Style::default()
             .fg(theme.text_foreground)
             .bg(theme.text_background);
-        return buffer.lines[top_line..last_line]
+        return buffer.borrow().lines[top_line..last_line]
             .iter()
             .map(|line| {
                 if state.leftmost_col < line.len() {
