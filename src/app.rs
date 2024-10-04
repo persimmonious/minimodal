@@ -20,6 +20,7 @@ pub enum Mode {
     Normal,
     Command,
     Insert,
+    Menu,
 }
 
 #[derive(Debug)]
@@ -110,11 +111,13 @@ impl Editor {
             Mode::Normal => self.handle_key_press_normal(key),
             Mode::Command => todo!(),
             Mode::Insert => self.handle_key_press_insert(key),
+            Mode::Menu => self.handle_key_press_menu(key),
         }
     }
 
     fn handle_key_press_normal(&mut self, key: KeyEvent) {
         match key.code {
+            KeyCode::Char(' ') => self.enter_menu(),
             KeyCode::Char('i') => self.enter_insert(),
             KeyCode::Char('I') => {
                 self.jump_to_home();
@@ -143,12 +146,27 @@ impl Editor {
         }
     }
 
+    fn handle_key_press_menu(&mut self, key: KeyEvent) {
+        match key.code {
+            KeyCode::Esc | KeyCode::Char(' ') => self.exit_menu(),
+            _ => {}
+        }
+    }
+
     fn current_tabstate(&mut self) -> &mut TabState {
         &mut self.tab_states[self.current_tab]
     }
 
     fn current_winstate(&mut self) -> &mut TextWindowState {
         &mut self.current_tabstate().window_states
+    }
+
+    fn enter_menu(&mut self) {
+        self.mode = Mode::Menu;
+    }
+
+    fn exit_menu(&mut self) {
+        self.mode = Mode::Normal;
     }
 
     fn enter_insert(&mut self) {
