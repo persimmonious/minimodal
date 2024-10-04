@@ -124,7 +124,6 @@ impl Editor {
                 self.enter_insert();
             }
             KeyCode::Char('S') => self.replace_line(),
-            KeyCode::Char('q') => self.exit(),
             KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
             KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
             KeyCode::Char('j') => self.move_cursor(Rectilinear::Down),
@@ -149,6 +148,7 @@ impl Editor {
     fn handle_key_press_menu(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Esc | KeyCode::Char(' ') => self.exit_menu(),
+            KeyCode::Char('q') => self.exit(),
             _ => {}
         }
     }
