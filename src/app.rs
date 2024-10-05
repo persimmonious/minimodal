@@ -2,15 +2,26 @@ mod buffer;
 mod theme;
 mod ui;
 use crate::config::Config;
-use buffer::{Buffer, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear};
+use buffer::{
+    Buffer, BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
+};
+use crossterm::{
+    cursor::{MoveToColumn, MoveToRow, SetCursorStyle},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Constraint, Direction, Layout},
+    layout::{Constraint, Direction, Layout, Position},
     style::{Style, Stylize},
     widgets::Tabs,
     DefaultTerminal, Frame,
 };
-use std::{io, path::Path, rc::Rc};
+use std::{
+    io::{self, stdout},
+    path::Path,
+    rc::Rc,
+};
 use theme::Theme;
 use ui::text_window::TextWindowState;
 use ui::{status_bar::StatusBar, Tab, TabState};
@@ -94,6 +105,19 @@ impl Editor {
             Rc::downgrade(&self.theme),
         );
         frame.render_widget(&status_bar, layout[2]);
+    }
+
+    fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
+        let (row, col) = self.current_tabstate().get_cursor_pos();
+        let row: u16 = row.try_into().expect("row number is too large");
+        let pos = Position {
+            y: row + 1,
+            x: col as u16,
+        };
+
+        term.set_cursor_position(pos).unwrap();
+        execute!(stdout(), SetCursorStyle::SteadyBlock).unwrap();
+        term.show_cursor().unwrap();
     }
 
     fn handle_input(&mut self) -> io::Result<()> {
@@ -250,9 +274,14 @@ pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     let buffers = initialize_buffers(&config)?;
     let mut editor = Editor::new(buffers, Theme::default());
 
+    enable_raw_mode()?;
+    execute!(stdout(), EnterAlternateScreen)?;
     while editor.active {
         terminal.draw(|frame| editor.draw(frame))?;
+        editor.draw_cursor(terminal);
         editor.handle_input()?;
     }
+    execute!(stdout(), LeaveAlternateScreen)?;
+    disable_raw_mode()?;
     return Ok(());
 }

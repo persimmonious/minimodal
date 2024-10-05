@@ -298,6 +298,19 @@ impl TextWindowState {
             .lines[line]
             .len()
     }
+
+    pub fn get_cursor_pos(&self) -> (usize, usize) {
+        let BufferPosition { line, col } = self.cursor;
+        let line_numbers_width = format!("{}", self.lines_count()).chars().count() + 1;
+        if self.is_on_screen(&self.cursor) {
+            (
+                line - self.top_line,
+                col - self.leftmost_col + line_numbers_width + 2,
+            )
+        } else {
+            (0, 0)
+        }
+    }
 }
 
 impl TextWindow {
@@ -358,19 +371,13 @@ impl TextWindow {
         let line_style = Style::default()
             .bg(theme.selected_line_background)
             .fg(theme.selected_line_foreground);
-        let cur_style = line_style.add_modifier(Modifier::REVERSED);
 
         let old_line: String = lines[line].to_owned().into();
         if old_line.is_empty() {
-            lines[line] = Line::styled(" ", cur_style);
+            lines[line] = Line::styled(" ", line_style);
             return;
         }
-
-        let left_span = Span::styled(old_line[..col].to_string(), line_style);
-        let cur_span = Span::styled(old_line[col..col + 1].to_string(), cur_style);
-        let right_span = Span::styled(old_line[col + 1..].to_string(), line_style);
-
-        lines[line] = Line::from(vec![left_span, cur_span, right_span]);
+        lines[line] = Line::from(Span::styled(old_line, line_style));
     }
 }
 

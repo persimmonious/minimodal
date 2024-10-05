@@ -34,6 +34,10 @@ impl TabState {
         };
     }
 
+    pub fn get_cursor_pos(&self) -> (usize, usize) {
+        return self.window_states.get_cursor_pos();
+    }
+
     pub fn insert_char(&mut self, c: char) {
         let current_pos = &self.window_states.cursor;
         self.buffer.borrow_mut().insert_char(c, current_pos);
