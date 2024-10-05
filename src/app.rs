@@ -116,7 +116,11 @@ impl Editor {
         };
 
         term.set_cursor_position(pos).unwrap();
-        execute!(stdout(), SetCursorStyle::SteadyBlock).unwrap();
+        if let Mode::Insert = self.mode {
+            execute!(stdout(), SetCursorStyle::SteadyBar).unwrap();
+        } else {
+            execute!(stdout(), SetCursorStyle::SteadyBlock).unwrap();
+        }
         term.show_cursor().unwrap();
     }
 
