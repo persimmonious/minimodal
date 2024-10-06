@@ -158,7 +158,7 @@ impl Editor {
             KeyCode::Char('k') => self.move_cursor(Rectilinear::Up),
             KeyCode::Char('h') => self.move_cursor(Rectilinear::Left),
             KeyCode::Char('l') => self.move_cursor(Rectilinear::Right),
-            KeyCode::Char('$') => self.jump_to_EOL(),
+            KeyCode::Char('$') => self.sticky_jump_to_EOL(),
             KeyCode::Char('0') => self.jump_to_home(),
             KeyCode::Char('G') => self.jump_to_last_line(),
             _ => {}
@@ -235,10 +235,10 @@ impl Editor {
             .move_cursor(dir);
     }
 
-    fn jump_to_EOL(&mut self) {
+    fn sticky_jump_to_EOL(&mut self) {
         self.tab_states[self.current_tab]
             .window_states
-            .jump_to_EOL();
+            .sticky_jump_to_EOL();
     }
 
     fn jump_to_home(&mut self) {

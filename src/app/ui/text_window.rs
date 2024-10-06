@@ -41,6 +41,7 @@ pub struct TextWindowState {
     pub cur_vertical_percent: f32,
     pub cursor: BufferPosition,
     pub last_manual_col: usize,
+    pub stick_to_EOL: bool,
     buffer: Weak<RefCell<Buffer>>,
     theme: Weak<Theme>,
 }
@@ -55,6 +56,7 @@ impl TextWindowState {
             cur_vertical_percent: 0.0,
             cursor: BufferPosition { line: 0, col: 0 },
             last_manual_col: 0,
+            stick_to_EOL: false,
             buffer,
             theme,
         };
@@ -78,7 +80,7 @@ impl TextWindowState {
                 }
 
                 let new_line_length = self.line_length(self.cursor.line);
-                if self.cursor.col >= new_line_length {
+                if self.cursor.col >= new_line_length || self.stick_to_EOL {
                     self.jump_to_EOL();
                 } else {
                     self.jump(&BufferPosition {
@@ -105,7 +107,7 @@ impl TextWindowState {
                 }
 
                 let new_line_length = self.line_length(self.cursor.line);
-                if self.cursor.col >= new_line_length {
+                if self.cursor.col >= new_line_length || self.stick_to_EOL {
                     self.jump_to_EOL();
                 } else {
                     self.jump(&BufferPosition {
@@ -123,6 +125,7 @@ impl TextWindowState {
                 if self.cursor.col + 1 >= line_length {
                     return;
                 }
+                self.stick_to_EOL = false;
                 self.cursor.col += 1;
                 self.last_manual_col = self.cursor.col;
                 if self.cursor.col >= self.leftmost_col + self.last_width {
@@ -134,6 +137,7 @@ impl TextWindowState {
                 if self.cursor.col <= 0 {
                     return;
                 }
+                self.stick_to_EOL = false;
                 self.cursor.col -= 1;
                 self.last_manual_col = self.cursor.col;
                 if self.cursor.col < self.leftmost_col {
@@ -231,6 +235,11 @@ impl TextWindowState {
         self.last_manual_col = self.cursor.col;
     }
 
+    pub fn sticky_jump_to_EOL(&mut self) {
+        self.stick_to_EOL = true;
+        self.jump_to_EOL();
+    }
+
     pub fn jump_to_EOL(&mut self) {
         if self.lines_count() == 0 {
             self.jump_to_home();
@@ -261,6 +270,7 @@ impl TextWindowState {
         self.cursor.col = 0;
         self.leftmost_col = 0;
         self.last_manual_col = 0;
+        self.stick_to_EOL = false;
     }
 
     pub fn jump_to_last_line(&mut self) {
