@@ -3,7 +3,7 @@ use std::{
     fs, io,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum HorizontalDirection {
     Forwards,
     Backwards,
@@ -15,7 +15,7 @@ pub enum VerticalDirection {
     Down,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RectilinearDirection {
     Up,
     Right,

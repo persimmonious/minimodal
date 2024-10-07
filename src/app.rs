@@ -152,33 +152,16 @@ impl Editor {
             EditorAction::ExitEditor => self.exit(),
             EditorAction::ExitMenu => self.exit_menu(),
             EditorAction::InsertChar(c) => self.insert_char(c),
-        }
-    }
-
-    fn handle_key_press_normal(&mut self, key: KeyEvent) {
-        match key.code {
-            KeyCode::Char('I') => {
+            EditorAction::MoveToHomeAndEnterInsert => {
                 self.jump_to_home();
                 self.enter_insert();
             }
-            KeyCode::Char('S') => self.replace_line(),
-            KeyCode::Tab => self.cycle_tab(Horizontal::Forwards),
-            KeyCode::BackTab => self.cycle_tab(Horizontal::Backwards),
-            KeyCode::Char('j') => self.move_cursor(Rectilinear::Down),
-            KeyCode::Char('k') => self.move_cursor(Rectilinear::Up),
-            KeyCode::Char('h') => self.move_cursor(Rectilinear::Left),
-            KeyCode::Char('l') => self.move_cursor(Rectilinear::Right),
-            KeyCode::Char('$') => self.sticky_jump_to_EOL(),
-            KeyCode::Char('0') => self.jump_to_home(),
-            KeyCode::Char('G') => self.jump_to_last_line(),
-            _ => {}
-        }
-    }
-
-    fn handle_key_press_insert(&mut self, key: KeyEvent) {
-        match key.code {
-            KeyCode::Char(c) => self.insert_char(c),
-            _ => {}
+            EditorAction::ReplaceLine => self.replace_line(),
+            EditorAction::CycleTab(dir) => self.cycle_tab(dir),
+            EditorAction::NormalMoveCursor(dir) => self.move_cursor(dir),
+            EditorAction::EOL => self.sticky_jump_to_EOL(),
+            EditorAction::Home => self.jump_to_home(),
+            EditorAction::EndOfBuffer => self.jump_to_last_line(),
         }
     }
 
