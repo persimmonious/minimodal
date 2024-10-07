@@ -11,7 +11,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use keymap::KeyMap;
+use keymap::{EditorAction, KeyMap};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout, Position},
@@ -139,17 +139,24 @@ impl Editor {
     }
 
     fn handle_key_press(&mut self, key: KeyEvent) {
-        match self.mode {
-            Mode::Normal => self.handle_key_press_normal(key),
-            Mode::Command => todo!(),
-            Mode::Insert => self.handle_key_press_insert(key),
-            Mode::Menu => self.handle_key_press_menu(key),
+        let associated_action = self.keymap.handle_key(&key, &self.mode);
+        if let None = associated_action {
+            return;
+        }
+        let action = (*associated_action.unwrap()).clone();
+        self.execute_editor_action(action);
+    }
+
+    fn execute_editor_action(&mut self, action: EditorAction) {
+        match action {
+            EditorAction::EnterMenu => self.enter_menu(),
+            EditorAction::ExitEditor => self.exit(),
+            EditorAction::ExitMenu => self.exit_menu(),
         }
     }
 
     fn handle_key_press_normal(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Char(' ') => self.enter_menu(),
             KeyCode::Char('i') => self.enter_insert(),
             KeyCode::Char('I') => {
                 self.jump_to_home();
@@ -173,14 +180,6 @@ impl Editor {
         match key.code {
             KeyCode::Esc => self.exit_insert(),
             KeyCode::Char(c) => self.insert_char(c),
-            _ => {}
-        }
-    }
-
-    fn handle_key_press_menu(&mut self, key: KeyEvent) {
-        match key.code {
-            KeyCode::Esc | KeyCode::Char(' ') => self.exit_menu(),
-            KeyCode::Char('q') => self.exit(),
             _ => {}
         }
     }
