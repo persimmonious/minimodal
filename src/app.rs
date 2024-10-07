@@ -1,4 +1,5 @@
 mod buffer;
+mod keymap;
 mod theme;
 mod ui;
 use crate::config::Config;
@@ -10,6 +11,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use keymap::KeyMap;
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout, Position},
@@ -36,7 +38,8 @@ pub enum Mode {
 
 #[derive(Debug)]
 struct Editor {
-    pub active: bool,
+    active: bool,
+    keymap: KeyMap,
     current_tab: usize,
     mode: Mode,
     tabs: Vec<Tab>,
@@ -49,6 +52,7 @@ impl Editor {
         let theme_rc = Rc::new(theme_struct);
         Editor {
             active: true,
+            keymap: KeyMap::default(),
             current_tab: 0,
             mode: Mode::Normal,
             theme: Rc::clone(&theme_rc),
