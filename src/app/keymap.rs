@@ -5,9 +5,12 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub enum EditorAction {
+    EnterInsert,
     EnterMenu,
     ExitEditor,
+    ExitInsert,
     ExitMenu,
+    InsertChar(char),
 }
 
 #[derive(Debug)]
@@ -18,11 +21,29 @@ pub struct KeyMap {
 }
 
 impl KeyMap {
-    pub fn handle_key(&self, key: &KeyEvent, mode: &Mode) -> Option<&EditorAction> {
+    pub fn handle_key(&self, key: &KeyEvent, mode: &Mode) -> Option<EditorAction> {
         match mode {
-            Mode::Menu => self.menu_mode.get(&key.code),
-            Mode::Insert => self.insert_mode.get(&key.code),
-            _ => self.normal_mode.get(&key.code),
+            Mode::Insert => self.handle_insert_mode(key),
+
+            Mode::Menu => match self.menu_mode.get(&key.code) {
+                None => None,
+                Some(ref act) => Some((*act).clone())
+            },
+
+            _ => match self.normal_mode.get(&key.code) {
+                None => None,
+                Some(ref act) => Some((*act).clone())
+            },
+        }
+    }
+
+    fn handle_insert_mode(&self, key: &KeyEvent) -> Option<EditorAction> {
+        match key.code {
+            KeyCode::Char(c) => Some(EditorAction::InsertChar(c)),
+            _ => match self.insert_mode.get(&key.code) {
+                None => None,
+                Some(ref act) => Some((*act).clone()),
+            },
         }
     }
 }
@@ -33,6 +54,8 @@ impl Default for KeyMap {
         let mut menu_mode = HashMap::new();
         let mut insert_mode = HashMap::new();
         normal_mode.insert(KeyCode::Char(' '), EditorAction::EnterMenu);
+        normal_mode.insert(KeyCode::Char('i'), EditorAction::EnterInsert);
+        insert_mode.insert(KeyCode::Esc, EditorAction::ExitInsert);
         menu_mode.insert(KeyCode::Esc, EditorAction::ExitMenu);
         menu_mode.insert(KeyCode::Char(' '), EditorAction::ExitMenu);
         menu_mode.insert(KeyCode::Char('q'), EditorAction::ExitEditor);

@@ -139,25 +139,24 @@ impl Editor {
     }
 
     fn handle_key_press(&mut self, key: KeyEvent) {
-        let associated_action = self.keymap.handle_key(&key, &self.mode);
-        if let None = associated_action {
-            return;
+        if let Some(action) = self.keymap.handle_key(&key, &self.mode) {
+            self.execute_editor_action(action);
         }
-        let action = (*associated_action.unwrap()).clone();
-        self.execute_editor_action(action);
     }
 
     fn execute_editor_action(&mut self, action: EditorAction) {
         match action {
+            EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterMenu => self.enter_menu(),
+            EditorAction::ExitInsert => self.exit_insert(),
             EditorAction::ExitEditor => self.exit(),
             EditorAction::ExitMenu => self.exit_menu(),
+            EditorAction::InsertChar(c) => self.insert_char(c),
         }
     }
 
     fn handle_key_press_normal(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Char('i') => self.enter_insert(),
             KeyCode::Char('I') => {
                 self.jump_to_home();
                 self.enter_insert();
@@ -178,7 +177,6 @@ impl Editor {
 
     fn handle_key_press_insert(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Esc => self.exit_insert(),
             KeyCode::Char(c) => self.insert_char(c),
             _ => {}
         }
