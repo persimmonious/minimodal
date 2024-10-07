@@ -22,7 +22,7 @@ pub enum EditorAction {
     Home,
     InsertChar(char),
     MoveToHomeAndEnterInsert,
-    NormalMoveCursor(RectilinearDirection),
+    MoveCursor(Mode, RectilinearDirection),
     ReplaceLine,
 }
 
@@ -74,10 +74,10 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('S'), ReplaceLine);
         normal_mode.insert(KeyCode::Tab, CycleTab(Forwards));
         normal_mode.insert(KeyCode::BackTab, CycleTab(Backwards));
-        normal_mode.insert(KeyCode::Char('h'), NormalMoveCursor(Left));
-        normal_mode.insert(KeyCode::Char('j'), NormalMoveCursor(Down));
-        normal_mode.insert(KeyCode::Char('k'), NormalMoveCursor(Up));
-        normal_mode.insert(KeyCode::Char('l'), NormalMoveCursor(Right));
+        normal_mode.insert(KeyCode::Char('h'), MoveCursor(Mode::Normal, Left));
+        normal_mode.insert(KeyCode::Char('j'), MoveCursor(Mode::Normal, Down));
+        normal_mode.insert(KeyCode::Char('k'), MoveCursor(Mode::Normal, Up));
+        normal_mode.insert(KeyCode::Char('l'), MoveCursor(Mode::Normal, Right));
         normal_mode.insert(KeyCode::Char('$'), EOL);
         normal_mode.insert(KeyCode::Char('0'), Home);
         normal_mode.insert(KeyCode::Char('G'), EndOfBuffer);
