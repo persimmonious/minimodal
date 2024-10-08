@@ -33,8 +33,8 @@ use EditorAction::*;
 #[derive(Debug)]
 pub struct KeyMap {
     normal_mode: HashMap<KeyCode, EditorAction>,
-    menu_mode: HashMap<KeyCode, EditorAction>,
     insert_mode: HashMap<KeyCode, EditorAction>,
+    root_menu: HashMap<KeyCode, EditorAction>,
 }
 
 impl KeyMap {
@@ -42,10 +42,15 @@ impl KeyMap {
         match mode {
             Mode::Insert => self.handle_insert_mode(key),
 
-            Mode::Menu => match self.menu_mode.get(&key.code) {
-                None => None,
-                Some(ref act) => Some((*act).clone()),
-            },
+            Mode::Menu(submenu) => {
+                let menu: &HashMap<KeyCode, EditorAction> = match submenu {
+                    _ => &self.root_menu,
+                };
+                match menu.get(&key.code) {
+                    None => None,
+                    Some(ref act) => Some((*act).clone()),
+                }
+            }
 
             _ => match self.normal_mode.get(&key.code) {
                 None => None,
@@ -68,7 +73,7 @@ impl KeyMap {
 impl Default for KeyMap {
     fn default() -> Self {
         let mut normal_mode = HashMap::new();
-        let mut menu_mode = HashMap::new();
+        let mut root_menu = HashMap::new();
         let mut insert_mode = HashMap::new();
         normal_mode.insert(KeyCode::Char(' '), EnterMenu);
         normal_mode.insert(KeyCode::Char('i'), EnterInsert);
@@ -86,13 +91,13 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('a'), Append);
         normal_mode.insert(KeyCode::Char('A'), AppendAtEOL);
         insert_mode.insert(KeyCode::Esc, ExitInsert);
-        menu_mode.insert(KeyCode::Esc, ExitMenu);
-        menu_mode.insert(KeyCode::Char(' '), ExitMenu);
-        menu_mode.insert(KeyCode::Char('q'), ExitEditor);
+        root_menu.insert(KeyCode::Esc, ExitMenu);
+        root_menu.insert(KeyCode::Char(' '), ExitMenu);
+        root_menu.insert(KeyCode::Char('q'), ExitEditor);
         KeyMap {
             insert_mode,
             normal_mode,
-            menu_mode,
+            root_menu,
         }
     }
 }

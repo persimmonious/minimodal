@@ -26,7 +26,7 @@ use std::{
 };
 use theme::Theme;
 use ui::{
-    leader_menu::{LeaderMenu, MENU_HEIGHT},
+    leader_menu::{LeaderMenu, SubMenu},
     status_bar::StatusBar,
     text_window::TextWindowState,
     Tab, TabState,
@@ -37,7 +37,7 @@ pub enum Mode {
     Normal,
     Command,
     Insert,
-    Menu,
+    Menu(SubMenu),
 }
 
 #[derive(Debug)]
@@ -78,7 +78,7 @@ impl Editor {
 
     fn draw(&mut self, frame: &mut Frame) {
         let (layout, indices) = match self.mode {
-            Mode::Menu => Self::leader_menu_layout(frame),
+            Mode::Menu(ref submenu) => self.leader_menu_layout(&submenu, frame),
             _ => Self::standard_layout(frame),
         };
 
@@ -110,9 +110,9 @@ impl Editor {
             &mut self.tab_states[self.current_tab],
         );
 
-        if let Mode::Menu = self.mode {
+        if let Mode::Menu(ref sub_menu) = self.mode {
             frame.render_widget(
-                LeaderMenu::new(),
+                LeaderMenu::new(sub_menu),
                 layout[indices
                     .menu
                     .expect("mismatch between editor mode and layout!")],
@@ -146,16 +146,35 @@ impl Editor {
         return (layout, indices);
     }
 
-    fn leader_menu_layout(frame: &mut Frame) -> (Rc<[Rect]>, EditorLayoutIndices) {
-        let layout = Layout::default()
+    fn leader_menu_layout(
+        &self,
+        sub_menu: &SubMenu,
+        frame: &mut Frame,
+    ) -> (Rc<[Rect]>, EditorLayoutIndices) {
+        let needed_height = LeaderMenu::required_height(sub_menu, frame.area().width);
+        let mut layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![
                 Constraint::Length(1),
+                Constraint::Fill(2),
                 Constraint::Fill(1),
-                Constraint::Length(MENU_HEIGHT),
                 Constraint::Length(1),
             ])
             .split(frame.area());
+        let gap = layout[2].height - needed_height;
+        if gap > 0 {
+            let new_text_height = layout[1].height + gap;
+            let new_menu_height = layout[2].height - gap;
+            layout = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints(vec![
+                    Constraint::Length(1),
+                    Constraint::Fill(new_text_height),
+                    Constraint::Fill(new_menu_height),
+                    Constraint::Length(1),
+                ])
+                .split(frame.area());
+        }
         let indices = EditorLayoutIndices {
             tabline: 0,
             tab: 1,
@@ -236,7 +255,7 @@ impl Editor {
     }
 
     fn enter_menu(&mut self) {
-        self.mode = Mode::Menu;
+        self.mode = Mode::Menu(SubMenu::Root);
     }
 
     fn exit_menu(&mut self) {
