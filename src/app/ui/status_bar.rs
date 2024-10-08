@@ -3,7 +3,7 @@ use crate::app::{theme::Theme, Mode};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     prelude::{Buffer as TUI_Buffer, Rect},
-    style::{Style, Stylize},
+    style::{Modifier, Style, Stylize},
     text::Span,
     widgets::{Block, Widget},
 };
@@ -45,7 +45,8 @@ impl Widget for &StatusBar {
             Mode::Command => Span::styled(" COMMAND ", theme.styles.status_mode_command),
             Mode::Insert => Span::styled(" INSERT ", theme.styles.status_mode_insert),
             Mode::Menu => Span::styled(" MENU ", theme.styles.status_mode_menu),
-        };
+        }
+        .add_modifier(Modifier::BOLD);
         let mode_width = mode_span.width().try_into().expect("mode span too long!");
         let pos_span = Span::styled(
             format!("{}:{}", self.line + 1, self.col + 1),
