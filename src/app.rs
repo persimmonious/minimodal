@@ -147,6 +147,10 @@ impl Editor {
     fn execute_editor_action(&mut self, action: EditorAction) {
         match action {
             EditorAction::Append => self.append(),
+            EditorAction::AppendAtEOL => {
+                self.sticky_jump_to_EOL();
+                self.append();
+            }
             EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterMenu => self.enter_menu(),
             EditorAction::ExitInsert => self.exit_insert(),
