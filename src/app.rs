@@ -190,6 +190,7 @@ impl Editor {
     }
 
     fn enter_insert(&mut self) {
+        self.current_winstate().stick_to_EOL = false;
         self.mode = Mode::Insert;
     }
 
