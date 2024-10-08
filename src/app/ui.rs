@@ -1,3 +1,4 @@
+pub mod leader_menu;
 mod line_numbers;
 pub mod status_bar;
 pub mod text_window;

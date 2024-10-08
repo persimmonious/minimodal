@@ -14,7 +14,7 @@ use crossterm::{
 use keymap::{EditorAction, KeyMap};
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Constraint, Direction, Layout, Position},
+    layout::{Constraint, Direction, Layout, Position, Rect},
     style::{Style, Stylize},
     widgets::Tabs,
     DefaultTerminal, Frame,
@@ -25,8 +25,12 @@ use std::{
     rc::Rc,
 };
 use theme::Theme;
-use ui::text_window::TextWindowState;
-use ui::{status_bar::StatusBar, Tab, TabState};
+use ui::{
+    leader_menu::{LeaderMenu, MENU_HEIGHT},
+    status_bar::StatusBar,
+    text_window::TextWindowState,
+    Tab, TabState,
+};
 
 #[derive(Debug, Clone)]
 pub enum Mode {
@@ -34,6 +38,14 @@ pub enum Mode {
     Command,
     Insert,
     Menu,
+}
+
+#[derive(Debug)]
+struct EditorLayoutIndices {
+    tabline: usize,
+    tab: usize,
+    menu: Option<usize>,
+    status_bar: usize,
 }
 
 #[derive(Debug)]
@@ -65,14 +77,10 @@ impl Editor {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(vec![
-                Constraint::Length(1),
-                Constraint::Fill(1),
-                Constraint::Length(1),
-            ])
-            .split(frame.area());
+        let (layout, indices) = match self.mode {
+            Mode::Menu => Self::leader_menu_layout(frame),
+            _ => Self::standard_layout(frame),
+        };
 
         let buffer_titles = self
             .tab_states
@@ -95,12 +103,21 @@ impl Editor {
             .padding("", "")
             .style(tabs_style);
 
-        frame.render_widget(tabline, layout[0]);
+        frame.render_widget(tabline, layout[indices.tabline]);
         frame.render_stateful_widget(
             self.tabs[self.current_tab].clone(),
-            layout[1],
+            layout[indices.tab],
             &mut self.tab_states[self.current_tab],
         );
+
+        if let Mode::Menu = self.mode {
+            frame.render_widget(
+                LeaderMenu::new(),
+                layout[indices
+                    .menu
+                    .expect("mismatch between editor mode and layout!")],
+            );
+        }
 
         let tab = &self.tab_states[self.current_tab];
         let status_bar = StatusBar::new(
@@ -108,7 +125,44 @@ impl Editor {
             self.mode.clone(),
             Rc::downgrade(&self.theme),
         );
-        frame.render_widget(&status_bar, layout[2]);
+        frame.render_widget(&status_bar, layout[indices.status_bar]);
+    }
+
+    fn standard_layout(frame: &mut Frame) -> (Rc<[Rect]>, EditorLayoutIndices) {
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![
+                Constraint::Length(1),
+                Constraint::Fill(1),
+                Constraint::Length(1),
+            ])
+            .split(frame.area());
+        let indices = EditorLayoutIndices {
+            tabline: 0,
+            tab: 1,
+            menu: None,
+            status_bar: 2,
+        };
+        return (layout, indices);
+    }
+
+    fn leader_menu_layout(frame: &mut Frame) -> (Rc<[Rect]>, EditorLayoutIndices) {
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![
+                Constraint::Length(1),
+                Constraint::Fill(1),
+                Constraint::Length(MENU_HEIGHT),
+                Constraint::Length(1),
+            ])
+            .split(frame.area());
+        let indices = EditorLayoutIndices {
+            tabline: 0,
+            tab: 1,
+            menu: Some(2),
+            status_bar: 3,
+        };
+        return (layout, indices);
     }
 
     fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
