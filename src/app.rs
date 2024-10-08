@@ -146,6 +146,7 @@ impl Editor {
 
     fn execute_editor_action(&mut self, action: EditorAction) {
         match action {
+            EditorAction::Append => self.append(),
             EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterMenu => self.enter_menu(),
             EditorAction::ExitInsert => self.exit_insert(),
@@ -200,6 +201,13 @@ impl Editor {
     fn replace_line(&mut self) {
         self.enter_insert();
         self.current_tabstate().replace_line();
+    }
+
+    fn append(&mut self) {
+        self.enter_insert();
+        if !self.current_winstate().cursor_at_EOL() {
+            self.current_winstate().advance_insertion_cursor();
+        }
     }
 
     fn exit(&mut self) {

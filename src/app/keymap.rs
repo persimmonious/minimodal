@@ -11,6 +11,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub enum EditorAction {
+    Append,
     CycleTab(HorizontalDirection),
     EndOfBuffer,
     EnterInsert,
@@ -81,6 +82,7 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('$'), EOL);
         normal_mode.insert(KeyCode::Char('0'), Home);
         normal_mode.insert(KeyCode::Char('G'), EndOfBuffer);
+        normal_mode.insert(KeyCode::Char('a'), Append);
         insert_mode.insert(KeyCode::Esc, ExitInsert);
         menu_mode.insert(KeyCode::Esc, ExitMenu);
         menu_mode.insert(KeyCode::Char(' '), ExitMenu);

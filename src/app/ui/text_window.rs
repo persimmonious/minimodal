@@ -184,6 +184,14 @@ impl TextWindowState {
         return within_vertically && within_horizontally;
     }
 
+    pub fn cursor_at_EOL(&self) -> bool {
+        let BufferPosition { line, col } = self.cursor;
+        if self.lines_count() == 0 {
+            return true;
+        }
+        return col >= self.line_length(line);
+    }
+
     pub fn snap_to_EOL(&mut self) {
         if self.lines_count() == 0 {
             self.cursor.col = 0;
