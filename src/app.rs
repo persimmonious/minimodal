@@ -112,7 +112,7 @@ impl Editor {
 
         if let Mode::Menu(ref sub_menu) = self.mode {
             frame.render_widget(
-                LeaderMenu::new(sub_menu),
+                LeaderMenu::new(sub_menu, &self.theme),
                 layout[indices
                     .menu
                     .expect("mismatch between editor mode and layout!")],

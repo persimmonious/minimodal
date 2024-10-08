@@ -34,6 +34,10 @@ pub struct Theme {
     pub status_mode_menu_foreground: Color,
     pub status_background: Color,
     pub status_foreground: Color,
+    pub menu_background: Color,
+    pub menu_key_foreground: Color,
+    pub menu_separator_foreground: Color,
+    pub menu_action_foreground: Color,
     pub styles: Styles,
 }
 
@@ -61,6 +65,10 @@ impl Default for Theme {
         let status_mode_menu_foreground = text_background;
         let status_background = Color::Rgb(10, 10, 10);
         let status_foreground = text_foreground;
+        let menu_background = Color::Rgb(20, 20, 20);
+        let menu_key_foreground = Color::Rgb(80, 240, 120);
+        let menu_separator_foreground = Color::Rgb(80, 80, 80);
+        let menu_action_foreground = Color::Rgb(200, 160, 200);
 
         let line_numbers_normal = Style::default()
             .fg(line_numbers_normal_foreground)
@@ -114,6 +122,10 @@ impl Default for Theme {
             status_mode_menu_foreground,
             status_background,
             status_foreground,
+            menu_background,
+            menu_key_foreground,
+            menu_separator_foreground,
+            menu_action_foreground,
             styles,
         };
     }

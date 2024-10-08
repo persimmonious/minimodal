@@ -1,14 +1,15 @@
 use std::cmp::max;
 
-use clap::builder::styling::Color;
 use ratatui::{
     layout::{Constraint, Direction, Flex, Layout},
     prelude::{Buffer as TUI_Buffer, Rect},
-    style::{Style, Stylize},
+    style::{Color, Style, Stylize},
     text::{Line, Span},
     widgets::{Block, Paragraph, Widget},
 };
 use SubMenu::*;
+
+use crate::app::theme::Theme;
 
 pub const KEY_HINT_SEPARATOR: &'static str = " : ";
 const MINIMUM_COLUMN_SPACING: u16 = 2;
@@ -21,6 +22,16 @@ pub enum SubMenu {
 #[derive(Debug)]
 pub struct LeaderMenu {
     sub_menu: SubMenu,
+    menu_background: Color,
+    key_hint_style: KeyHintStyle,
+}
+
+#[derive(Debug)]
+pub struct KeyHintStyle {
+    background: Color,
+    key: Color,
+    separator: Color,
+    action: Color,
 }
 
 #[derive(Debug)]
@@ -37,10 +48,11 @@ impl KeyHint {
         };
     }
 
-    pub fn styled<'a>(self) -> Line<'a> {
-        let key = Span::styled(self.key.clone(), Style::default());
-        let sep = Span::styled(KEY_HINT_SEPARATOR, Style::default());
-        let action = Span::styled(self.action.clone(), Style::default());
+    pub fn styled<'a>(self, style: &KeyHintStyle) -> Line<'a> {
+        let base = Style::default().bg(style.background);
+        let key = Span::styled(self.key.clone(), base.fg(style.key));
+        let sep = Span::styled(KEY_HINT_SEPARATOR, base.fg(style.separator));
+        let action = Span::styled(self.action.clone(), base.fg(style.action));
         return Line::from(vec![key, sep, action]);
     }
 
@@ -50,9 +62,16 @@ impl KeyHint {
 }
 
 impl LeaderMenu {
-    pub fn new(sub_menu: &SubMenu) -> Self {
+    pub fn new(sub_menu: &SubMenu, theme: &Theme) -> Self {
         return LeaderMenu {
             sub_menu: sub_menu.clone(),
+            menu_background: theme.menu_background,
+            key_hint_style: KeyHintStyle {
+                background: theme.menu_background,
+                key: theme.menu_key_foreground,
+                separator: theme.menu_separator_foreground,
+                action: theme.menu_action_foreground,
+            },
         };
     }
 
@@ -81,8 +100,8 @@ impl LeaderMenu {
         return (height + 3) as u16;
     }
 
-    fn style_keyhints<'a>(hints: Box<Vec<KeyHint>>) -> Box<Vec<Line<'a>>> {
-        return Box::new(hints.into_iter().map(move |h| h.styled()).collect());
+    fn style_keyhints<'a>(hints: Box<Vec<KeyHint>>, style: &KeyHintStyle) -> Box<Vec<Line<'a>>> {
+        return Box::new(hints.into_iter().map(move |h| h.styled(style)).collect());
     }
 
     pub fn menu_items(sub_menu: &SubMenu) -> Box<Vec<KeyHint>> {
@@ -108,7 +127,7 @@ impl Widget for LeaderMenu {
             Constraint::Length(1),
         ])
         .split(area);
-        Block::new().render(area, buf);
+        Block::new().bg(self.menu_background).render(area, buf);
 
         let height = outer_layout[1].height as usize;
         if height < 1 {
@@ -116,7 +135,7 @@ impl Widget for LeaderMenu {
         }
         let width = area.width;
 
-        let items = Self::style_keyhints(Self::menu_items(&self.sub_menu));
+        let items = Self::style_keyhints(Self::menu_items(&self.sub_menu), &self.key_hint_style);
         let mut columns: Vec<Paragraph> = vec![];
         let mut minimum_width = MINIMUM_COLUMN_SPACING;
         while let Some(col) = items.get(height * columns.len()..height * (columns.len() + 1)) {
