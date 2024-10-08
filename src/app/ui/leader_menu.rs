@@ -92,7 +92,10 @@ impl LeaderMenu {
     }
 
     fn root_menu_items() -> Box<Vec<KeyHint>> {
-        return Box::new(vec![KeyHint::new("q", "Quit")]);
+        return Box::new(vec![
+            KeyHint::new("q", "Quit"),
+            KeyHint::new("w", "Save Buffer"),
+        ]);
     }
 }
 
@@ -132,7 +135,7 @@ impl Widget for LeaderMenu {
             .collect();
 
         Layout::horizontal(constraints)
-            .flex(Flex::Center)
+            .flex(Flex::SpaceAround)
             .split(outer_layout[1])
             .iter()
             .zip(columns)
