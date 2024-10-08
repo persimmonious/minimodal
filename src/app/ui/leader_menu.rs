@@ -5,7 +5,7 @@ use ratatui::{
     prelude::{Buffer as TUI_Buffer, Rect},
     style::{Color, Style, Stylize},
     text::{Line, Span},
-    widgets::{Block, Paragraph, Widget},
+    widgets::{Block, Borders, Paragraph, Widget},
 };
 use SubMenu::*;
 
@@ -23,6 +23,7 @@ pub enum SubMenu {
 pub struct LeaderMenu {
     sub_menu: SubMenu,
     menu_background: Color,
+    menu_border: Color,
     key_hint_style: KeyHintStyle,
 }
 
@@ -66,6 +67,7 @@ impl LeaderMenu {
         return LeaderMenu {
             sub_menu: sub_menu.clone(),
             menu_background: theme.menu_background,
+            menu_border: theme.menu_border,
             key_hint_style: KeyHintStyle {
                 background: theme.menu_background,
                 key: theme.menu_key_foreground,
@@ -127,7 +129,12 @@ impl Widget for LeaderMenu {
             Constraint::Length(1),
         ])
         .split(area);
-        Block::new().bg(self.menu_background).render(area, buf);
+        Block::new()
+            .bg(self.menu_background)
+            .borders(Borders::TOP)
+            .border_type(ratatui::widgets::BorderType::QuadrantOutside)
+            .border_style(self.menu_border)
+            .render(area, buf);
 
         let height = outer_layout[1].height as usize;
         if height < 1 {
