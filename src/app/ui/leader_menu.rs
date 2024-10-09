@@ -1,7 +1,7 @@
 use std::cmp::max;
 
 use ratatui::{
-    layout::{Constraint, Direction, Flex, Layout},
+    layout::{Constraint, Flex, Layout},
     prelude::{Buffer as TUI_Buffer, Rect},
     style::{Color, Style, Stylize},
     text::{Line, Span},

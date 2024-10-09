@@ -16,7 +16,7 @@ use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout, Position, Rect},
     style::{Style, Stylize},
-    widgets::Tabs,
+    widgets::{Clear, Tabs},
     DefaultTerminal, Frame,
 };
 use std::{
@@ -107,22 +107,19 @@ impl Editor {
 
         if let Mode::Menu(ref sub_menu) = self.mode {
             let mut tab_area = layout[indices.tab].clone();
-            tab_area.height += layout[indices
+            let menu_area = layout[indices
                 .menu
-                .expect("mismatch between editor mode and layout")]
-            .height;
+                .expect("mismatch between editor mode and layout!")];
+
+            tab_area.height += menu_area.height;
             frame.render_stateful_widget(
                 self.tabs[self.current_tab].clone(),
                 tab_area,
                 &mut self.tab_states[self.current_tab],
             );
 
-            frame.render_widget(
-                LeaderMenu::new(sub_menu, &self.theme),
-                layout[indices
-                    .menu
-                    .expect("mismatch between editor mode and layout!")],
-            );
+            frame.render_widget(Clear, menu_area);
+            frame.render_widget(LeaderMenu::new(sub_menu, &self.theme), menu_area);
         } else {
             frame.render_stateful_widget(
                 self.tabs[self.current_tab].clone(),
