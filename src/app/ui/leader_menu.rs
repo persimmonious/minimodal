@@ -130,6 +130,7 @@ impl Widget for LeaderMenu {
         ])
         .split(area);
         Block::new()
+            .fg(self.menu_background)
             .bg(self.menu_background)
             .borders(Borders::TOP)
             .border_type(ratatui::widgets::BorderType::QuadrantOutside)

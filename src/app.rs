@@ -104,18 +104,30 @@ impl Editor {
             .style(tabs_style);
 
         frame.render_widget(tabline, layout[indices.tabline]);
-        frame.render_stateful_widget(
-            self.tabs[self.current_tab].clone(),
-            layout[indices.tab],
-            &mut self.tab_states[self.current_tab],
-        );
 
         if let Mode::Menu(ref sub_menu) = self.mode {
+            let mut tab_area = layout[indices.tab].clone();
+            tab_area.height += layout[indices
+                .menu
+                .expect("mismatch between editor mode and layout")]
+            .height;
+            frame.render_stateful_widget(
+                self.tabs[self.current_tab].clone(),
+                tab_area,
+                &mut self.tab_states[self.current_tab],
+            );
+
             frame.render_widget(
                 LeaderMenu::new(sub_menu, &self.theme),
                 layout[indices
                     .menu
                     .expect("mismatch between editor mode and layout!")],
+            );
+        } else {
+            frame.render_stateful_widget(
+                self.tabs[self.current_tab].clone(),
+                layout[indices.tab],
+                &mut self.tab_states[self.current_tab],
             );
         }
 
