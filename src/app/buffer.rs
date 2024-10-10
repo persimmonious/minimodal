@@ -1,6 +1,7 @@
 use std::{
     ffi::{OsStr, OsString},
-    fs, io,
+    fs::{self, File},
+    io::{self, Write},
 };
 
 #[derive(Debug, Clone)]
@@ -50,6 +51,17 @@ impl Buffer {
             path: None,
             lines: vec![],
         };
+    }
+
+    pub fn save(&self) -> io::Result<()> {
+        let linebreak = "\n";
+        let path = self.path.as_ref().unwrap();
+        let mut file = io::LineWriter::new(File::create(path)?);
+        for line in &self.lines {
+            file.write(line.as_bytes())?;
+            file.write(linebreak.as_bytes())?;
+        }
+        Ok(())
     }
 
     pub fn load(name: OsString, path: OsString) -> io::Result<Self> {

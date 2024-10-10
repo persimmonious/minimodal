@@ -252,6 +252,7 @@ impl Editor {
             EditorAction::EOL => self.sticky_jump_to_EOL(),
             EditorAction::Home => self.jump_to_home(),
             EditorAction::EndOfBuffer => self.jump_to_last_line(),
+            EditorAction::SaveBuffer => self.save_current_buffer(),
         }
     }
 
@@ -295,6 +296,10 @@ impl Editor {
         if !self.current_winstate().cursor_at_EOL() {
             self.current_winstate().advance_insertion_cursor();
         }
+    }
+
+    fn save_current_buffer(&mut self) {
+        self.current_tabstate().save_buffer().unwrap();
     }
 
     fn exit(&mut self) {

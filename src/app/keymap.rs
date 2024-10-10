@@ -26,6 +26,7 @@ pub enum EditorAction {
     MoveToHomeAndEnterInsert,
     MoveCursor(Mode, RectilinearDirection),
     ReplaceLine,
+    SaveBuffer,
 }
 
 use EditorAction::*;
@@ -94,6 +95,7 @@ impl Default for KeyMap {
         root_menu.insert(KeyCode::Esc, ExitMenu);
         root_menu.insert(KeyCode::Char(' '), ExitMenu);
         root_menu.insert(KeyCode::Char('q'), ExitEditor);
+        root_menu.insert(KeyCode::Char('w'), SaveBuffer);
         KeyMap {
             insert_mode,
             normal_mode,
