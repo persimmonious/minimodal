@@ -300,6 +300,7 @@ impl Editor {
 
     fn save_current_buffer(&mut self) {
         self.current_tabstate().save_buffer().unwrap();
+        self.exit_menu();
     }
 
     fn exit(&mut self) {
