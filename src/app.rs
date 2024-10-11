@@ -1,8 +1,10 @@
+mod actions;
 mod buffer;
 mod keymap;
 mod theme;
 mod ui;
 use crate::config::Config;
+use actions::EditorAction;
 use buffer::{
     Buffer, BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
 };
@@ -11,7 +13,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use keymap::{EditorAction, KeyMap};
+use keymap::KeyMap;
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout, Position, Rect},

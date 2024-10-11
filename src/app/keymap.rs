@@ -1,35 +1,13 @@
 use super::{
-    buffer::{
-        HorizontalDirection::{self, *},
-        RectilinearDirection::{self, *},
-    },
+    actions::EditorAction,
+    buffer::{HorizontalDirection::*, RectilinearDirection::*},
     Mode,
 };
 use crossterm::event::KeyCode;
 use ratatui::crossterm::event::KeyEvent;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
-pub enum EditorAction {
-    Append,
-    AppendAtEOL,
-    CycleTab(HorizontalDirection),
-    EndOfBuffer,
-    EnterInsert,
-    EnterMenu,
-    EOL,
-    ExitEditor,
-    ExitInsert,
-    ExitMenu,
-    Home,
-    InsertChar(char),
-    MoveToHomeAndEnterInsert,
-    MoveCursor(Mode, RectilinearDirection),
-    ReplaceLine,
-    SaveBuffer,
-}
-
-use EditorAction::*;
+use crate::app::EditorAction::*;
 
 #[derive(Debug)]
 pub struct KeyMap {
