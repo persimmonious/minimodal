@@ -7,6 +7,7 @@ use crate::config::Config;
 use actions::EditorAction;
 use buffer::{
     Buffer, BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
+    VerticalDirection,
 };
 use crossterm::{
     cursor::{MoveToColumn, MoveToRow, SetCursorStyle},
@@ -255,6 +256,7 @@ impl Editor {
             EditorAction::Home => self.jump_to_home(),
             EditorAction::EndOfBuffer => self.jump_to_last_line(),
             EditorAction::SaveBuffer => self.save_current_buffer(),
+            EditorAction::InsertNewLine(dir) => self.insert_new_line(dir),
         }
     }
 
@@ -298,6 +300,11 @@ impl Editor {
         if !self.current_winstate().cursor_at_EOL() {
             self.current_winstate().advance_insertion_cursor();
         }
+    }
+
+    fn insert_new_line(&mut self, dir: VerticalDirection) {
+        self.current_tabstate().insert_new_line(dir);
+        self.enter_insert();
     }
 
     fn save_current_buffer(&mut self) {

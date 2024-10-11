@@ -1,5 +1,5 @@
 use super::{
-    buffer::{HorizontalDirection, RectilinearDirection},
+    buffer::{HorizontalDirection, RectilinearDirection, VerticalDirection},
     Mode,
 };
 
@@ -19,6 +19,7 @@ pub enum EditorAction {
     InsertChar(char),
     MoveToHomeAndEnterInsert,
     MoveCursor(Mode, RectilinearDirection),
+    InsertNewLine(VerticalDirection),
     ReplaceLine,
     SaveBuffer,
 }

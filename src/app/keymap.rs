@@ -1,6 +1,8 @@
 use super::{
     actions::EditorAction,
-    buffer::{HorizontalDirection::*, RectilinearDirection::*},
+    buffer::{
+        HorizontalDirection::*, RectilinearDirection as Rectilinear, VerticalDirection as Vertical,
+    },
     Mode,
 };
 use crossterm::event::KeyCode;
@@ -60,15 +62,28 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('S'), ReplaceLine);
         normal_mode.insert(KeyCode::Tab, CycleTab(Forwards));
         normal_mode.insert(KeyCode::BackTab, CycleTab(Backwards));
-        normal_mode.insert(KeyCode::Char('h'), MoveCursor(Mode::Normal, Left));
-        normal_mode.insert(KeyCode::Char('j'), MoveCursor(Mode::Normal, Down));
-        normal_mode.insert(KeyCode::Char('k'), MoveCursor(Mode::Normal, Up));
-        normal_mode.insert(KeyCode::Char('l'), MoveCursor(Mode::Normal, Right));
+        normal_mode.insert(
+            KeyCode::Char('h'),
+            MoveCursor(Mode::Normal, Rectilinear::Left),
+        );
+        normal_mode.insert(
+            KeyCode::Char('j'),
+            MoveCursor(Mode::Normal, Rectilinear::Down),
+        );
+        normal_mode.insert(
+            KeyCode::Char('k'),
+            MoveCursor(Mode::Normal, Rectilinear::Up),
+        );
+        normal_mode.insert(
+            KeyCode::Char('l'),
+            MoveCursor(Mode::Normal, Rectilinear::Right),
+        );
         normal_mode.insert(KeyCode::Char('$'), EOL);
         normal_mode.insert(KeyCode::Char('0'), Home);
         normal_mode.insert(KeyCode::Char('G'), EndOfBuffer);
         normal_mode.insert(KeyCode::Char('a'), Append);
         normal_mode.insert(KeyCode::Char('A'), AppendAtEOL);
+        normal_mode.insert(KeyCode::Char('o'), InsertNewLine(Vertical::Down));
         insert_mode.insert(KeyCode::Esc, ExitInsert);
         root_menu.insert(KeyCode::Esc, ExitMenu);
         root_menu.insert(KeyCode::Char(' '), ExitMenu);

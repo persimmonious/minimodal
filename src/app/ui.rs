@@ -3,7 +3,7 @@ mod line_numbers;
 pub mod status_bar;
 pub mod text_window;
 use super::{
-    buffer::{Buffer, RectilinearDirection},
+    buffer::{Buffer, BufferPosition, RectilinearDirection, VerticalDirection as Vertical},
     theme::Theme,
 };
 use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
@@ -55,6 +55,30 @@ impl TabState {
         let current_pos = &self.window_states.cursor;
         self.buffer.borrow_mut().replace_line(current_pos);
         self.window_states.snap_to_EOL();
+    }
+
+    pub fn insert_new_line(&mut self, dir: Vertical) {
+        let line_count = self.buffer.borrow().lines.len();
+        let mut line = self.window_states.cursor.line;
+        if let Vertical::Down = dir {
+            line += 1;
+        }
+
+        if line_count == 0 {
+            self.buffer.borrow_mut().add_line(0, "".to_string());
+            self.buffer.borrow_mut().add_line(1, "".to_string());
+            if let Vertical::Down = dir {
+                let second_line = BufferPosition { line, col: 0 };
+                self.window_states.jump(&second_line);
+            }
+            return;
+        }
+
+        self.buffer.borrow_mut().add_line(line, "".to_string());
+        if let Vertical::Down = dir {
+            let second_line = BufferPosition { line, col: 0 };
+            self.window_states.jump(&second_line);
+        }
     }
 }
 

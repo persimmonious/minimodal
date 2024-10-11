@@ -10,7 +10,7 @@ pub enum HorizontalDirection {
     Backwards,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum VerticalDirection {
     Up,
     Down,
@@ -97,5 +97,9 @@ impl Buffer {
         }
         let line = pos.line;
         self.lines[line] = String::new();
+    }
+
+    pub fn add_line(&mut self, index: usize, content: String) {
+        self.lines.insert(index, content);
     }
 }
