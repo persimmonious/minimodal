@@ -84,6 +84,7 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('a'), Append);
         normal_mode.insert(KeyCode::Char('A'), AppendAtEOL);
         normal_mode.insert(KeyCode::Char('o'), InsertNewLine(Vertical::Down));
+        normal_mode.insert(KeyCode::Char('O'), InsertNewLine(Vertical::Up));
         insert_mode.insert(KeyCode::Esc, ExitInsert);
         root_menu.insert(KeyCode::Esc, ExitMenu);
         root_menu.insert(KeyCode::Char(' '), ExitMenu);

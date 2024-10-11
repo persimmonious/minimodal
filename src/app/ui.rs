@@ -78,6 +78,8 @@ impl TabState {
         if let Vertical::Down = dir {
             let second_line = BufferPosition { line, col: 0 };
             self.window_states.jump(&second_line);
+        } else {
+            self.window_states.jump_to_home();
         }
     }
 }
