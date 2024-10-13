@@ -21,5 +21,6 @@ pub enum EditorAction {
     MoveCursor(Mode, RectilinearDirection),
     InsertNewLine(VerticalDirection),
     ReplaceLine,
+    RemoveChar,
     SaveBuffer,
 }

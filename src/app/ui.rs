@@ -45,10 +45,36 @@ impl TabState {
         return self.window_states.get_cursor_pos();
     }
 
+    pub fn lines_count(&self) -> usize {
+        return self.buffer.borrow().lines.len();
+    }
+
+    pub fn line_length(&self, index: usize) -> Option<usize> {
+        let count = self.lines_count();
+        if count == 0 || index >= count {
+            return None;
+        }
+        return Some(self.buffer.borrow().lines[index].chars().count());
+    }
+
     pub fn insert_char(&mut self, c: char) {
         let current_pos = &self.window_states.cursor;
         self.buffer.borrow_mut().insert_char(c, current_pos);
         self.window_states.advance_insertion_cursor();
+    }
+
+    pub fn remove_char(&mut self) {
+        let BufferPosition { line, col } = self.window_states.cursor;
+        match self.line_length(line) {
+            None => return,
+            Some(len) => {
+                if col >= len {
+                    return;
+                }
+                self.buffer.borrow_mut().lines[line].remove(col);
+                self.window_states.snap_to_EOL();
+            }
+        }
     }
 
     pub fn replace_line(&mut self) {

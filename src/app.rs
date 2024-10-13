@@ -257,6 +257,7 @@ impl Editor {
             EditorAction::EndOfBuffer => self.jump_to_last_line(),
             EditorAction::SaveBuffer => self.save_current_buffer(),
             EditorAction::InsertNewLine(dir) => self.insert_new_line(dir),
+            EditorAction::RemoveChar => self.remove_char(),
         }
     }
 
@@ -288,6 +289,10 @@ impl Editor {
 
     fn insert_char(&mut self, c: char) {
         self.current_tabstate().insert_char(c);
+    }
+
+    fn remove_char(&mut self) {
+        self.current_tabstate().remove_char();
     }
 
     fn replace_line(&mut self) {
