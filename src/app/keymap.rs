@@ -66,18 +66,22 @@ impl Default for KeyMap {
             KeyCode::Char('h'),
             MoveCursor(Mode::Normal, Rectilinear::Left),
         );
+        normal_mode.insert(KeyCode::Left, MoveCursor(Mode::Normal, Rectilinear::Left));
         normal_mode.insert(
             KeyCode::Char('j'),
             MoveCursor(Mode::Normal, Rectilinear::Down),
         );
+        normal_mode.insert(KeyCode::Down, MoveCursor(Mode::Normal, Rectilinear::Down));
         normal_mode.insert(
             KeyCode::Char('k'),
             MoveCursor(Mode::Normal, Rectilinear::Up),
         );
+        normal_mode.insert(KeyCode::Up, MoveCursor(Mode::Normal, Rectilinear::Up));
         normal_mode.insert(
             KeyCode::Char('l'),
             MoveCursor(Mode::Normal, Rectilinear::Right),
         );
+        normal_mode.insert(KeyCode::Right, MoveCursor(Mode::Normal, Rectilinear::Right));
         normal_mode.insert(KeyCode::Char('$'), EOL);
         normal_mode.insert(KeyCode::Char('0'), Home);
         normal_mode.insert(KeyCode::Char('G'), EndOfBuffer);
