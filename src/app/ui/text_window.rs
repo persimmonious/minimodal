@@ -385,7 +385,6 @@ impl TextWindow {
         }
 
         let theme = self.theme.upgrade().expect("referencing dropped theme!");
-        let col = state.cursor.col - state.leftmost_col;
         let line_style = Style::default()
             .bg(theme.selected_line_background)
             .fg(theme.selected_line_foreground);
