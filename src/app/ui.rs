@@ -79,7 +79,7 @@ impl TabState {
 
     pub fn replace_line(&mut self) {
         let current_pos = &self.window_states.cursor;
-        self.buffer.borrow_mut().replace_line(current_pos);
+        self.buffer.borrow_mut().clear_line(current_pos);
         self.window_states.snap_to_EOL();
     }
 
@@ -107,6 +107,16 @@ impl TabState {
         } else {
             self.window_states.jump_to_home();
         }
+    }
+
+    pub fn insert_line_break(&mut self) {
+        let cursor = &self.window_states.cursor;
+        self.buffer.borrow_mut().split_line(cursor);
+        let new_pos = BufferPosition {
+            line: cursor.line + 1,
+            col: 0,
+        };
+        self.window_states.jump(&new_pos);
     }
 }
 

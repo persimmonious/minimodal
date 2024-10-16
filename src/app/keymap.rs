@@ -91,6 +91,7 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('O'), InsertNewLine(Vertical::Up));
         normal_mode.insert(KeyCode::Char('x'), RemoveChar);
         insert_mode.insert(KeyCode::Esc, ExitInsert);
+        insert_mode.insert(KeyCode::Enter, InsertLineBreak);
         root_menu.insert(KeyCode::Esc, ExitMenu);
         root_menu.insert(KeyCode::Char(' '), ExitMenu);
         root_menu.insert(KeyCode::Char('q'), ExitEditor);

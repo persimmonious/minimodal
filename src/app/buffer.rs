@@ -24,7 +24,7 @@ pub enum RectilinearDirection {
     Left,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BufferPosition {
     pub line: usize,
     pub col: usize,
@@ -90,7 +90,7 @@ impl Buffer {
         self.lines[line].insert(col, c);
     }
 
-    pub fn replace_line(&mut self, pos: &BufferPosition) {
+    pub fn clear_line(&mut self, pos: &BufferPosition) {
         if self.lines.len() == 0 {
             self.lines.push(String::new());
             return;
@@ -101,5 +101,13 @@ impl Buffer {
 
     pub fn add_line(&mut self, index: usize, content: String) {
         self.lines.insert(index, content);
+    }
+
+    pub fn split_line(&mut self, pos: &BufferPosition) {
+        let BufferPosition { line, col } = *pos;
+        let new_line: String = self.lines[line].chars().skip(col).collect();
+        self.add_line(line + 1, new_line);
+        let old_line: String = self.lines[line].chars().take(col).collect();
+        self.lines[line] = old_line;
     }
 }

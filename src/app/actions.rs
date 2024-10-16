@@ -16,6 +16,7 @@ pub enum EditorAction {
     ExitInsert,
     ExitMenu,
     Home,
+    InsertLineBreak,
     InsertChar(char),
     MoveToHomeAndEnterInsert,
     MoveCursor(Mode, RectilinearDirection),

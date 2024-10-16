@@ -258,6 +258,7 @@ impl Editor {
             EditorAction::SaveBuffer => self.save_current_buffer(),
             EditorAction::InsertNewLine(dir) => self.insert_new_line(dir),
             EditorAction::RemoveChar => self.remove_char(),
+            EditorAction::InsertLineBreak => self.insert_line_break(),
         }
     }
 
@@ -310,6 +311,10 @@ impl Editor {
     fn insert_new_line(&mut self, dir: VerticalDirection) {
         self.current_tabstate().insert_new_line(dir);
         self.enter_insert();
+    }
+
+    fn insert_line_break(&mut self) {
+        self.current_tabstate().insert_line_break();
     }
 
     fn save_current_buffer(&mut self) {
