@@ -259,6 +259,7 @@ impl Editor {
             EditorAction::InsertNewLine(dir) => self.insert_new_line(dir),
             EditorAction::RemoveChar => self.remove_char(),
             EditorAction::InsertLineBreak => self.insert_line_break(),
+            EditorAction::NextLine => self.jump_to_next_line(),
         }
     }
 
@@ -358,6 +359,15 @@ impl Editor {
         self.tab_states[self.current_tab]
             .window_states
             .jump_to_last_line();
+    }
+
+    fn jump_to_next_line(&mut self) {
+        let mut cursor = self.current_winstate().cursor.clone();
+        cursor.line += 1;
+        if cursor.line < self.current_winstate().lines_count() {
+            cursor.col = 0;
+            self.current_winstate().jump(&cursor);
+        }
     }
 }
 
