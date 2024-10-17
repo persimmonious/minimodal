@@ -7,6 +7,7 @@ use super::{
 pub enum EditorAction {
     Append,
     AppendAtEOL,
+    Back,
     CycleTab(HorizontalDirection),
     EndOfBuffer,
     EnterInsert,

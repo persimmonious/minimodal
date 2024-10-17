@@ -260,6 +260,7 @@ impl Editor {
             EditorAction::RemoveChar => self.remove_char(),
             EditorAction::InsertLineBreak => self.insert_line_break(),
             EditorAction::NextLine => self.jump_to_next_line(),
+            EditorAction::Back => self.back(),
         }
     }
 
@@ -343,6 +344,10 @@ impl Editor {
             .move_cursor(dir);
     }
 
+    fn jump_to_EOL(&mut self) {
+        self.current_winstate().jump_to_EOL();
+    }
+
     fn sticky_jump_to_EOL(&mut self) {
         self.tab_states[self.current_tab]
             .window_states
@@ -368,6 +373,16 @@ impl Editor {
             cursor.col = 0;
             self.current_winstate().jump(&cursor);
             self.current_winstate().stick_to_EOL = false;
+        }
+    }
+
+    fn back(&mut self) {
+        let cursor = self.current_winstate().cursor.clone();
+        if cursor.col > 0 {
+            self.move_cursor(Rectilinear::Left);
+        } else if cursor.line > 0 {
+            self.move_cursor(Rectilinear::Up);
+            self.jump_to_EOL();
         }
     }
 }
