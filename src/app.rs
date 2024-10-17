@@ -367,6 +367,7 @@ impl Editor {
         if cursor.line < self.current_winstate().lines_count() {
             cursor.col = 0;
             self.current_winstate().jump(&cursor);
+            self.current_winstate().stick_to_EOL = false;
         }
     }
 }
