@@ -7,7 +7,7 @@ use crate::app::{
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Modifier, Style, Stylize},
+    style::{Style, Stylize},
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };

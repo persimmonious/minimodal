@@ -6,17 +6,17 @@ mod ui;
 use crate::config::Config;
 use actions::EditorAction;
 use buffer::{
-    Buffer, BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
+    Buffer, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
     VerticalDirection,
 };
 use crossterm::{
-    cursor::{MoveToColumn, MoveToRow, SetCursorStyle},
+    cursor::SetCursorStyle,
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use keymap::KeyMap;
 use ratatui::{
-    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
+    crossterm::event::{self, Event, KeyEvent, KeyEventKind},
     layout::{Constraint, Direction, Layout, Position, Rect},
     style::{Style, Stylize},
     widgets::{Clear, Tabs},

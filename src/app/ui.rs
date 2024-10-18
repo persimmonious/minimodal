@@ -3,7 +3,7 @@ mod line_numbers;
 pub mod status_bar;
 pub mod text_window;
 use super::{
-    buffer::{Buffer, BufferPosition, RectilinearDirection, VerticalDirection as Vertical},
+    buffer::{Buffer, BufferPosition, VerticalDirection as Vertical},
     theme::Theme,
 };
 use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
