@@ -1,5 +1,5 @@
 use super::text_window::TextWindowState;
-use crate::app::{theme::Theme, Mode};
+use crate::app::{editor::Mode, theme::Theme};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     prelude::{Buffer as TUI_Buffer, Rect},

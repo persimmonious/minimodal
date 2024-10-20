@@ -2,8 +2,7 @@ use super::{
     buffer::{
         HorizontalDirection::*, RectilinearDirection as Rectilinear, VerticalDirection as Vertical,
     },
-    editor::actions::EditorAction,
-    Mode,
+    editor::{actions::EditorAction, Mode},
 };
 use crossterm::event::KeyCode;
 use ratatui::crossterm::event::KeyEvent;

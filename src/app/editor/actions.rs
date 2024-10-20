@@ -1,7 +1,5 @@
-use crate::app::{
-    buffer::{HorizontalDirection, RectilinearDirection, VerticalDirection},
-    Mode,
-};
+use crate::app::buffer::{HorizontalDirection, RectilinearDirection, VerticalDirection};
+use crate::app::editor::Mode;
 
 #[derive(Debug, Clone)]
 pub enum EditorAction {
