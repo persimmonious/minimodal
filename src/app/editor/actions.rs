@@ -1,4 +1,4 @@
-use super::{
+use crate::app::{
     buffer::{HorizontalDirection, RectilinearDirection, VerticalDirection},
     Mode,
 };

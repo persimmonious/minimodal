@@ -1,8 +1,8 @@
 use super::{
-    actions::EditorAction,
     buffer::{
         HorizontalDirection::*, RectilinearDirection as Rectilinear, VerticalDirection as Vertical,
     },
+    editor::actions::EditorAction,
     Mode,
 };
 use crossterm::event::KeyCode;
