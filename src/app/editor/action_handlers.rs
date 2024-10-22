@@ -91,7 +91,7 @@ impl Editor {
     }
 
     fn save_current_buffer(&mut self) {
-        self.current_tabstate().save_buffer().unwrap();
+        self.current_tabstate().buffer.borrow().save().unwrap();
         self.exit_menu();
     }
 

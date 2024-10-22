@@ -9,7 +9,6 @@ use super::{
 use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
 use std::{
     cell::RefCell,
-    io,
     rc::{Rc, Weak},
 };
 use text_window::{TextWindow, TextWindowState};
@@ -34,11 +33,6 @@ impl TabState {
             windows: TextWindow::new(Rc::downgrade(&buf_rc), theme.clone()),
             current_window: 0,
         };
-    }
-
-    pub fn save_buffer(&self) -> io::Result<()> {
-        self.buffer.borrow().save()?;
-        Ok(())
     }
 
     pub fn get_cursor_pos(&self) -> (usize, usize) {
