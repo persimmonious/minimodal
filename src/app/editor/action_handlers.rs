@@ -62,7 +62,12 @@ impl Editor {
     }
 
     fn insert_char(&mut self, c: char) {
-        self.current_tabstate().insert_char(c);
+        let cursor = self.current_winstate().cursor.clone();
+        self.current_tabstate()
+            .buffer
+            .borrow_mut()
+            .insert_char(c, &cursor);
+        self.current_winstate().advance_insertion_cursor();
     }
 
     fn remove_char(&mut self) {
