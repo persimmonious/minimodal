@@ -40,7 +40,7 @@ impl TabState {
     }
 
     pub fn lines_count(&self) -> usize {
-        return self.buffer.borrow().lines.len();
+        return self.buffer.borrow().lines_count();
     }
 
     pub fn line_length(&self, index: usize) -> Option<usize> {

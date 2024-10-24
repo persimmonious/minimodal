@@ -81,6 +81,10 @@ impl Buffer {
         }
     }
 
+    pub fn lines_count(&self) -> usize {
+        return self.lines.len()
+    }
+
     pub fn insert_char(&mut self, c: char, pos: &BufferPosition) {
         if self.lines.len() == 0 {
             self.lines.push(String::from(c));
