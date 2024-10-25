@@ -44,11 +44,7 @@ impl TabState {
     }
 
     pub fn line_length(&self, index: usize) -> Option<usize> {
-        let count = self.lines_count();
-        if count == 0 || index >= count {
-            return None;
-        }
-        return Some(self.buffer.borrow().lines[index].chars().count());
+        return self.buffer.borrow().line_length(index);
     }
 
     pub fn remove_char(&mut self) {

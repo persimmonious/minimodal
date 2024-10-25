@@ -82,7 +82,15 @@ impl Buffer {
     }
 
     pub fn lines_count(&self) -> usize {
-        return self.lines.len()
+        return self.lines.len();
+    }
+
+    pub fn line_length(&self, index: usize) -> Option<usize> {
+        let count = self.lines_count();
+        if count == 0 || index >= count {
+            return None;
+        }
+        return Some(self.lines[index].chars().count());
     }
 
     pub fn insert_char(&mut self, c: char, pos: &BufferPosition) {
