@@ -1,6 +1,7 @@
 use crate::app::{
     buffer::{
-        HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear, VerticalDirection,
+        BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
+        VerticalDirection,
     },
     ui::leader_menu::SubMenu,
 };
@@ -72,6 +73,19 @@ impl Editor {
 
     fn remove_char(&mut self) {
         self.current_tabstate().remove_char();
+        let BufferPosition { line, col } = self.current_winstate().cursor;
+        let mut buffer = self.current_tabstate().buffer.borrow_mut();
+        match buffer.line_length(line) {
+            None => return,
+            Some(len) => {
+                if col >= len {
+                    return;
+                }
+                buffer.lines[line].remove(col);
+                drop(buffer);
+                self.current_winstate().snap_to_EOL();
+            }
+        }
     }
 
     fn replace_line(&mut self) {
