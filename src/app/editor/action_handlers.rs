@@ -72,7 +72,6 @@ impl Editor {
     }
 
     fn remove_char(&mut self) {
-        self.current_tabstate().remove_char();
         let BufferPosition { line, col } = self.current_winstate().cursor;
         let mut buffer = self.current_tabstate().buffer.borrow_mut();
         match buffer.line_length(line) {
