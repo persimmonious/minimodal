@@ -39,12 +39,6 @@ impl TabState {
         return self.window_states.get_cursor_pos();
     }
 
-    pub fn replace_line(&mut self) {
-        let current_pos = &self.window_states.cursor;
-        self.buffer.borrow_mut().clear_line(current_pos);
-        self.window_states.snap_to_EOL();
-    }
-
     pub fn insert_new_line(&mut self, dir: Vertical) {
         let line_count = self.buffer.borrow().lines.len();
         let mut line = self.window_states.cursor.line;

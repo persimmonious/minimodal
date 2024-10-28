@@ -89,7 +89,12 @@ impl Editor {
 
     fn replace_line(&mut self) {
         self.enter_insert();
-        self.current_tabstate().replace_line();
+        let current_pos = self.current_winstate().cursor.clone();
+        self.current_tabstate()
+            .buffer
+            .borrow_mut()
+            .clear_line(&current_pos);
+        self.current_winstate().snap_to_EOL();
     }
 
     fn append(&mut self) {
