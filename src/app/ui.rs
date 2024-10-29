@@ -39,32 +39,6 @@ impl TabState {
         return self.window_states.get_cursor_pos();
     }
 
-    pub fn insert_new_line(&mut self, dir: Vertical) {
-        let line_count = self.buffer.borrow().lines.len();
-        let mut line = self.window_states.cursor.line;
-        if let Vertical::Down = dir {
-            line += 1;
-        }
-
-        if line_count == 0 {
-            self.buffer.borrow_mut().add_line(0, "".to_string());
-            self.buffer.borrow_mut().add_line(1, "".to_string());
-            if let Vertical::Down = dir {
-                let second_line = BufferPosition { line, col: 0 };
-                self.window_states.jump(&second_line);
-            }
-            return;
-        }
-
-        self.buffer.borrow_mut().add_line(line, "".to_string());
-        if let Vertical::Down = dir {
-            let second_line = BufferPosition { line, col: 0 };
-            self.window_states.jump(&second_line);
-        } else {
-            self.window_states.jump_to_home();
-        }
-    }
-
     pub fn insert_line_break(&mut self) {
         let cursor = &self.window_states.cursor;
         self.buffer.borrow_mut().split_line(cursor);

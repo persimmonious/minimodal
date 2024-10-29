@@ -105,7 +105,32 @@ impl Editor {
     }
 
     fn insert_new_line(&mut self, dir: VerticalDirection) {
-        self.current_tabstate().insert_new_line(dir);
+        let line_count = self.current_tabstate().buffer.borrow().lines_count();
+        let mut line = self.current_winstate().cursor.line;
+        if let VerticalDirection::Down = dir {
+            line += 1;
+        }
+        let mut buffer = self.current_tabstate().buffer.borrow_mut();
+
+        if line_count == 0 {
+            buffer.add_line(0, "".to_string());
+            buffer.add_line(1, "".to_string());
+            drop(buffer);
+            if let VerticalDirection::Down = dir {
+                let second_line = BufferPosition { line, col: 0 };
+                self.current_winstate().jump(&second_line);
+            }
+            return;
+        }
+
+        buffer.add_line(line, "".to_string());
+        drop(buffer);
+        if let VerticalDirection::Down = dir {
+            let second_line = BufferPosition { line, col: 0 };
+            self.current_winstate().jump(&second_line);
+        } else {
+            self.current_winstate().jump_to_home();
+        }
         self.enter_insert();
     }
 
