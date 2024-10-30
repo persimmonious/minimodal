@@ -38,16 +38,6 @@ impl TabState {
     pub fn get_cursor_pos(&self) -> (usize, usize) {
         return self.window_states.get_cursor_pos();
     }
-
-    pub fn insert_line_break(&mut self) {
-        let cursor = &self.window_states.cursor;
-        self.buffer.borrow_mut().split_line(cursor);
-        let new_pos = BufferPosition {
-            line: cursor.line + 1,
-            col: 0,
-        };
-        self.window_states.jump(&new_pos);
-    }
 }
 
 impl Tab {

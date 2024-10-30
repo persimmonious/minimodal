@@ -135,7 +135,16 @@ impl Editor {
     }
 
     fn insert_line_break(&mut self) {
-        self.current_tabstate().insert_line_break();
+        let cursor = self.current_winstate().cursor.clone();
+        self.current_tabstate()
+            .buffer
+            .borrow_mut()
+            .split_line(&cursor);
+        let new_pos = BufferPosition {
+            line: cursor.line + 1,
+            col: 0,
+        };
+        self.current_winstate().jump(&new_pos);
     }
 
     fn save_current_buffer(&mut self) {
