@@ -193,16 +193,16 @@ impl Editor {
         return (layout, indices);
     }
 
-    fn current_tabstate(&mut self) -> &mut TabState {
+    fn current_tabstate_mut(&mut self) -> &mut TabState {
         &mut self.tab_states[self.current_tab]
     }
 
     fn current_winstate(&mut self) -> &mut TextWindowState {
-        &mut self.current_tabstate().window_states
+        &mut self.current_tabstate_mut().window_states
     }
 
     pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
-        let (row, col) = self.current_tabstate().get_cursor_pos();
+        let (row, col) = self.current_tabstate_mut().get_cursor_pos();
         let row: u16 = row.try_into().expect("row number is too large");
         let pos = Position {
             y: row + 1,

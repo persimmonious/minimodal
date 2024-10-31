@@ -64,7 +64,7 @@ impl Editor {
 
     fn insert_char(&mut self, c: char) {
         let cursor = self.current_winstate().cursor.clone();
-        self.current_tabstate()
+        self.current_tabstate_mut()
             .buffer
             .borrow_mut()
             .insert_char(c, &cursor);
@@ -73,7 +73,7 @@ impl Editor {
 
     fn remove_char(&mut self) {
         let BufferPosition { line, col } = self.current_winstate().cursor;
-        let mut buffer = self.current_tabstate().buffer.borrow_mut();
+        let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
         match buffer.line_length(line) {
             None => return,
             Some(len) => {
@@ -90,7 +90,7 @@ impl Editor {
     fn replace_line(&mut self) {
         self.enter_insert();
         let current_pos = self.current_winstate().cursor.clone();
-        self.current_tabstate()
+        self.current_tabstate_mut()
             .buffer
             .borrow_mut()
             .clear_line(&current_pos);
@@ -105,12 +105,12 @@ impl Editor {
     }
 
     fn insert_new_line(&mut self, dir: VerticalDirection) {
-        let line_count = self.current_tabstate().buffer.borrow().lines_count();
+        let line_count = self.current_tabstate_mut().buffer.borrow().lines_count();
         let mut line = self.current_winstate().cursor.line;
         if let VerticalDirection::Down = dir {
             line += 1;
         }
-        let mut buffer = self.current_tabstate().buffer.borrow_mut();
+        let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
 
         if line_count == 0 {
             buffer.add_line(0, "".to_string());
@@ -136,7 +136,7 @@ impl Editor {
 
     fn insert_line_break(&mut self) {
         let cursor = self.current_winstate().cursor.clone();
-        self.current_tabstate()
+        self.current_tabstate_mut()
             .buffer
             .borrow_mut()
             .split_line(&cursor);
@@ -148,7 +148,7 @@ impl Editor {
     }
 
     fn save_current_buffer(&mut self) {
-        self.current_tabstate().buffer.borrow().save().unwrap();
+        self.current_tabstate_mut().buffer.borrow().save().unwrap();
         self.exit_menu();
     }
 
