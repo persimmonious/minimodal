@@ -53,26 +53,26 @@ impl Editor {
     }
 
     fn enter_insert(&mut self) {
-        self.current_winstate().stick_to_EOL = false;
+        self.current_winstate_mut().stick_to_EOL = false;
         self.mode = Mode::Insert;
     }
 
     fn exit_insert(&mut self) {
         self.mode = Mode::Normal;
-        self.current_winstate().snap_to_EOL();
+        self.current_winstate_mut().snap_to_EOL();
     }
 
     fn insert_char(&mut self, c: char) {
-        let cursor = self.current_winstate().cursor.clone();
+        let cursor = self.current_winstate_mut().cursor.clone();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
             .insert_char(c, &cursor);
-        self.current_winstate().advance_insertion_cursor();
+        self.current_winstate_mut().advance_insertion_cursor();
     }
 
     fn remove_char(&mut self) {
-        let BufferPosition { line, col } = self.current_winstate().cursor;
+        let BufferPosition { line, col } = self.current_winstate_mut().cursor;
         let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
         match buffer.line_length(line) {
             None => return,
@@ -82,31 +82,31 @@ impl Editor {
                 }
                 buffer.lines[line].remove(col);
                 drop(buffer);
-                self.current_winstate().snap_to_EOL();
+                self.current_winstate_mut().snap_to_EOL();
             }
         }
     }
 
     fn replace_line(&mut self) {
         self.enter_insert();
-        let current_pos = self.current_winstate().cursor.clone();
+        let current_pos = self.current_winstate_mut().cursor.clone();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
             .clear_line(&current_pos);
-        self.current_winstate().snap_to_EOL();
+        self.current_winstate_mut().snap_to_EOL();
     }
 
     fn append(&mut self) {
         self.enter_insert();
-        if !self.current_winstate().cursor_at_EOL() {
-            self.current_winstate().advance_insertion_cursor();
+        if !self.current_winstate_mut().cursor_at_EOL() {
+            self.current_winstate_mut().advance_insertion_cursor();
         }
     }
 
     fn insert_new_line(&mut self, dir: VerticalDirection) {
         let line_count = self.current_tabstate_mut().buffer.borrow().lines_count();
-        let mut line = self.current_winstate().cursor.line;
+        let mut line = self.current_winstate_mut().cursor.line;
         if let VerticalDirection::Down = dir {
             line += 1;
         }
@@ -118,7 +118,7 @@ impl Editor {
             drop(buffer);
             if let VerticalDirection::Down = dir {
                 let second_line = BufferPosition { line, col: 0 };
-                self.current_winstate().jump(&second_line);
+                self.current_winstate_mut().jump(&second_line);
             }
             return;
         }
@@ -127,15 +127,15 @@ impl Editor {
         drop(buffer);
         if let VerticalDirection::Down = dir {
             let second_line = BufferPosition { line, col: 0 };
-            self.current_winstate().jump(&second_line);
+            self.current_winstate_mut().jump(&second_line);
         } else {
-            self.current_winstate().jump_to_home();
+            self.current_winstate_mut().jump_to_home();
         }
         self.enter_insert();
     }
 
     fn insert_line_break(&mut self) {
-        let cursor = self.current_winstate().cursor.clone();
+        let cursor = self.current_winstate_mut().cursor.clone();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
@@ -144,7 +144,7 @@ impl Editor {
             line: cursor.line + 1,
             col: 0,
         };
-        self.current_winstate().jump(&new_pos);
+        self.current_winstate_mut().jump(&new_pos);
     }
 
     fn save_current_buffer(&mut self) {
@@ -173,7 +173,7 @@ impl Editor {
     }
 
     fn jump_to_EOL(&mut self) {
-        self.current_winstate().jump_to_EOL();
+        self.current_winstate_mut().jump_to_EOL();
     }
 
     fn sticky_jump_to_EOL(&mut self) {
@@ -195,17 +195,17 @@ impl Editor {
     }
 
     fn jump_to_next_line(&mut self) {
-        let mut cursor = self.current_winstate().cursor.clone();
+        let mut cursor = self.current_winstate_mut().cursor.clone();
         cursor.line += 1;
-        if cursor.line < self.current_winstate().lines_count() {
+        if cursor.line < self.current_winstate_mut().lines_count() {
             cursor.col = 0;
-            self.current_winstate().jump(&cursor);
-            self.current_winstate().stick_to_EOL = false;
+            self.current_winstate_mut().jump(&cursor);
+            self.current_winstate_mut().stick_to_EOL = false;
         }
     }
 
     fn back(&mut self) {
-        let cursor = self.current_winstate().cursor.clone();
+        let cursor = self.current_winstate_mut().cursor.clone();
         if cursor.col > 0 {
             self.move_cursor(Rectilinear::Left);
         } else if cursor.line > 0 {

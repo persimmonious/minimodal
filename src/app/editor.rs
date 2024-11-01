@@ -197,7 +197,7 @@ impl Editor {
         &mut self.tab_states[self.current_tab]
     }
 
-    fn current_winstate(&mut self) -> &mut TextWindowState {
+    fn current_winstate_mut(&mut self) -> &mut TextWindowState {
         &mut self.current_tabstate_mut().window_states
     }
 
