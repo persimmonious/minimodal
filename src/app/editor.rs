@@ -197,8 +197,16 @@ impl Editor {
         &mut self.tab_states[self.current_tab]
     }
 
+    fn current_tabstate(&self) -> &TabState {
+        &self.tab_states[self.current_tab]
+    }
+
     fn current_winstate_mut(&mut self) -> &mut TextWindowState {
         &mut self.current_tabstate_mut().window_states
+    }
+
+    fn current_winstate(&self) -> &TextWindowState {
+        &self.current_tabstate().window_states
     }
 
     pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
