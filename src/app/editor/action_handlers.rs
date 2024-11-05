@@ -63,7 +63,7 @@ impl Editor {
     }
 
     fn insert_char(&mut self, c: char) {
-        let cursor = self.current_winstate_mut().cursor.clone();
+        let cursor = self.current_winstate().cursor.clone();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
@@ -72,7 +72,7 @@ impl Editor {
     }
 
     fn remove_char(&mut self) {
-        let BufferPosition { line, col } = self.current_winstate_mut().cursor;
+        let BufferPosition { line, col } = self.current_winstate().cursor;
         let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
         match buffer.line_length(line) {
             None => return,
@@ -89,7 +89,7 @@ impl Editor {
 
     fn replace_line(&mut self) {
         self.enter_insert();
-        let current_pos = self.current_winstate_mut().cursor.clone();
+        let current_pos = self.current_winstate().cursor.clone();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
@@ -99,14 +99,14 @@ impl Editor {
 
     fn append(&mut self) {
         self.enter_insert();
-        if !self.current_winstate_mut().cursor_at_EOL() {
+        if !self.current_winstate().cursor_at_EOL() {
             self.current_winstate_mut().advance_insertion_cursor();
         }
     }
 
     fn insert_new_line(&mut self, dir: VerticalDirection) {
-        let line_count = self.current_tabstate_mut().buffer.borrow().lines_count();
-        let mut line = self.current_winstate_mut().cursor.line;
+        let line_count = self.current_tabstate().buffer.borrow().lines_count();
+        let mut line = self.current_winstate().cursor.line;
         if let VerticalDirection::Down = dir {
             line += 1;
         }
@@ -135,7 +135,7 @@ impl Editor {
     }
 
     fn insert_line_break(&mut self) {
-        let cursor = self.current_winstate_mut().cursor.clone();
+        let cursor = self.current_winstate().cursor.clone();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
