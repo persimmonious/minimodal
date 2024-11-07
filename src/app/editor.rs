@@ -206,7 +206,7 @@ impl Editor {
         &self.current_tabstate().window_states
     }
 
-    fn cursor(&self) -> BufferPosition {
+    fn current_bufpos(&self) -> BufferPosition {
         self.current_winstate().cursor.clone()
     }
 
