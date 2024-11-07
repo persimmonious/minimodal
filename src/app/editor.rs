@@ -19,10 +19,7 @@ use crate::app::{
     keymap::KeyMap,
     theme::Theme,
     ui::{leader_menu::SubMenu, Tab, TabState},
-};
-
-use super::{
-    buffer::Buffer,
+    buffer::{Buffer, BufferPosition},
     ui::{leader_menu::LeaderMenu, status_bar::StatusBar, text_window::TextWindowState},
 };
 
@@ -207,6 +204,10 @@ impl Editor {
 
     fn current_winstate(&self) -> &TextWindowState {
         &self.current_tabstate().window_states
+    }
+
+    fn cursor(&self) -> BufferPosition {
+        self.current_winstate().cursor.clone()
     }
 
     pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
