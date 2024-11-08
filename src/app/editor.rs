@@ -211,8 +211,8 @@ impl Editor {
     }
 
     pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
-        let (row, col) = self.current_tabstate().get_cursor_pos();
-        let row: u16 = row.try_into().expect("row number is too large");
+        let BufferPosition { line, col } = self.current_bufpos();
+        let row: u16 = line.try_into().expect("row number is too large");
         let pos = Position {
             y: row + 1,
             x: col as u16,
