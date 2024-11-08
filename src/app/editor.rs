@@ -16,11 +16,11 @@ use ratatui::{
 };
 
 use crate::app::{
+    buffer::{Buffer, BufferPosition},
     keymap::KeyMap,
     theme::Theme,
-    ui::{leader_menu::SubMenu, Tab, TabState},
-    buffer::{Buffer, BufferPosition},
     ui::{leader_menu::LeaderMenu, status_bar::StatusBar, text_window::TextWindowState},
+    ui::{leader_menu::SubMenu, Tab, TabState},
 };
 
 mod action_handlers;

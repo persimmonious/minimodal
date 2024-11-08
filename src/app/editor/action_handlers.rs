@@ -63,7 +63,7 @@ impl Editor {
     }
 
     fn insert_char(&mut self, c: char) {
-        let cursor = self.current_winstate().cursor.clone();
+        let cursor = self.current_bufpos();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
@@ -72,7 +72,7 @@ impl Editor {
     }
 
     fn remove_char(&mut self) {
-        let BufferPosition { line, col } = self.current_winstate().cursor;
+        let BufferPosition { line, col } = self.current_bufpos();
         let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
         match buffer.line_length(line) {
             None => return,
@@ -89,7 +89,7 @@ impl Editor {
 
     fn replace_line(&mut self) {
         self.enter_insert();
-        let current_pos = self.current_winstate().cursor.clone();
+        let current_pos = self.current_bufpos();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
@@ -106,7 +106,7 @@ impl Editor {
 
     fn insert_new_line(&mut self, dir: VerticalDirection) {
         let line_count = self.current_tabstate().buffer.borrow().lines_count();
-        let mut line = self.current_winstate().cursor.line;
+        let mut line = self.current_bufpos().line;
         if let VerticalDirection::Down = dir {
             line += 1;
         }
@@ -135,7 +135,7 @@ impl Editor {
     }
 
     fn insert_line_break(&mut self) {
-        let cursor = self.current_winstate().cursor.clone();
+        let cursor = self.current_bufpos();
         self.current_tabstate_mut()
             .buffer
             .borrow_mut()
@@ -195,7 +195,7 @@ impl Editor {
     }
 
     fn jump_to_next_line(&mut self) {
-        let mut cursor = self.current_winstate_mut().cursor.clone();
+        let mut cursor = self.current_bufpos();
         cursor.line += 1;
         if cursor.line < self.current_winstate_mut().lines_count() {
             cursor.col = 0;
@@ -205,7 +205,7 @@ impl Editor {
     }
 
     fn back(&mut self) {
-        let cursor = self.current_winstate_mut().cursor.clone();
+        let cursor = self.current_bufpos();
         if cursor.col > 0 {
             self.move_cursor(Rectilinear::Left);
         } else if cursor.line > 0 {
