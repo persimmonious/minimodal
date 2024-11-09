@@ -1,4 +1,4 @@
-use clap::{command, Arg, ArgAction};
+use clap::{command, Arg, ArgAction, arg};
 use std::error::Error;
 
 #[derive(Debug)]
@@ -15,7 +15,7 @@ impl Config {
 pub fn parse_command_line() -> Result<Config, Box<dyn Error>> {
     let mut config = Config::new();
     let arg_matches = command!()
-        .arg(Arg::new("files").action(ArgAction::Append))
+        .arg(arg!([files] "List of files to open").action(ArgAction::Append))
         .get_matches();
 
     if let Some(file_names) = arg_matches.get_many::<String>("files") {
