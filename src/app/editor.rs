@@ -210,14 +210,17 @@ impl Editor {
         self.current_winstate().cursor.clone()
     }
 
-    pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
-        let BufferPosition { line, col } = self.current_bufpos();
-        let row: u16 = line.try_into().expect("row number is too large");
-        let pos = Position {
-            y: row + 1,
+    fn get_cursor_pos(&self) -> Position {
+        let (line, col) = self.current_tabstate().get_cursor_pos();
+        const TABLINE_HEIGHT: u16 = 1;
+        Position {
+            y: line as u16 + TABLINE_HEIGHT,
             x: col as u16,
-        };
+        }
+    }
 
+    pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
+        let pos = self.get_cursor_pos();
         term.set_cursor_position(pos).unwrap();
         if let Mode::Insert = self.mode {
             execute!(stdout(), SetCursorStyle::SteadyBar).unwrap();
