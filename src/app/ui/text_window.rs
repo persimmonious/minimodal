@@ -6,7 +6,7 @@ use crate::app::{
 };
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Position, Rect},
     style::{Style, Stylize},
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
@@ -317,16 +317,16 @@ impl TextWindowState {
             .len()
     }
 
-    pub fn get_cursor_pos(&self) -> (usize, usize) {
+    pub fn get_cursor_pos(&self) -> Position {
         let BufferPosition { line, col } = self.cursor;
         let line_numbers_width = format!("{}", self.lines_count()).chars().count() + 1;
         if self.is_on_screen(&self.cursor) {
-            (
-                line - self.top_line,
-                col - self.leftmost_col + line_numbers_width + 2,
-            )
+            Position {
+                x: (col - self.leftmost_col + line_numbers_width + 2) as u16,
+                y: (line - self.top_line) as u16,
+            }
         } else {
-            (0, 0)
+            Position { x: 0, y: 0 }
         }
     }
 }

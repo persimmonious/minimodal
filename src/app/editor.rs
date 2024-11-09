@@ -211,11 +211,11 @@ impl Editor {
     }
 
     fn get_cursor_pos(&self) -> Position {
-        let (line, col) = self.current_tabstate().get_cursor_pos();
+        let Position { x, y } = self.current_tabstate().get_cursor_pos();
         const TABLINE_HEIGHT: u16 = 1;
         Position {
-            y: line as u16 + TABLINE_HEIGHT,
-            x: col as u16,
+            y: y + TABLINE_HEIGHT,
+            x,
         }
     }
 

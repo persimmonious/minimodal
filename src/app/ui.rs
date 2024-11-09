@@ -3,7 +3,11 @@ mod line_numbers;
 pub mod status_bar;
 pub mod text_window;
 use super::{buffer::Buffer, theme::Theme};
-use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect, widgets::StatefulWidget};
+use ratatui::{
+    buffer::Buffer as TUI_Buffer,
+    layout::{Position, Rect},
+    widgets::StatefulWidget,
+};
 use std::{
     cell::RefCell,
     rc::{Rc, Weak},
@@ -32,8 +36,8 @@ impl TabState {
         };
     }
 
-    pub fn get_cursor_pos(&self) -> (usize, usize) {
-        return self.window_states.get_cursor_pos();
+    pub fn get_cursor_pos(&self) -> Position {
+        self.window_states.get_cursor_pos()
     }
 }
 
