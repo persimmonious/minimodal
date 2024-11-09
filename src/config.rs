@@ -1,4 +1,4 @@
-use clap::{command, Arg, ArgAction, arg};
+use clap::{arg, command, ArgAction};
 use std::error::Error;
 
 #[derive(Debug)]
