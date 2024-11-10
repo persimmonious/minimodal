@@ -22,3 +22,6 @@ Cargo.lock
 
 # Test files for verifying editor fucntionality]
 *.test
+
+# RustRover stuff
+.idea/
