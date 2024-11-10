@@ -45,7 +45,7 @@ pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     execute!(stdout(), EnterAlternateScreen)?;
     while editor.is_active() {
         terminal.draw(|frame| editor.draw(frame))?;
-        editor.draw_cursor(terminal);
+        editor.draw_cursor(terminal)?;
         editor.handle_input()?;
     }
     execute!(stdout(), LeaveAlternateScreen)?;

@@ -219,15 +219,16 @@ impl Editor {
         }
     }
 
-    pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) {
+    pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) -> io::Result<()> {
         let pos = self.get_cursor_pos();
-        term.set_cursor_position(pos).unwrap();
+        term.set_cursor_position(pos)?;
         if let Mode::Insert = self.mode {
-            execute!(stdout(), SetCursorStyle::SteadyBar).unwrap();
+            execute!(stdout(), SetCursorStyle::SteadyBar)?;
         } else {
-            execute!(stdout(), SetCursorStyle::SteadyBlock).unwrap();
+            execute!(stdout(), SetCursorStyle::SteadyBlock)?;
         }
-        term.show_cursor().unwrap();
+        term.show_cursor()?;
+        Ok(())
     }
 
     pub fn handle_input(&mut self) -> io::Result<()> {
