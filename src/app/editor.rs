@@ -75,27 +75,7 @@ impl Editor {
             _ => Self::standard_layout(frame),
         };
 
-        let buffer_titles = self
-            .tab_states
-            .iter()
-            .map(|tab| -> String {
-                tab.buffer
-                    .borrow()
-                    .read_name()
-                    .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
-                    .to_owned()
-            })
-            .map(|name| format!(" {name} "));
-        let tabs_style = Style::default()
-            .fg(self.theme.tabline_foreground)
-            .bg(self.theme.tabline_background)
-            .bold();
-        let tabline = Tabs::from_iter(buffer_titles)
-            .select(self.current_tab)
-            .divider("")
-            .padding("", "")
-            .style(tabs_style);
-
+        let tabline = self.generate_tabline();
         frame.render_widget(tabline, layout[indices.tabline]);
 
         if let Mode::Menu(ref sub_menu) = self.mode {
@@ -132,6 +112,29 @@ impl Editor {
 
     pub fn is_active(&self) -> bool {
         return self.active;
+    }
+
+    fn generate_tabline(&self) -> Tabs {
+        let buffer_titles = self
+            .tab_states
+            .iter()
+            .map(|tab| -> String {
+                tab.buffer
+                    .borrow()
+                    .read_name()
+                    .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
+                    .to_owned()
+            })
+            .map(|name| format!(" {name} "));
+        let tabs_style = Style::default()
+            .fg(self.theme.tabline_foreground)
+            .bg(self.theme.tabline_background)
+            .bold();
+        Tabs::from_iter(buffer_titles)
+            .select(self.current_tab)
+            .divider("")
+            .padding("", "")
+            .style(tabs_style)
     }
 
     fn standard_layout(frame: &mut Frame) -> (Rc<[Rect]>, EditorLayoutIndices) {
