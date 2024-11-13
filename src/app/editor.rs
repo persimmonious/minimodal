@@ -142,7 +142,7 @@ impl Editor {
             .direction(Direction::Vertical)
             .constraints(vec![
                 Constraint::Length(1),
-                Constraint::Fill(1),
+                Constraint::Min(1),
                 Constraint::Length(1),
             ])
             .split(frame.area());
