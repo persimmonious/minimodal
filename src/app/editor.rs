@@ -52,6 +52,9 @@ pub struct Editor {
     theme: Rc<Theme>,
 }
 
+const TABLINE_HEIGHT: u16 = 1;
+const STATUS_LINE_HEIGHT: u16 = 1;
+
 impl Editor {
     pub fn new(buffers: Vec<Buffer>, theme_struct: Theme) -> Self {
         let theme_rc = Rc::new(theme_struct);
@@ -141,9 +144,9 @@ impl Editor {
         let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![
-                Constraint::Length(1),
+                Constraint::Length(TABLINE_HEIGHT),
                 Constraint::Min(1),
-                Constraint::Length(1),
+                Constraint::Length(STATUS_LINE_HEIGHT),
             ])
             .split(frame.area());
         let indices = EditorLayoutIndices {
@@ -164,10 +167,10 @@ impl Editor {
         let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![
-                Constraint::Length(1),
+                Constraint::Length(TABLINE_HEIGHT),
                 Constraint::Min(1),
                 Constraint::Length(needed_height),
-                Constraint::Length(1),
+                Constraint::Length(STATUS_LINE_HEIGHT),
             ])
             .split(frame.area());
 
@@ -202,7 +205,6 @@ impl Editor {
 
     fn get_cursor_pos(&self) -> Position {
         let Position { x, y } = self.current_tabstate().get_cursor_pos();
-        const TABLINE_HEIGHT: u16 = 1;
         Position {
             y: y + TABLINE_HEIGHT,
             x,
