@@ -161,29 +161,16 @@ impl Editor {
         frame: &mut Frame,
     ) -> (Rc<[Rect]>, EditorLayoutIndices) {
         let needed_height = LeaderMenu::required_height(sub_menu, frame.area().width);
-        let mut layout = Layout::default()
+        let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![
                 Constraint::Length(1),
-                Constraint::Fill(2),
-                Constraint::Fill(1),
+                Constraint::Min(1),
+                Constraint::Length(needed_height),
                 Constraint::Length(1),
             ])
             .split(frame.area());
-        let gap = layout[2].height - needed_height;
-        if gap > 0 {
-            let new_text_height = layout[1].height + gap;
-            let new_menu_height = layout[2].height - gap;
-            layout = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints(vec![
-                    Constraint::Length(1),
-                    Constraint::Fill(new_text_height),
-                    Constraint::Fill(new_menu_height),
-                    Constraint::Length(1),
-                ])
-                .split(frame.area());
-        }
+
         let indices = EditorLayoutIndices {
             tabline: 0,
             tab: 1,
