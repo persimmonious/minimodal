@@ -1,1 +1,1 @@
-A minimalist text editor implemented in Rust.
+A minimalist text editor implemented in Rust. (WIP)
