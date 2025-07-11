@@ -24,13 +24,13 @@ pub enum RectilinearDirection {
     Left,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BufferPosition {
     pub line: usize,
     pub col: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Buffer {
     name: Option<OsString>,
     path: Option<OsString>,
@@ -41,6 +41,13 @@ impl Buffer {
     pub fn read_name<'a>(&'a self) -> Option<&'a OsStr> {
         match &self.name {
             Some(name) => Some(name),
+            None => None,
+        }
+    }
+
+    pub fn path<'a>(&'a self) -> Option<&'a OsStr> {
+        match &self.path {
+            Some(path) => Some(path),
             None => None,
         }
     }
