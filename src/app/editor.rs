@@ -29,7 +29,7 @@ use crate::app::{
 mod action_handlers;
 pub mod actions;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Mode {
     Normal,
     Command,

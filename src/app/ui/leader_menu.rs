@@ -14,7 +14,7 @@ use crate::app::theme::Theme;
 pub const KEY_HINT_SEPARATOR: &'static str = " : ";
 const MINIMUM_COLUMN_SPACING: u16 = 2;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum SubMenu {
     Root,
 }
