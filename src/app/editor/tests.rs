@@ -1,11 +1,14 @@
+use std::{ffi::OsString, str::FromStr};
+
 use crossterm::event::KeyModifiers;
 
 use super::*;
 
 #[test]
-fn test_create_empty_editor() {
+fn test_create_unnamed_editor() {
     let editor = Editor::new(vec![Buffer::untitled()], Theme::default());
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    assert_eq!(editor.mode, Mode::Normal);
     assert!(editor
         .current_tabstate()
         .buffer
@@ -13,6 +16,31 @@ fn test_create_empty_editor() {
         .read_name()
         .is_none());
     assert!(editor.current_tabstate().buffer.borrow().path().is_none());
+}
+
+#[test]
+fn test_create_named_editor() {
+    let editor = Editor::new(
+        vec![Buffer::empty(
+            OsString::from_str("newfile.txt").unwrap(),
+            OsString::from_str("newdir/newfile.txt").unwrap(),
+        )],
+        Theme::default(),
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    assert_eq!(editor.mode, Mode::Normal);
+    assert_eq!(
+        editor.current_tabstate().buffer.borrow().read_name(),
+        Some(OsString::from_str("newfile.txt").unwrap().as_os_str())
+    );
+    assert_eq!(
+        editor.current_tabstate().buffer.borrow().path(),
+        Some(
+            OsString::from_str("newdir/newfile.txt")
+                .unwrap()
+                .as_os_str()
+        )
+    );
 }
 
 #[test]
