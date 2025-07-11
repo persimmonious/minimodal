@@ -123,6 +123,9 @@ impl Buffer {
     }
 
     pub fn split_line(&mut self, pos: &BufferPosition) {
+        if self.lines.is_empty() {
+            self.lines.push(String::new());
+        }
         let BufferPosition { line, col } = *pos;
         let new_line: String = self.lines[line].chars().skip(col).collect();
         self.add_line(line + 1, new_line);

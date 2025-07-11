@@ -65,3 +65,37 @@ fn test_simple_one_line_input() {
         &["abcd123!".to_owned()]
     );
 }
+
+#[test]
+fn test_multi_line_input() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Enter, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('H'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('e'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('l'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('l'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('o'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 5 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Enter, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('W'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('o'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('r'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('l'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('d'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 5 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Enter, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Char('!'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 1 });
+    editor.handle_key_press(KeyEvent::new(event::KeyCode::Esc, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    assert_eq!(editor.mode, Mode::Normal);
+    assert_eq!(
+        editor.current_tabstate().buffer.borrow().lines,
+        &["", "Hello", "World", "!"]
+    );
+}
