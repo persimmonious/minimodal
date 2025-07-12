@@ -44,9 +44,7 @@ impl LineNumbers {
     }
 
     pub fn generate_numbers(&self) -> Vec<usize> {
-        let numbers: Vec<usize> = (self.first_line..self.last_line + 1)
-            .map(|x| x as usize)
-            .collect();
+        let numbers: Vec<usize> = (self.first_line..self.last_line + 1).collect();
         match self.number_type {
             LineNumberType::Absolute => numbers,
             LineNumberType::Relative => numbers
@@ -54,10 +52,10 @@ impl LineNumbers {
                 .map(|&x| {
                     if x == self.selected {
                         x
-                    } else if x > self.selected as usize {
-                        x - self.selected as usize
+                    } else if x > self.selected {
+                        x - self.selected
                     } else {
-                        self.selected as usize - x
+                        self.selected - x
                     }
                 })
                 .collect(),
