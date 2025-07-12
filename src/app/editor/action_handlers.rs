@@ -37,7 +37,7 @@ impl Editor {
             EditorAction::EndOfBuffer => self.jump_to_last_line(),
             EditorAction::SaveBuffer => self.save_current_buffer(),
             EditorAction::InsertNewLine(dir) => self.insert_new_line(dir),
-            EditorAction::RemoveChar => self.remove_char(),
+            EditorAction::RemoveChar(dir) => self.remove_char(dir),
             EditorAction::InsertLineBreak => self.insert_line_break(),
             EditorAction::NextLine => self.jump_to_next_line(),
             EditorAction::Back => self.back(),
@@ -71,7 +71,7 @@ impl Editor {
         self.current_winstate_mut().advance_insertion_cursor();
     }
 
-    fn remove_char(&mut self) {
+    fn remove_char(&mut self, dir: Horizontal) {
         let BufferPosition { line, col } = self.current_bufpos();
         let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
         match buffer.line_length(line) {
