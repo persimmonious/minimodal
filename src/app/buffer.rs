@@ -38,14 +38,14 @@ pub struct Buffer {
 }
 
 impl Buffer {
-    pub fn read_name<'a>(&'a self) -> Option<&'a OsStr> {
+    pub fn read_name(&self) -> Option<&OsStr> {
         match &self.name {
             Some(name) => Some(name),
             None => None,
         }
     }
 
-    pub fn path<'a>(&'a self) -> Option<&'a OsStr> {
+    pub fn path(&self) -> Option<&OsStr> {
         match &self.path {
             Some(path) => Some(path),
             None => None,
