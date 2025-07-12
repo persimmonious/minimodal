@@ -59,8 +59,8 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('i'), EnterInsert);
         normal_mode.insert(KeyCode::Char('I'), MoveToHomeAndEnterInsert);
         normal_mode.insert(KeyCode::Char('S'), ReplaceLine);
-        normal_mode.insert(KeyCode::Tab, CycleTab(Forwards));
-        normal_mode.insert(KeyCode::BackTab, CycleTab(Backwards));
+        normal_mode.insert(KeyCode::Tab, CycleTab(Forward));
+        normal_mode.insert(KeyCode::BackTab, CycleTab(Backward));
         normal_mode.insert(
             KeyCode::Char('h'),
             MoveCursor(Mode::Normal, Rectilinear::Left),
@@ -88,7 +88,7 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('A'), AppendAtEOL);
         normal_mode.insert(KeyCode::Char('o'), InsertNewLine(Vertical::Down));
         normal_mode.insert(KeyCode::Char('O'), InsertNewLine(Vertical::Up));
-        normal_mode.insert(KeyCode::Char('x'), RemoveChar(Forwards));
+        normal_mode.insert(KeyCode::Char('x'), RemoveChar(Forward));
         normal_mode.insert(KeyCode::Enter, NextLine);
         normal_mode.insert(KeyCode::Backspace, Back);
         insert_mode.insert(KeyCode::Esc, ExitInsert);

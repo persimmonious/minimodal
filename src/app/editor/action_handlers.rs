@@ -158,8 +158,8 @@ impl Editor {
 
     fn cycle_tab(&mut self, dir: Horizontal) {
         self.current_tab = match dir {
-            Horizontal::Forwards => (self.current_tab + 1) % self.tabs.len(),
-            Horizontal::Backwards => match self.current_tab {
+            Horizontal::Forward => (self.current_tab + 1) % self.tabs.len(),
+            Horizontal::Backward => match self.current_tab {
                 0 => self.tabs.len() - 1,
                 current => (current - 1) % self.tabs.len(),
             },

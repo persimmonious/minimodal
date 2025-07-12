@@ -6,8 +6,8 @@ use std::{
 
 #[derive(Debug, Clone)]
 pub enum HorizontalDirection {
-    Forwards,
-    Backwards,
+    Forward,
+    Backward,
 }
 
 #[derive(Debug, Clone)]
