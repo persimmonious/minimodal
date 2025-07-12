@@ -65,7 +65,7 @@ impl TextWindowState {
     pub fn move_cursor(&mut self, dir: Rectilinear) {
         match dir {
             Rectilinear::Up => {
-                if self.cursor.line <= 0 {
+                if self.cursor.line == 0 {
                     return;
                 }
                 let mut relative_line = self.cursor.line - self.top_line;
@@ -134,7 +134,7 @@ impl TextWindowState {
             }
 
             Rectilinear::Left => {
-                if self.cursor.col <= 0 {
+                if self.cursor.col == 0 {
                     return;
                 }
                 self.stick_to_EOL = false;
@@ -264,9 +264,7 @@ impl TextWindowState {
         if !out_of_bounds {
             return;
         }
-        if to_the_right {
-            self.leftmost_col = self.cursor.col + 1 - self.last_width;
-        } else if self.cursor.col >= self.last_width {
+        if to_the_right || self.cursor.col >= self.last_width {
             self.leftmost_col = self.cursor.col + 1 - self.last_width;
         } else {
             self.leftmost_col = 0;
@@ -346,11 +344,7 @@ impl TextWindow {
         state.last_width = width;
         let cursor_rel_line: usize =
             (state.cur_vertical_percent * (height - 1) as f32).round() as usize;
-        let top_line: usize = if state.cursor.line > cursor_rel_line {
-            state.cursor.line - cursor_rel_line
-        } else {
-            0
-        };
+        let top_line: usize = state.cursor.line.saturating_sub(cursor_rel_line);
         let last_line: usize = min(top_line + height as usize, state.lines_count());
         let line_style = Style::default()
             .fg(theme.text_foreground)

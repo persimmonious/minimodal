@@ -101,7 +101,7 @@ impl Buffer {
     }
 
     pub fn insert_char(&mut self, c: char, pos: &BufferPosition) {
-        if self.lines.len() == 0 {
+        if self.lines.is_empty() {
             self.lines.push(String::from(c));
             return;
         }
@@ -110,7 +110,7 @@ impl Buffer {
     }
 
     pub fn clear_line(&mut self, pos: &BufferPosition) {
-        if self.lines.len() == 0 {
+        if self.lines.is_empty() {
             self.lines.push(String::new());
             return;
         }

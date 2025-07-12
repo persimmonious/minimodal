@@ -23,9 +23,7 @@ impl KeyMap {
             Mode::Insert => self.handle_insert_mode(key),
 
             Mode::Menu(submenu) => {
-                let menu: &HashMap<KeyCode, EditorAction> = match submenu {
-                    _ => &self.root_menu,
-                };
+                let menu: &HashMap<KeyCode, EditorAction> = &self.root_menu;
                 match menu.get(&key.code) {
                     None => None,
                     Some(ref act) => Some((*act).clone()),

@@ -28,10 +28,11 @@ impl Editor {
             }
             EditorAction::ReplaceLine => self.replace_line(),
             EditorAction::CycleTab(dir) => self.cycle_tab(dir),
-            EditorAction::MoveCursor(mode, dir) => match mode {
-                Mode::Normal => self.move_cursor(dir),
-                _ => (),
-            },
+            EditorAction::MoveCursor(mode, dir) => {
+                if mode == Mode::Normal {
+                    self.move_cursor(dir)
+                }
+            }
             EditorAction::EOL => self.sticky_jump_to_EOL(),
             EditorAction::Home => self.jump_to_home(),
             EditorAction::EndOfBuffer => self.jump_to_last_line(),
