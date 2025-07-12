@@ -24,17 +24,17 @@ impl KeyMap {
 
             Mode::Menu(submenu) => {
                 let menu: &HashMap<KeyCode, EditorAction> = &self.root_menu;
-                menu.get(&key.code).map(|act| act.clone())
+                menu.get(&key.code).cloned()
             }
 
-            _ => self.normal_mode.get(&key.code).map(|act| act.clone()),
+            _ => self.normal_mode.get(&key.code).cloned(),
         }
     }
 
     fn handle_insert_mode(&self, key: &KeyEvent) -> Option<EditorAction> {
         match key.code {
             KeyCode::Char(c) => Some(EditorAction::InsertChar(c)),
-            _ => self.insert_mode.get(&key.code).map(|act| act.clone()),
+            _ => self.insert_mode.get(&key.code).cloned(),
         }
     }
 }
