@@ -229,16 +229,15 @@ impl TextWindowState {
         if self.lines_count() > 0 && vertically_out_of_bounds {
             let line = min(line, self.lines_count() - 1);
             let relative_line = min(self.last_height / 2, line);
-            self.cursor.line = line;
             self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
         }
 
         if col < leftmost_col || col > rightmost_col {
             let relative_col = min(self.last_width * 3 / 4, col);
             self.leftmost_col = col - relative_col;
-            self.cursor.col = col;
         }
 
+        self.cursor = pos.to_owned();
         self.snap_to_EOL();
         self.last_manual_col = self.cursor.col;
     }
