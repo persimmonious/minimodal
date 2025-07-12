@@ -1,6 +1,8 @@
 #[allow(non_snake_case)]
-mod app;
+pub mod app;
 mod config;
+#[cfg(test)]
+mod tests;
 
 use ratatui::{prelude::CrosstermBackend, Terminal};
 use std::{error::Error, io::stdout};

@@ -1,8 +1,9 @@
-mod buffer;
-mod editor;
-mod keymap;
-mod theme;
-mod ui;
+pub(crate) mod buffer;
+pub(crate) mod editor;
+pub(crate) mod keymap;
+pub(crate) mod theme;
+pub(crate) mod ui;
+
 use crate::config::Config;
 use buffer::Buffer;
 use crossterm::{

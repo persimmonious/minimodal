@@ -1,6 +1,3 @@
-#[cfg(test)]
-mod tests;
-
 use std::{
     io::{self, stdout},
     rc::Rc,
@@ -45,7 +42,7 @@ struct EditorLayoutIndices {
     status_bar: usize,
 }
 #[derive(Debug)]
-pub struct Editor {
+pub(crate) struct Editor {
     active: bool,
     keymap: KeyMap,
     current_tab: usize,
@@ -186,11 +183,15 @@ impl Editor {
         return (layout, indices);
     }
 
-    fn current_tabstate_mut(&mut self) -> &mut TabState {
+    pub(crate) fn get_mode(&self) -> &Mode {
+        &self.mode
+    }
+
+    pub(crate) fn current_tabstate_mut(&mut self) -> &mut TabState {
         &mut self.tab_states[self.current_tab]
     }
 
-    fn current_tabstate(&self) -> &TabState {
+    pub(crate) fn current_tabstate(&self) -> &TabState {
         &self.tab_states[self.current_tab]
     }
 
@@ -202,7 +203,7 @@ impl Editor {
         &self.current_tabstate().window_states
     }
 
-    fn current_bufpos(&self) -> BufferPosition {
+    pub(crate) fn current_bufpos(&self) -> BufferPosition {
         self.current_winstate().cursor.clone()
     }
 
@@ -226,7 +227,7 @@ impl Editor {
         Ok(())
     }
 
-    pub fn handle_input(&mut self) -> io::Result<()> {
+    pub(crate) fn handle_input(&mut self) -> io::Result<()> {
         match event::read()? {
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 self.handle_key_press(key_event)
@@ -236,7 +237,7 @@ impl Editor {
         Ok(())
     }
 
-    fn handle_key_press(&mut self, key: KeyEvent) {
+    pub(crate) fn handle_key_press(&mut self, key: KeyEvent) {
         if let Some(action) = self.keymap.handle_key(&key, &self.mode) {
             self.execute_editor_action(action);
         }
