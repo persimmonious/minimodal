@@ -65,8 +65,8 @@ impl Buffer {
         let path = self.path.as_ref().unwrap();
         let mut file = io::LineWriter::new(File::create(path)?);
         for line in &self.lines {
-            file.write(line.as_bytes())?;
-            file.write(linebreak.as_bytes())?;
+            file.write_all(line.as_bytes())?;
+            file.write_all(linebreak.as_bytes())?;
         }
         Ok(())
     }
