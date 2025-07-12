@@ -74,7 +74,7 @@ impl Editor {
 
     pub fn draw(&mut self, frame: &mut Frame) {
         let (layout, indices) = match self.get_mode() {
-            Mode::Menu(ref submenu) => self.leader_menu_layout(&submenu, frame),
+            Mode::Menu(ref submenu) => self.leader_menu_layout(submenu, frame),
             _ => Self::standard_layout(frame),
         };
 

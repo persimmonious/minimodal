@@ -26,13 +26,13 @@ impl KeyMap {
                 let menu: &HashMap<KeyCode, EditorAction> = &self.root_menu;
                 match menu.get(&key.code) {
                     None => None,
-                    Some(ref act) => Some((*act).clone()),
+                    Some(act) => Some(act.clone()),
                 }
             }
 
             _ => match self.normal_mode.get(&key.code) {
                 None => None,
-                Some(ref act) => Some((*act).clone()),
+                Some(act) => Some(act.clone()),
             },
         }
     }
@@ -42,7 +42,7 @@ impl KeyMap {
             KeyCode::Char(c) => Some(EditorAction::InsertChar(c)),
             _ => match self.insert_mode.get(&key.code) {
                 None => None,
-                Some(ref act) => Some((*act).clone()),
+                Some(act) => Some(act.clone()),
             },
         }
     }

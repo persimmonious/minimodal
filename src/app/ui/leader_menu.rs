@@ -102,21 +102,18 @@ impl LeaderMenu {
         (height + 3) as u16
     }
 
-    fn style_keyhints<'a>(hints: Box<Vec<KeyHint>>, style: &KeyHintStyle) -> Box<Vec<Line<'a>>> {
-        Box::new(hints.into_iter().map(move |h| h.styled(style)).collect())
+    fn style_keyhints<'a>(hints: Vec<KeyHint>, style: &KeyHintStyle) -> Vec<Line<'a>> {
+        hints.into_iter().map(move |h| h.styled(style)).collect()
     }
 
-    pub fn menu_items(sub_menu: &SubMenu) -> Box<Vec<KeyHint>> {
+    pub fn menu_items(sub_menu: &SubMenu) -> Vec<KeyHint> {
         match sub_menu {
             Root => Self::root_menu_items(),
         }
     }
 
-    fn root_menu_items() -> Box<Vec<KeyHint>> {
-        Box::new(vec![
-            KeyHint::new("q", "Quit"),
-            KeyHint::new("w", "Save Buffer"),
-        ])
+    fn root_menu_items() -> Vec<KeyHint> {
+        vec![KeyHint::new("q", "Quit"), KeyHint::new("w", "Save Buffer")]
     }
 }
 
