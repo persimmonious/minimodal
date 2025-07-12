@@ -73,7 +73,7 @@ impl Editor {
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
-        let (layout, indices) = match self.mode {
+        let (layout, indices) = match self.get_mode() {
             Mode::Menu(ref submenu) => self.leader_menu_layout(&submenu, frame),
             _ => Self::standard_layout(frame),
         };
@@ -81,7 +81,7 @@ impl Editor {
         let tabline = self.generate_tabline();
         frame.render_widget(tabline, layout[indices.tabline]);
 
-        if let Mode::Menu(ref sub_menu) = self.mode {
+        if let Mode::Menu(ref sub_menu) = self.get_mode().to_owned() {
             let mut tab_area = layout[indices.tab].clone();
             let menu_area = layout[indices
                 .menu
@@ -107,7 +107,7 @@ impl Editor {
         let tab = &self.tab_states[self.current_tab];
         let status_bar = StatusBar::new(
             &tab.window_states,
-            self.mode.clone(),
+            self.get_mode().clone(),
             Rc::downgrade(&self.theme),
         );
         frame.render_widget(&status_bar, layout[indices.status_bar]);
@@ -218,7 +218,7 @@ impl Editor {
     pub fn draw_cursor(&mut self, term: &mut DefaultTerminal) -> io::Result<()> {
         let pos = self.get_cursor_pos();
         term.set_cursor_position(pos)?;
-        if let Mode::Insert = self.mode {
+        if let Mode::Insert = self.get_mode() {
             execute!(stdout(), SetCursorStyle::SteadyBar)?;
         } else {
             execute!(stdout(), SetCursorStyle::SteadyBlock)?;
@@ -238,7 +238,7 @@ impl Editor {
     }
 
     pub(crate) fn handle_key_press(&mut self, key: KeyEvent) {
-        if let Some(action) = self.keymap.handle_key(&key, &self.mode) {
+        if let Some(action) = self.keymap.handle_key(&key, self.get_mode()) {
             self.execute_editor_action(action);
         }
     }
