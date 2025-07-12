@@ -11,10 +11,9 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
-use std::cell::RefCell;
+use std::{cell::RefCell, iter::repeat_n};
 use std::{
     cmp::{max, min},
-    iter::repeat,
     rc::Weak,
 };
 
@@ -364,9 +363,10 @@ impl TextWindow {
 
     fn highlight_cursor(&self, lines: &mut Vec<Line>, state: &mut TextWindowState) {
         if lines.is_empty() {
-            lines.push(Line::from(String::from_iter(
-                repeat(" ").take(state.last_width - 1),
-            )));
+            lines.push(Line::from(String::from_iter(repeat_n(
+                " ",
+                state.last_width - 1,
+            ))));
         }
 
         if state.cursor.line < state.top_line {

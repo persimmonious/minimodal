@@ -82,7 +82,7 @@ impl Editor {
         frame.render_widget(tabline, layout[indices.tabline]);
 
         if let Mode::Menu(ref sub_menu) = self.get_mode().to_owned() {
-            let mut tab_area = layout[indices.tab].clone();
+            let mut tab_area = layout[indices.tab];
             let menu_area = layout[indices
                 .menu
                 .expect("mismatch between editor mode and layout!")];

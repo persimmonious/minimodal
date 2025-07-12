@@ -144,7 +144,7 @@ impl Widget for LeaderMenu {
         let mut columns: Vec<Paragraph> = vec![];
         let mut minimum_width = MINIMUM_COLUMN_SPACING;
         while let Some(col) = items.get(height * columns.len()..height * (columns.len() + 1)) {
-            let column: Vec<_> = col.iter().cloned().collect();
+            let column = col.to_vec();
             let column = Paragraph::new(column);
             minimum_width += column.line_width() as u16 + MINIMUM_COLUMN_SPACING;
             if minimum_width > width {
