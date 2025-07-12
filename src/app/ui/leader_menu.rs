@@ -43,10 +43,10 @@ pub struct KeyHint {
 
 impl KeyHint {
     pub fn new(key: &str, action: &str) -> Self {
-        return KeyHint {
+        KeyHint {
             key: key.to_string(),
             action: action.to_string(),
-        };
+        }
     }
 
     pub fn styled<'a>(self, style: &KeyHintStyle) -> Line<'a> {
@@ -54,17 +54,17 @@ impl KeyHint {
         let key = Span::styled(self.key.clone(), base.fg(style.key));
         let sep = Span::styled(KEY_HINT_SEPARATOR, base.fg(style.separator));
         let action = Span::styled(self.action.clone(), base.fg(style.action));
-        return Line::from(vec![key, sep, action]);
+        Line::from(vec![key, sep, action])
     }
 
     pub fn len(&self) -> usize {
-        return self.key.len() + self.action.len() + KEY_HINT_SEPARATOR.len();
+        self.key.len() + self.action.len() + KEY_HINT_SEPARATOR.len()
     }
 }
 
 impl LeaderMenu {
     pub fn new(sub_menu: &SubMenu, theme: &Theme) -> Self {
-        return LeaderMenu {
+        LeaderMenu {
             sub_menu: sub_menu.clone(),
             menu_background: theme.menu_background,
             menu_border: theme.menu_border,
@@ -74,7 +74,7 @@ impl LeaderMenu {
                 separator: theme.menu_separator_foreground,
                 action: theme.menu_action_foreground,
             },
-        };
+        }
     }
 
     pub fn required_height(sub_menu: &SubMenu, width: u16) -> u16 {
@@ -99,24 +99,24 @@ impl LeaderMenu {
             }
             height += 1;
         }
-        return (height + 3) as u16;
+        (height + 3) as u16
     }
 
     fn style_keyhints<'a>(hints: Box<Vec<KeyHint>>, style: &KeyHintStyle) -> Box<Vec<Line<'a>>> {
-        return Box::new(hints.into_iter().map(move |h| h.styled(style)).collect());
+        Box::new(hints.into_iter().map(move |h| h.styled(style)).collect())
     }
 
     pub fn menu_items(sub_menu: &SubMenu) -> Box<Vec<KeyHint>> {
-        return match sub_menu {
+        match sub_menu {
             Root => Self::root_menu_items(),
-        };
+        }
     }
 
     fn root_menu_items() -> Box<Vec<KeyHint>> {
-        return Box::new(vec![
+        Box::new(vec![
             KeyHint::new("q", "Quit"),
             KeyHint::new("w", "Save Buffer"),
-        ]);
+        ])
     }
 }
 

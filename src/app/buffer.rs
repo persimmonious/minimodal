@@ -53,11 +53,11 @@ impl Buffer {
     }
 
     pub fn untitled() -> Self {
-        return Buffer {
+        Buffer {
             name: None,
             path: None,
             lines: vec![],
-        };
+        }
     }
 
     pub fn save(&self) -> io::Result<()> {
@@ -89,7 +89,7 @@ impl Buffer {
     }
 
     pub fn lines_count(&self) -> usize {
-        return self.lines.len();
+        self.lines.len()
     }
 
     pub fn line_length(&self, index: usize) -> Option<usize> {
@@ -97,7 +97,7 @@ impl Buffer {
         if count == 0 || index >= count {
             return None;
         }
-        return Some(self.lines[index].chars().count());
+        Some(self.lines[index].chars().count())
     }
 
     pub fn insert_char(&mut self, c: char, pos: &BufferPosition) {

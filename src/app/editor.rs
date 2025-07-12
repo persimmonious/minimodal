@@ -114,7 +114,7 @@ impl Editor {
     }
 
     pub fn is_active(&self) -> bool {
-        return self.active;
+        self.active
     }
 
     fn generate_tabline(&self) -> Tabs {
@@ -155,7 +155,7 @@ impl Editor {
             menu: None,
             status_bar: 2,
         };
-        return (layout, indices);
+        (layout, indices)
     }
 
     fn leader_menu_layout(
@@ -180,7 +180,7 @@ impl Editor {
             menu: Some(2),
             status_bar: 3,
         };
-        return (layout, indices);
+        (layout, indices)
     }
 
     pub(crate) fn get_mode(&self) -> &Mode {

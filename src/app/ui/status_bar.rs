@@ -27,13 +27,13 @@ impl StatusBar {
             (100.0 * line as f32 / (total_lines - 1) as f32).round() as u8
         };
         let col = win.cursor.col;
-        return StatusBar {
+        StatusBar {
             line,
             col,
             percent,
             mode,
             theme,
-        };
+        }
     }
 }
 

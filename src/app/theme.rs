@@ -101,7 +101,7 @@ impl Default for Theme {
             status_mode_menu,
         };
 
-        return Theme {
+        Theme {
             text_background,
             text_foreground,
             selected_line_background,
@@ -130,6 +130,6 @@ impl Default for Theme {
             menu_separator_foreground,
             menu_action_foreground,
             styles,
-        };
+        }
     }
 }

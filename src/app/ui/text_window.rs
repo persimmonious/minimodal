@@ -48,7 +48,7 @@ pub struct TextWindowState {
 
 impl TextWindowState {
     pub fn new(buffer: Weak<RefCell<Buffer>>, theme: Weak<Theme>) -> Self {
-        return TextWindowState {
+        TextWindowState {
             top_line: 0,
             leftmost_col: 0,
             last_height: 2,
@@ -59,7 +59,7 @@ impl TextWindowState {
             stick_to_EOL: false,
             buffer,
             theme,
-        };
+        }
     }
 
     pub fn move_cursor(&mut self, dir: Rectilinear) {
@@ -163,12 +163,12 @@ impl TextWindowState {
         let bottom_line = top_line + self.last_height - 1;
         let leftmost_col = self.leftmost_col;
         let rightmost_col = leftmost_col + self.last_width - 1;
-        return ScreenBounds {
+        ScreenBounds {
             top_line,
             bottom_line,
             leftmost_col,
             rightmost_col,
-        };
+        }
     }
 
     fn is_on_screen(&self, pos: &BufferPosition) -> bool {
@@ -181,7 +181,7 @@ impl TextWindowState {
         let BufferPosition { line, col } = *pos;
         let within_vertically = line >= top_line && line <= bottom_line;
         let within_horizontally = col >= leftmost_col && col <= rightmost_col;
-        return within_vertically && within_horizontally;
+        within_vertically && within_horizontally
     }
 
     pub fn cursor_at_EOL(&self) -> bool {
@@ -189,7 +189,7 @@ impl TextWindowState {
         if self.lines_count() == 0 {
             return true;
         }
-        return col >= self.line_length(line);
+        col >= self.line_length(line)
     }
 
     pub fn snap_to_EOL(&mut self) {

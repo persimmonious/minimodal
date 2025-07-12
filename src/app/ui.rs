@@ -28,12 +28,12 @@ pub struct TabState {
 impl TabState {
     pub fn new(buf: Buffer, theme: Weak<Theme>) -> Self {
         let buf_rc = Rc::new(RefCell::new(buf));
-        return TabState {
+        TabState {
             buffer: Rc::clone(&buf_rc),
             window_states: TextWindowState::new(Rc::downgrade(&buf_rc), theme.clone()),
             windows: TextWindow::new(Rc::downgrade(&buf_rc), theme.clone()),
             current_window: 0,
-        };
+        }
     }
 
     pub fn get_cursor_pos(&self) -> Position {

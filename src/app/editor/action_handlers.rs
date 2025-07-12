@@ -75,7 +75,7 @@ impl Editor {
         let BufferPosition { line, col } = self.current_bufpos();
         let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
         match buffer.line_length(line) {
-            None => return,
+            None => (),
             Some(len) => {
                 if col >= len {
                     return;

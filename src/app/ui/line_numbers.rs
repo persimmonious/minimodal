@@ -31,7 +31,7 @@ impl LineNumbers {
         last_line: usize,
         selected: usize,
     ) -> Self {
-        return LineNumbers {
+        LineNumbers {
             number_type,
             first_line,
             last_line,
@@ -40,7 +40,7 @@ impl LineNumbers {
                 normal: Style::default(),
                 selected: Style::default().add_modifier(Modifier::BOLD),
             },
-        };
+        }
     }
 
     pub fn generate_numbers(&self) -> Vec<usize> {

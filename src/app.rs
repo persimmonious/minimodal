@@ -51,5 +51,5 @@ pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     }
     execute!(stdout(), LeaveAlternateScreen)?;
     disable_raw_mode()?;
-    return Ok(());
+    Ok(())
 }

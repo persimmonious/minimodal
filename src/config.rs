@@ -8,7 +8,7 @@ pub struct Config {
 
 impl Config {
     fn new() -> Self {
-        return Config { file_names: vec![] };
+        Config { file_names: vec![] }
     }
 }
 
@@ -22,5 +22,5 @@ pub fn parse_command_line() -> Result<Config, Box<dyn Error>> {
         config.file_names = file_names.map(|x| x.to_owned()).collect();
     }
 
-    return Ok(config);
+    Ok(config)
 }
