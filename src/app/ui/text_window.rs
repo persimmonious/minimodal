@@ -183,7 +183,8 @@ impl TextWindowState {
         within_vertically && within_horizontally
     }
 
-    pub fn cursor_at_EOL(&self) -> bool {
+    /// Checks if the cursor is past the last character in the line
+    pub fn cursor_past_EOL(&self) -> bool {
         let BufferPosition { line, col } = self.cursor;
         if self.lines_count() == 0 {
             return true;
@@ -208,7 +209,6 @@ impl TextWindowState {
         self.cursor.col = pos.col;
         let relative_line = pos.line - self.top_line;
         self.cur_vertical_percent = relative_line as f32 / (self.last_height - 1) as f32;
-        self.snap_to_EOL();
     }
 
     pub fn jump(&mut self, pos: &BufferPosition) {
@@ -237,7 +237,6 @@ impl TextWindowState {
         }
 
         self.cursor = pos.to_owned();
-        self.snap_to_EOL();
         self.last_manual_col = self.cursor.col;
     }
 
@@ -267,6 +266,15 @@ impl TextWindowState {
             self.leftmost_col = self.cursor.col + 1 - self.last_width;
         } else {
             self.leftmost_col = 0;
+        }
+    }
+
+    /// Jumps to a space immediately following the last character in the line.
+    /// Meant for use in insert mode.
+    pub fn jump_past_EOL(&mut self) {
+        self.jump_to_EOL();
+        if !self.cursor_past_EOL() {
+            self.advance_insertion_cursor();
         }
     }
 

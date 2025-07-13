@@ -126,10 +126,7 @@ impl Editor {
                     self.current_winstate_mut().move_cursor(Rectilinear::Left);
                 } else if pos.line > 0 {
                     self.current_winstate_mut().move_cursor(Rectilinear::Up);
-                    self.current_winstate_mut().jump_to_EOL();
-                    if !self.current_winstate().cursor_at_EOL() {
-                        self.current_winstate_mut().advance_insertion_cursor();
-                    }
+                    self.current_winstate_mut().jump_past_EOL();
                     self.current_tabstate()
                         .buffer
                         .borrow_mut()
@@ -153,7 +150,7 @@ impl Editor {
 
     fn append(&mut self) {
         self.enter_insert();
-        if !self.current_winstate().cursor_at_EOL() {
+        if !self.current_winstate().cursor_past_EOL() {
             self.current_winstate_mut().advance_insertion_cursor();
         }
     }
