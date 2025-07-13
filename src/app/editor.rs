@@ -1,4 +1,5 @@
 use std::{
+    cell::{Ref, RefMut},
     io::{self, stdout},
     rc::Rc,
 };
@@ -201,6 +202,14 @@ impl Editor {
 
     fn current_winstate(&self) -> &TextWindowState {
         &self.current_tabstate().window_states
+    }
+
+    fn current_buffer(&self) -> Ref<Buffer> {
+        self.current_tabstate().buffer.borrow()
+    }
+
+    fn current_buffer_mut(&self) -> RefMut<Buffer> {
+        self.current_tabstate().buffer.borrow_mut()
     }
 
     pub(crate) fn current_bufpos(&self) -> BufferPosition {
