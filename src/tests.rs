@@ -12,13 +12,8 @@ fn test_create_unnamed_editor() {
     let editor = Editor::new(vec![Buffer::untitled()], Theme::default());
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
     assert_eq!(editor.get_mode(), &Mode::Normal);
-    assert!(editor
-        .current_tabstate()
-        .buffer
-        .borrow()
-        .read_name()
-        .is_none());
-    assert!(editor.current_tabstate().buffer.borrow().path().is_none());
+    assert!(editor.current_buffer().read_name().is_none());
+    assert!(editor.current_buffer().path().is_none());
 }
 
 #[test]
@@ -33,11 +28,11 @@ fn test_create_named_editor() {
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
     assert_eq!(editor.get_mode(), &Mode::Normal);
     assert_eq!(
-        editor.current_tabstate().buffer.borrow().read_name(),
+        editor.current_buffer().read_name(),
         Some(OsString::from_str("newfile.txt").unwrap().as_os_str())
     );
     assert_eq!(
-        editor.current_tabstate().buffer.borrow().path(),
+        editor.current_buffer().path(),
         Some(
             OsString::from_str("newdir/newfile.txt")
                 .unwrap()
@@ -63,10 +58,7 @@ fn test_simple_one_line_input() {
     editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 7 });
     assert_eq!(editor.get_mode(), &Mode::Normal);
-    assert_eq!(
-        editor.current_tabstate().buffer.borrow().lines,
-        &["abcd123!".to_owned()]
-    );
+    assert_eq!(editor.current_buffer().lines, &["abcd123!".to_owned()]);
 }
 
 #[test]
@@ -96,10 +88,7 @@ fn test_multi_line_input() {
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 1 });
     editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
-    assert_eq!(
-        editor.current_tabstate().buffer.borrow().lines,
-        &["", "Hello", "World", "!"]
-    );
+    assert_eq!(editor.current_buffer().lines, &["", "Hello", "World", "!"]);
 }
 
 #[test]
@@ -132,7 +121,7 @@ fn test_text_with_multiple_line_breaks() {
     editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 3 });
     assert_eq!(
-        editor.current_tabstate().buffer.borrow().lines,
+        editor.current_buffer().lines,
         &["abc", "defgh", "", "", "ijkl"]
     );
 }
