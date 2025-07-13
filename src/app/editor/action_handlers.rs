@@ -61,6 +61,7 @@ impl Editor {
     fn exit_insert(&mut self) {
         self.mode = Mode::Normal;
         self.current_winstate_mut().snap_to_EOL();
+        self.current_winstate_mut().last_manual_col = self.current_bufpos().col;
     }
 
     fn insert_char(&mut self, c: char) {
@@ -73,19 +74,71 @@ impl Editor {
     }
 
     fn remove_char(&mut self, dir: Horizontal) {
-        let BufferPosition { line, col } = self.current_bufpos();
-        let mut buffer = self.current_tabstate_mut().buffer.borrow_mut();
-        match buffer.line_length(line) {
-            None => (),
-            Some(len) => {
-                if col >= len {
-                    return;
-                }
-                buffer.lines[line].remove(col);
-                drop(buffer);
+        let pos = self.current_bufpos();
+        let mode = self.get_mode().to_owned();
+        let len = self
+            .current_tabstate()
+            .buffer
+            .borrow()
+            .line_length(pos.line)
+            .unwrap_or(0);
+        let lines_count = self.current_tabstate().buffer.borrow().lines_count();
+        match (mode, dir) {
+            (Mode::Normal, Horizontal::Forward) if pos.col < len => {
+                self.current_tabstate()
+                    .buffer
+                    .borrow_mut()
+                    .remove_char(&pos);
                 self.current_winstate_mut().snap_to_EOL();
             }
+            (Mode::Normal, Horizontal::Backward) if pos.col > 0 && pos.col < len => {
+                self.current_tabstate()
+                    .buffer
+                    .borrow_mut()
+                    .remove_char(&BufferPosition {
+                        col: pos.col - 1,
+                        ..pos
+                    });
+                self.current_winstate_mut().move_cursor(Rectilinear::Left);
+            }
+            (Mode::Insert, Horizontal::Forward) if pos.col <= len => {
+                if pos.col < len {
+                    self.current_tabstate()
+                        .buffer
+                        .borrow_mut()
+                        .remove_char(&pos);
+                } else if pos.col == len && pos.line + 1 < lines_count {
+                    self.current_tabstate()
+                        .buffer
+                        .borrow_mut()
+                        .join_with_next_line(pos.line);
+                }
+            }
+            (Mode::Insert, Horizontal::Backward) if pos.col <= len => {
+                if pos.col > 0 {
+                    self.current_tabstate()
+                        .buffer
+                        .borrow_mut()
+                        .remove_char(&BufferPosition {
+                            col: pos.col - 1,
+                            ..pos
+                        });
+                    self.current_winstate_mut().move_cursor(Rectilinear::Left);
+                } else if pos.line > 0 {
+                    self.current_winstate_mut().move_cursor(Rectilinear::Up);
+                    self.current_winstate_mut().jump_to_EOL();
+                    if !self.current_winstate().cursor_at_EOL() {
+                        self.current_winstate_mut().advance_insertion_cursor();
+                    }
+                    self.current_tabstate()
+                        .buffer
+                        .borrow_mut()
+                        .join_with_next_line(pos.line - 1);
+                }
+            }
+            (_, _) => (),
         }
+        self.current_winstate_mut().last_manual_col = self.current_winstate().cursor.col;
     }
 
     fn replace_line(&mut self) {

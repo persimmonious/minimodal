@@ -106,7 +106,28 @@ impl Buffer {
             return;
         }
         let BufferPosition { line, col } = *pos;
-        self.lines[line].insert(col, c);
+        let mut new_line: Vec<_> = self.lines[line].chars().collect();
+        new_line.insert(col, c);
+        self.lines[line] = String::from_iter(new_line);
+    }
+
+    pub fn remove_char(&mut self, pos: &BufferPosition) {
+        if self.lines.is_empty() {
+            return;
+        }
+        let BufferPosition { line, col } = *pos;
+        if line < self.lines.len() {
+            let len = self.lines[line].chars().count();
+            if col >= len {
+                return;
+            }
+            let new_line = self.lines[line]
+                .chars()
+                .enumerate()
+                .flat_map(|(i, c)| if i != col { Some(c) } else { None })
+                .collect();
+            self.lines[line] = new_line;
+        }
     }
 
     pub fn clear_line(&mut self, pos: &BufferPosition) {
@@ -131,5 +152,14 @@ impl Buffer {
         self.add_line(line + 1, new_line);
         let old_line: String = self.lines[line].chars().take(col).collect();
         self.lines[line] = old_line;
+    }
+
+    pub fn join_with_next_line(&mut self, line: usize) {
+        if line + 1 >= self.lines.len() {
+            return;
+        }
+        let second_line = self.lines[line + 1].to_owned();
+        self.lines[line].push_str(&second_line);
+        self.lines.remove(line + 1);
     }
 }
