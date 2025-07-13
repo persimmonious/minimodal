@@ -78,10 +78,13 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('o'), InsertNewLine(Vertical::Down));
         normal_mode.insert(KeyCode::Char('O'), InsertNewLine(Vertical::Up));
         normal_mode.insert(KeyCode::Char('x'), RemoveChar(Forward));
+        normal_mode.insert(KeyCode::Char('X'), RemoveChar(Backward));
         normal_mode.insert(KeyCode::Enter, NextLine);
         normal_mode.insert(KeyCode::Backspace, Back);
         insert_mode.insert(KeyCode::Esc, ExitInsert);
         insert_mode.insert(KeyCode::Enter, InsertLineBreak);
+        insert_mode.insert(KeyCode::Delete, RemoveChar(Forward));
+        insert_mode.insert(KeyCode::Backspace, RemoveChar(Backward));
         root_menu.insert(KeyCode::Esc, ExitMenu);
         root_menu.insert(KeyCode::Char(' '), ExitMenu);
         root_menu.insert(KeyCode::Char('q'), ExitEditor);
