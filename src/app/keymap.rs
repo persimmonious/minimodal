@@ -85,6 +85,12 @@ impl Default for KeyMap {
         insert_mode.insert(KeyCode::Enter, InsertLineBreak);
         insert_mode.insert(KeyCode::Delete, RemoveChar(Forward));
         insert_mode.insert(KeyCode::Backspace, RemoveChar(Backward));
+        insert_mode.insert(KeyCode::Left, MoveCursor(Mode::Insert, Rectilinear::Left));
+        insert_mode.insert(KeyCode::Right, MoveCursor(Mode::Insert, Rectilinear::Right));
+        insert_mode.insert(KeyCode::Up, MoveCursor(Mode::Insert, Rectilinear::Up));
+        insert_mode.insert(KeyCode::Down, MoveCursor(Mode::Insert, Rectilinear::Down));
+        insert_mode.insert(KeyCode::Home, Home);
+        insert_mode.insert(KeyCode::End, EOL);
         root_menu.insert(KeyCode::Esc, ExitMenu);
         root_menu.insert(KeyCode::Char(' '), ExitMenu);
         root_menu.insert(KeyCode::Char('q'), ExitEditor);

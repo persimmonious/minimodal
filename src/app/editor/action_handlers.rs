@@ -28,11 +28,7 @@ impl Editor {
             }
             EditorAction::ReplaceLine => self.replace_line(),
             EditorAction::CycleTab(dir) => self.cycle_tab(dir),
-            EditorAction::MoveCursor(mode, dir) => {
-                if mode == Mode::Normal {
-                    self.move_cursor(dir)
-                }
-            }
+            EditorAction::MoveCursor(mode, dir) => self.move_cursor(&mode, dir),
             EditorAction::EOL => self.sticky_jump_to_EOL(),
             EditorAction::Home => self.jump_to_home(),
             EditorAction::EndOfBuffer => self.jump_to_last_line(),
@@ -85,7 +81,8 @@ impl Editor {
                     col: pos.col - 1,
                     ..pos
                 });
-                self.current_winstate_mut().move_cursor(Rectilinear::Left);
+                self.current_winstate_mut()
+                    .move_cursor(&Mode::Normal, Rectilinear::Left);
             }
             (Mode::Insert, Horizontal::Forward) if pos.col <= len => {
                 if pos.col < len {
@@ -100,9 +97,11 @@ impl Editor {
                         col: pos.col - 1,
                         ..pos
                     });
-                    self.current_winstate_mut().move_cursor(Rectilinear::Left);
+                    self.current_winstate_mut()
+                        .move_cursor(&Mode::Insert, Rectilinear::Left);
                 } else if pos.line > 0 {
-                    self.current_winstate_mut().move_cursor(Rectilinear::Up);
+                    self.current_winstate_mut()
+                        .move_cursor(&Mode::Insert, Rectilinear::Up);
                     self.current_winstate_mut().jump_past_EOL();
                     self.current_buffer_mut().join_with_next_line(pos.line - 1);
                 }
@@ -185,8 +184,8 @@ impl Editor {
         }
     }
 
-    fn move_cursor(&mut self, dir: Rectilinear) {
-        self.current_winstate_mut().move_cursor(dir);
+    fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
+        self.current_winstate_mut().move_cursor(mode, dir);
     }
 
     fn jump_to_EOL(&mut self) {
@@ -195,6 +194,9 @@ impl Editor {
 
     fn sticky_jump_to_EOL(&mut self) {
         self.current_winstate_mut().sticky_jump_to_EOL();
+        if matches!(self.get_mode(), Mode::Insert) {
+            self.current_winstate_mut().jump_past_EOL();
+        }
     }
 
     fn jump_to_home(&mut self) {
@@ -217,10 +219,11 @@ impl Editor {
 
     fn back(&mut self) {
         let cursor = self.current_bufpos();
+        let mode = self.get_mode().to_owned();
         if cursor.col > 0 {
-            self.move_cursor(Rectilinear::Left);
+            self.move_cursor(&mode, Rectilinear::Left);
         } else if cursor.line > 0 {
-            self.move_cursor(Rectilinear::Up);
+            self.move_cursor(&mode, Rectilinear::Up);
             self.jump_to_EOL();
         }
     }

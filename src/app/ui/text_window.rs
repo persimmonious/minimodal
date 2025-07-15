@@ -2,6 +2,7 @@ use super::line_numbers::LineNumberType::Relative;
 use super::line_numbers::LineNumbers;
 use crate::app::{
     buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
+    editor::Mode,
     theme::Theme,
 };
 use ratatui::{
@@ -61,9 +62,9 @@ impl TextWindowState {
         }
     }
 
-    pub fn move_cursor(&mut self, dir: Rectilinear) {
-        match dir {
-            Rectilinear::Up => {
+    pub fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
+        match (mode, dir) {
+            (Mode::Normal | Mode::Insert, Rectilinear::Up) => {
                 if self.cursor.line == 0 {
                     return;
                 }
@@ -81,6 +82,19 @@ impl TextWindowState {
                 let new_line_length = self.line_length(self.cursor.line);
                 if self.cursor.col >= new_line_length || self.stick_to_EOL {
                     self.jump_to_EOL();
+                    if matches!(mode, Mode::Insert) {
+                        let last_manual_column = self.last_manual_col;
+                        self.jump_past_EOL();
+                        self.last_manual_col = last_manual_column;
+                    }
+                } else if matches!(mode, Mode::Insert) && self.last_manual_col >= new_line_length {
+                    if self.last_manual_col > new_line_length {
+                        let last_manual_column = self.last_manual_col;
+                        self.jump_past_EOL();
+                        self.last_manual_col = last_manual_column;
+                    } else {
+                        self.jump_past_EOL();
+                    }
                 } else {
                     self.jump(&BufferPosition {
                         line: self.cursor.line,
@@ -89,7 +103,7 @@ impl TextWindowState {
                 }
             }
 
-            Rectilinear::Down => {
+            (Mode::Normal | Mode::Insert, Rectilinear::Down) => {
                 if self.cursor.line + 1 >= self.lines_count() {
                     return;
                 }
@@ -108,6 +122,19 @@ impl TextWindowState {
                 let new_line_length = self.line_length(self.cursor.line);
                 if self.cursor.col >= new_line_length || self.stick_to_EOL {
                     self.jump_to_EOL();
+                    if matches!(mode, Mode::Insert) {
+                        let last_manual_column = self.last_manual_col;
+                        self.jump_past_EOL();
+                        self.last_manual_col = last_manual_column;
+                    }
+                } else if matches!(mode, Mode::Insert) && self.last_manual_col >= new_line_length {
+                    if self.last_manual_col > new_line_length {
+                        let last_manual_column = self.last_manual_col;
+                        self.jump_past_EOL();
+                        self.last_manual_col = last_manual_column;
+                    } else {
+                        self.jump_past_EOL();
+                    }
                 } else {
                     self.jump(&BufferPosition {
                         line: self.cursor.line,
@@ -116,7 +143,7 @@ impl TextWindowState {
                 }
             }
 
-            Rectilinear::Right => {
+            (Mode::Normal, Rectilinear::Right) => {
                 if self.lines_count() == 0 {
                     return;
                 }
@@ -132,7 +159,31 @@ impl TextWindowState {
                 }
             }
 
-            Rectilinear::Left => {
+            (Mode::Insert, Rectilinear::Right) => {
+                if self.lines_count() == 0 {
+                    return;
+                }
+                let line = self.cursor.line;
+                if self.cursor_past_EOL() {
+                    if line == self.lines_count() - 1 {
+                        return;
+                    }
+                    self.stick_to_EOL = false;
+                    self.jump(&BufferPosition {
+                        line: line + 1,
+                        col: 0,
+                    });
+                } else {
+                    self.stick_to_EOL = false;
+                    self.cursor.col += 1;
+                    self.last_manual_col = self.cursor.col;
+                    if self.cursor.col >= self.leftmost_col + self.last_width {
+                        self.leftmost_col += 1;
+                    }
+                }
+            }
+
+            (Mode::Normal, Rectilinear::Left) => {
                 if self.cursor.col == 0 {
                     return;
                 }
@@ -143,6 +194,34 @@ impl TextWindowState {
                     self.leftmost_col = self.cursor.col;
                 }
             }
+
+            (Mode::Insert, Rectilinear::Left) => {
+                if self.lines_count() == 0 {
+                    return;
+                }
+                let line = self.cursor.line;
+                if self.cursor.col == 0 {
+                    if line == 0 {
+                        return;
+                    }
+                    self.stick_to_EOL = false;
+                    self.jump(&BufferPosition {
+                        line: line - 1,
+                        col: self.line_length(line - 1),
+                    });
+                    self.jump_past_EOL();
+                    self.last_manual_col = self.cursor.col;
+                } else {
+                    self.stick_to_EOL = false;
+                    self.cursor.col -= 1;
+                    self.last_manual_col = self.cursor.col;
+                    if self.cursor.col < self.leftmost_col {
+                        self.leftmost_col = self.cursor.col;
+                    }
+                }
+            }
+
+            (Mode::Command | Mode::Menu(_), _) => (),
         }
     }
 
