@@ -125,3 +125,561 @@ fn test_text_with_multiple_line_breaks() {
         &["abc", "defgh", "", "", "ijkl"]
     );
 }
+
+#[test]
+fn test_forward_deletion_in_empty_buffer_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_forward_deletion_at_the_end_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "qrst"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklmnop", ""]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklmnop", ""]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+}
+
+#[test]
+fn test_forward_deletion_in_the_middle_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('h'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijkmnop", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    for _ in 0..4 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijk", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 2 });
+    for _ in 0..3 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+}
+
+#[test]
+fn test_forward_deletion_at_the_start_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('0'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "jklmnop", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    for _ in 0..3 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "mnop", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    for _ in 0..4 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_in_empty_buffer_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_deletion_in_empty_buffer_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_at_the_start_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('0'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_middle_and_start_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijkmnop", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "mnop", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "mnop", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_in_empty_line_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_at_the_end_in_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "qrsu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklmnop", "u"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('X'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklmnop", "u"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+}
+
+#[test]
+fn test_forward_deletion_at_the_end_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 5 });
+}
+
+#[test]
+fn test_forward_deletion_middle_and_end_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklnop", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijkl", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklqrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 4 });
+}
+
+#[test]
+fn test_forward_deletion_at_the_start_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('0'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["bcdefgh", "ijklmnop", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_forward_deletion_appending_empty_line() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "", "", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('A'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 8 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 8 });
+}
+
+#[test]
+fn test_forward_deletion_appending_to_empty_line() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "", "", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('A'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+}
+
+#[test]
+fn test_forward_deletion_joining_empty_lines() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "", "", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('A'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Delete, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_at_the_end_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "qrst"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    for _ in 0..4 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklmnop", ""]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "ijklmnop"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 8 });
+}
+
+#[test]
+fn test_backward_deletion_in_the_middle_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijkmnop", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefgh", "mnop", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, ["abcdefghmnop", "qrstu"]);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 8 });
+}
+
+#[test]
+fn test_backward_deletion_at_the_start_in_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('I'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_appending_to_empty_line() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "", "", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('I'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+}
+
+#[test]
+fn test_backward_deletion_joining_empty_lines() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefgh", "ijklmnop", "", "", "qrstu"];
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Char(c), KeyModifiers::NONE));
+        }
+        if i != lines.len() - 1 {
+            editor.handle_key_press(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
+        }
+    }
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Backspace, KeyModifiers::NONE));
+    assert_eq!(
+        editor.current_buffer().lines,
+        ["abcdefgh", "ijklmnop", "", "qrstu"]
+    );
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+}
