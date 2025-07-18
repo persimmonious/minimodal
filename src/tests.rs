@@ -1,11 +1,24 @@
 use crate::app::{
     buffer::{Buffer, BufferPosition},
-    editor::{Editor, Mode},
+    editor::{actions::EditorAction, Editor, Mode},
     theme::Theme,
 };
 use std::{ffi::OsString, str::FromStr};
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+
+fn type_lines(editor: &mut Editor, lines: &[&str]) {
+    editor.execute_editor_action(EditorAction::EnterInsert);
+    for (i, line) in lines.iter().enumerate() {
+        for c in line.chars() {
+            editor.execute_editor_action(EditorAction::InsertChar(c));
+        }
+        if i != lines.len() - 1 {
+            editor.execute_editor_action(EditorAction::InsertLineBreak);
+        }
+    }
+    editor.execute_editor_action(EditorAction::ExitInsert);
+}
 
 #[test]
 fn test_create_unnamed_editor() {
@@ -682,4 +695,247 @@ fn test_backward_deletion_joining_empty_lines() {
         ["abcdefgh", "ijklmnop", "", "qrstu"]
     );
     assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+}
+
+#[test]
+fn test_normal_mode_arrow_movement() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefg", "hij", "klmnop", "", "qrstu"];
+    type_lines(&mut editor, &lines);
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 6 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 6 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 5 });
+    for _ in 0..5 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 1 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 2 });
+    assert_eq!(editor.current_buffer().lines, lines);
+}
+
+#[test]
+fn test_empty_buffer_normal_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_empty_buffer_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    assert!(editor.current_buffer().lines.is_empty());
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Home, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::End, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+}
+
+#[test]
+fn test_horizontal_movement_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefg", "hij", "klmnop", "", "qrstu"];
+    type_lines(&mut editor, &lines);
+    assert_eq!(editor.current_buffer().lines, lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('a'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    for _ in 0..4 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 6 });
+    for _ in 0..6 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 0 });
+    for _ in 0..4 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    for _ in 0..8 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 0 });
+    for _ in 0..7 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 7 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 0 });
+    for _ in 0..10 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 6 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 0 });
+    for _ in 0..5 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+}
+
+#[test]
+fn test_vertical_movement_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefg", "hij", "klmnop", "", "qrstu"];
+    type_lines(&mut editor, &lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 6 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 6 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+    for _ in 0..3 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 2 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 2 });
+}
+
+#[test]
+fn test_home_and_end_insert_mode() {
+    let mut editor = Editor::new(vec![Buffer::untitled()], Theme::default());
+    let lines = ["abcdefg", "hij", "klmnop", "", "qrstu"];
+    type_lines(&mut editor, &lines);
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 4 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Home, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Home, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::End, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 6 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::End, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 7 });
+    for _ in 0..4 {
+        editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    }
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+    // Unstick the cursor by moving to the left
+    editor.handle_key_press(KeyEvent::new(KeyCode::Left, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Right, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 2, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 1, col: 3 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 0, col: 5 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::End, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    // Unstick the cursor with Home
+    editor.handle_key_press(KeyEvent::new(KeyCode::Home, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 3, col: 0 });
+    editor.handle_key_press(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
+    assert_eq!(editor.current_bufpos(), BufferPosition { line: 4, col: 0 });
 }
