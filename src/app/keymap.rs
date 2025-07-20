@@ -3,6 +3,7 @@ use super::{
         HorizontalDirection::*, RectilinearDirection as Rectilinear, VerticalDirection as Vertical,
     },
     editor::{actions::EditorAction, Mode},
+    ui::leader_menu::SubMenu,
 };
 use crossterm::event::KeyCode;
 use ratatui::crossterm::event::KeyEvent;
@@ -22,13 +23,17 @@ impl KeyMap {
         match mode {
             Mode::Insert => self.handle_insert_mode(key),
 
-            Mode::Menu(submenu) => {
-                let menu: &HashMap<KeyCode, EditorAction> = &self.root_menu;
-                menu.get(&key.code).cloned()
-            }
+            Mode::Normal => self.normal_mode.get(&key.code).cloned(),
 
-            _ => self.normal_mode.get(&key.code).cloned(),
+            Mode::Command => todo!("commands not implemented yet"),
         }
+    }
+
+    pub fn handle_menu_input(&self, key: &KeyEvent, menu: &SubMenu) -> Option<EditorAction> {
+        let menu: &HashMap<KeyCode, EditorAction> = match menu {
+            SubMenu::Root => &self.root_menu,
+        };
+        menu.get(&key.code).cloned()
     }
 
     fn handle_insert_mode(&self, key: &KeyEvent) -> Option<EditorAction> {

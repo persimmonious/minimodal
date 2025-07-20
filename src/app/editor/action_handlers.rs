@@ -42,11 +42,11 @@ impl Editor {
     }
 
     fn enter_menu(&mut self) {
-        self.mode = Mode::Menu(SubMenu::Root);
+        self.lower_menu = Some(SubMenu::Root);
     }
 
     fn exit_menu(&mut self) {
-        self.mode = Mode::Normal;
+        self.lower_menu = None;
     }
 
     fn enter_insert(&mut self) {

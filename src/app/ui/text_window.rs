@@ -221,7 +221,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Command | Mode::Menu(_), _) => (),
+            (Mode::Command, _) => (),
         }
     }
 

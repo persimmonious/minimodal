@@ -32,7 +32,6 @@ pub enum Mode {
     Normal,
     Command,
     Insert,
-    Menu(SubMenu),
 }
 
 #[derive(Debug)]
@@ -51,6 +50,7 @@ pub(crate) struct Editor {
     tabs: Vec<Tab>,
     tab_states: Vec<TabState>,
     theme: Rc<Theme>,
+    lower_menu: Option<SubMenu>,
 }
 
 const TABLINE_HEIGHT: u16 = 1;
@@ -70,19 +70,20 @@ impl Editor {
                 .into_iter()
                 .map(|buffer| TabState::new(buffer, Rc::downgrade(&theme_rc)))
                 .collect(),
+            lower_menu: None,
         }
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
-        let (layout, indices) = match self.get_mode() {
-            Mode::Menu(ref submenu) => self.leader_menu_layout(submenu, frame),
+        let (layout, indices) = match self.lower_menu {
+            Some(ref submenu) => self.leader_menu_layout(submenu, frame),
             _ => Self::standard_layout(frame),
         };
 
         let tabline = self.generate_tabline();
         frame.render_widget(tabline, layout[indices.tabline]);
 
-        if let Mode::Menu(ref sub_menu) = self.get_mode().to_owned() {
+        if let Some(ref sub_menu) = self.lower_menu {
             let mut tab_area = layout[indices.tab];
             let menu_area = layout[indices
                 .menu
@@ -247,7 +248,12 @@ impl Editor {
     }
 
     pub(crate) fn handle_key_press(&mut self, key: KeyEvent) {
-        if let Some(action) = self.keymap.handle_key(&key, self.get_mode()) {
+        let bound_action = if let Some(ref menu) = self.lower_menu {
+            self.keymap.handle_menu_input(&key, &menu)
+        } else {
+            self.keymap.handle_key(&key, self.get_mode())
+        };
+        if let Some(action) = bound_action {
             self.execute_editor_action(action);
         }
     }
