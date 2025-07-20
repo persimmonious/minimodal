@@ -30,7 +30,7 @@ impl TabState {
         let buf_rc = Rc::new(RefCell::new(buf));
         TabState {
             buffer: Rc::clone(&buf_rc),
-            window_states: TextWindowState::new(Rc::downgrade(&buf_rc), theme.clone()),
+            window_states: TextWindowState::new(Rc::downgrade(&buf_rc)),
             windows: TextWindow::new(Rc::downgrade(&buf_rc), theme.clone()),
             current_window: 0,
         }

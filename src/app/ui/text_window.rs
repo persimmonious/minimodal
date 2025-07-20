@@ -43,11 +43,10 @@ pub struct TextWindowState {
     pub last_manual_col: usize,
     pub stick_to_EOL: bool,
     buffer: Weak<RefCell<Buffer>>,
-    theme: Weak<Theme>,
 }
 
 impl TextWindowState {
-    pub fn new(buffer: Weak<RefCell<Buffer>>, theme: Weak<Theme>) -> Self {
+    pub fn new(buffer: Weak<RefCell<Buffer>>) -> Self {
         TextWindowState {
             top_line: 0,
             leftmost_col: 0,
@@ -58,7 +57,6 @@ impl TextWindowState {
             last_manual_col: 0,
             stick_to_EOL: false,
             buffer,
-            theme,
         }
     }
 
