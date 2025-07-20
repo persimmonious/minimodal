@@ -249,7 +249,7 @@ impl Editor {
 
     pub(crate) fn handle_key_press(&mut self, key: KeyEvent) {
         let bound_action = if let Some(ref menu) = self.lower_menu {
-            self.keymap.handle_menu_input(&key, &menu)
+            self.keymap.handle_menu_input(&key, menu)
         } else {
             self.keymap.handle_key(&key, self.get_mode())
         };
