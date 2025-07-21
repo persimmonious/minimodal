@@ -10,7 +10,7 @@ use crossterm::{
     execute,
 };
 use ratatui::{
-    layout::{Constraint, Direction, Layout, Position, Rect},
+    layout::{Constraint, Direction, Layout, Margin, Position, Rect},
     style::{Style, Stylize},
     widgets::{Clear, Tabs},
     DefaultTerminal, Frame,
@@ -20,9 +20,15 @@ use crate::app::{
     buffer::{Buffer, BufferPosition},
     keymap::KeyMap,
     theme::Theme,
-    ui::{floating_window::FloatingContent, leader_menu::SubMenu, Tab, TabState},
-    ui::{leader_menu::LeaderMenu, status_bar::StatusBar, text_window::TextWindowState},
+    ui::{
+        leader_menu::{LeaderMenu, SubMenu},
+        status_bar::StatusBar,
+        text_window::TextWindowState,
+        Tab, TabState,
+    },
 };
+
+use super::ui::floating_window::FloatingContent;
 
 mod action_handlers;
 pub mod actions;
@@ -42,7 +48,7 @@ struct EditorLayoutIndices {
     status_bar: usize,
 }
 
-pub(crate) struct Editor {
+pub(crate) struct Editor<'ed> {
     active: bool,
     keymap: KeyMap,
     current_tab: usize,
@@ -51,13 +57,14 @@ pub(crate) struct Editor {
     tab_states: Vec<TabState>,
     theme: Rc<Theme>,
     lower_menu: Option<SubMenu>,
-    floating_window: Option<Box<dyn FloatingContent>>,
+    floating_window: Option<&'ed mut dyn FloatingContent>,
 }
 
 const TABLINE_HEIGHT: u16 = 1;
 const STATUS_LINE_HEIGHT: u16 = 1;
+const FLOATING_WINDOW_SPACE_FRACTION: f64 = 0.8;
 
-impl Editor {
+impl<'a> Editor<'a> {
     pub fn new(buffers: Vec<Buffer>, theme_struct: Theme) -> Self {
         let theme_rc = Rc::new(theme_struct);
         Editor {
@@ -115,6 +122,11 @@ impl Editor {
             Rc::downgrade(&self.theme),
         );
         frame.render_widget(&status_bar, layout[indices.status_bar]);
+
+        if let Some(ref floating) = self.floating_window {
+            let area = Self::floating_window_area(frame);
+            floating.render(&area, frame.buffer_mut());
+        }
     }
 
     pub fn is_active(&self) -> bool {
@@ -185,6 +197,18 @@ impl Editor {
             status_bar: 3,
         };
         (layout, indices)
+    }
+
+    fn floating_window_area(frame: &Frame) -> Rect {
+        let full_area = frame.area();
+        let height = full_area.height;
+        let vert_margin =
+            (height as f64 * (1.0 - FLOATING_WINDOW_SPACE_FRACTION) / 2.0).floor() as u16;
+        let width = full_area.width;
+        let hor_margin =
+            (width as f64 * (1.0 - FLOATING_WINDOW_SPACE_FRACTION) / 2.0).floor() as u16;
+        let margin = Margin::new(hor_margin, vert_margin);
+        Rect::inner(full_area, margin)
     }
 
     pub(crate) fn get_mode(&self) -> &Mode {

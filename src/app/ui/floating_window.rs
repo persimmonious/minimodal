@@ -1,6 +1,10 @@
 use crossterm::event::KeyEvent;
-use ratatui::widgets::Widget;
+use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect};
 
-pub trait FloatingContent: Widget {
-    fn handle_input(&mut self, input: &KeyEvent);
+use crate::app::editor::Editor;
+
+pub trait FloatingContent {
+    fn handle_input(&mut self, input: &KeyEvent) -> Option<Box<fn(&mut Editor)>>;
+
+    fn render(&self, area: &Rect, buf: &mut TUI_Buffer);
 }

@@ -8,7 +8,7 @@ use crate::app::{
 
 use super::{actions::EditorAction, Editor, Mode};
 
-impl Editor {
+impl<'a> Editor<'a> {
     pub fn execute_editor_action(&mut self, action: EditorAction) {
         match action {
             EditorAction::Append => self.append(),
