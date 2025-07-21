@@ -20,8 +20,8 @@ use crate::app::{
     buffer::{Buffer, BufferPosition},
     keymap::KeyMap,
     theme::Theme,
+    ui::{floating_window::FloatingContent, leader_menu::SubMenu, Tab, TabState},
     ui::{leader_menu::LeaderMenu, status_bar::StatusBar, text_window::TextWindowState},
-    ui::{leader_menu::SubMenu, Tab, TabState},
 };
 
 mod action_handlers;
@@ -41,7 +41,7 @@ struct EditorLayoutIndices {
     menu: Option<usize>,
     status_bar: usize,
 }
-#[derive(Debug)]
+
 pub(crate) struct Editor {
     active: bool,
     keymap: KeyMap,
@@ -51,6 +51,7 @@ pub(crate) struct Editor {
     tab_states: Vec<TabState>,
     theme: Rc<Theme>,
     lower_menu: Option<SubMenu>,
+    floating_window: Option<Box<dyn FloatingContent>>,
 }
 
 const TABLINE_HEIGHT: u16 = 1;
@@ -71,6 +72,7 @@ impl Editor {
                 .map(|buffer| TabState::new(buffer, Rc::downgrade(&theme_rc)))
                 .collect(),
             lower_menu: None,
+            floating_window: None,
         }
     }
 

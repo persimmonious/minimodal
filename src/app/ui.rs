@@ -1,3 +1,4 @@
+pub mod floating_window;
 pub mod leader_menu;
 mod line_numbers;
 pub mod status_bar;
