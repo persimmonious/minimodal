@@ -4,8 +4,6 @@ use std::{
     io::{self, Write},
 };
 
-use super::graceful_exit;
-
 #[derive(Debug, Clone)]
 pub enum HorizontalDirection {
     Forward,
@@ -64,9 +62,6 @@ impl Buffer {
 
     pub fn save(&self) -> io::Result<()> {
         let linebreak = "\n";
-        if self.path.is_none() {
-            graceful_exit(Some("saving untitled buffer is unsupported"));
-        }
         let path = self.path.as_ref().unwrap();
         let mut file = io::LineWriter::new(File::create(path)?);
         for line in &self.lines {

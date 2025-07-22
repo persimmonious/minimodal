@@ -3,12 +3,15 @@ use crate::app::{
         BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
         VerticalDirection,
     },
-    ui::leader_menu::SubMenu,
+    ui::{
+        floating_window::{saving_unnamed::SavingUnnamed, FloatingContent},
+        leader_menu::SubMenu,
+    },
 };
 
 use super::{actions::EditorAction, Editor, Mode};
 
-impl<'a> Editor<'a> {
+impl Editor {
     pub fn execute_editor_action(&mut self, action: EditorAction) {
         match action {
             EditorAction::Append => self.append(),
@@ -18,6 +21,7 @@ impl<'a> Editor<'a> {
             }
             EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterMenu => self.enter_menu(),
+            EditorAction::EnterFloatingMenu(menu) => self.enter_floating_menu(menu),
             EditorAction::ExitInsert => self.exit_insert(),
             EditorAction::ExitEditor => self.exit(),
             EditorAction::ExitMenu => self.exit_menu(),
@@ -43,6 +47,10 @@ impl<'a> Editor<'a> {
 
     fn enter_menu(&mut self) {
         self.lower_menu = Some(SubMenu::Root);
+    }
+
+    fn enter_floating_menu(&mut self, menu: Box<dyn FloatingContent>) {
+        self.floating_window = Some(menu);
     }
 
     fn exit_menu(&mut self) {
@@ -166,7 +174,11 @@ impl<'a> Editor<'a> {
     }
 
     fn save_current_buffer(&mut self) {
-        self.current_buffer().save().unwrap();
+        if self.current_buffer().read_name().is_some() {
+            self.current_buffer().save().unwrap();
+        } else {
+            self.enter_floating_menu(Box::new(SavingUnnamed()));
+        }
         self.exit_menu();
     }
 

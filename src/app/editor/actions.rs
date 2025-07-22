@@ -1,7 +1,8 @@
 use crate::app::buffer::{HorizontalDirection, RectilinearDirection, VerticalDirection};
 use crate::app::editor::Mode;
+use crate::app::ui::floating_window::FloatingContent;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum EditorAction {
     Append,
     AppendAtEOL,
@@ -9,6 +10,7 @@ pub enum EditorAction {
     CycleTab(HorizontalDirection),
     EndOfBuffer,
     EnterInsert,
+    EnterFloatingMenu(Box<dyn FloatingContent>),
     EnterMenu,
     EOL,
     ExitEditor,

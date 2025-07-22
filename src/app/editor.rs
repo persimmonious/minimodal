@@ -48,7 +48,7 @@ struct EditorLayoutIndices {
     status_bar: usize,
 }
 
-pub(crate) struct Editor<'ed> {
+pub struct Editor {
     active: bool,
     keymap: KeyMap,
     current_tab: usize,
@@ -57,14 +57,14 @@ pub(crate) struct Editor<'ed> {
     tab_states: Vec<TabState>,
     theme: Rc<Theme>,
     lower_menu: Option<SubMenu>,
-    floating_window: Option<&'ed mut dyn FloatingContent>,
+    floating_window: Option<Box<dyn FloatingContent>>,
 }
 
 const TABLINE_HEIGHT: u16 = 1;
 const STATUS_LINE_HEIGHT: u16 = 1;
 const FLOATING_WINDOW_SPACE_FRACTION: f64 = 0.8;
 
-impl<'a> Editor<'a> {
+impl Editor {
     pub fn new(buffers: Vec<Buffer>, theme_struct: Theme) -> Self {
         let theme_rc = Rc::new(theme_struct);
         Editor {
@@ -274,6 +274,12 @@ impl<'a> Editor<'a> {
     }
 
     pub(crate) fn handle_key_press(&mut self, key: KeyEvent) {
+        if let Some(window) = &mut self.floating_window {
+            if let Some(callback) = window.handle_input(&key) {
+                callback(self);
+            }
+            return;
+        }
         let bound_action = if let Some(ref menu) = self.lower_menu {
             self.keymap.handle_menu_input(&key, menu)
         } else {
@@ -282,5 +288,9 @@ impl<'a> Editor<'a> {
         if let Some(action) = bound_action {
             self.execute_editor_action(action);
         }
+    }
+
+    pub(crate) fn clear_floating_window(&mut self) {
+        self.floating_window = None;
     }
 }

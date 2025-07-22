@@ -11,7 +11,6 @@ use std::collections::HashMap;
 
 use crate::app::EditorAction::*;
 
-#[derive(Debug)]
 pub struct KeyMap {
     normal_mode: HashMap<KeyCode, EditorAction>,
     insert_mode: HashMap<KeyCode, EditorAction>,
