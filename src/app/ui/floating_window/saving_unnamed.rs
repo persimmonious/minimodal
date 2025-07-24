@@ -36,6 +36,7 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
                     ed.clear_floating_window()
                 }))
             }
+            KeyCode::Esc => Some(Box::new(|ed: &mut Editor| ed.clear_floating_window())),
             KeyCode::Char(_) | KeyCode::Backspace | KeyCode::Delete => {
                 self.filename.input(*input);
                 None
