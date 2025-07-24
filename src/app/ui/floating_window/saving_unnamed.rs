@@ -71,9 +71,9 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
     }
 
     fn clone_as_box(&self) -> Box<dyn FloatingContent> {
-        Box::new(SavingUnnamed {
-            filename: TextArea::new(self.filename.lines().to_owned()),
-        })
+        let mut filename = TextArea::new(self.filename.lines().to_vec());
+        filename.set_style(self.filename.style());
+        Box::new(SavingUnnamed { filename })
     }
 }
 
