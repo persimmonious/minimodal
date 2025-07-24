@@ -1,5 +1,5 @@
 use crossterm::event::KeyEvent;
-use ratatui::{buffer::Buffer as TUI_Buffer, layout::Rect};
+use ratatui::{layout::Rect, Frame};
 
 use crate::app::editor::Editor;
 
@@ -10,7 +10,7 @@ type EditorCallback = Box<dyn FnOnce(&mut Editor)>;
 pub trait FloatingContent {
     fn handle_input(&mut self, input: &KeyEvent) -> Option<EditorCallback>;
 
-    fn render(&self, area: &Rect, buf: &mut TUI_Buffer);
+    fn render(&self, area: &Rect, buf: &mut Frame);
 
     fn clone_as_box(&self) -> Box<dyn FloatingContent>;
 }

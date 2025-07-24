@@ -1,7 +1,9 @@
 use std::{
+    env,
     ffi::{OsStr, OsString},
     fs::{self, File},
     io::{self, Write},
+    path::Path,
 };
 
 #[derive(Debug, Clone)]
@@ -45,11 +47,26 @@ impl Buffer {
         }
     }
 
+    pub fn set_name(&mut self, new_name: OsString) {
+        self.name = Some(new_name);
+    }
+
     pub fn path(&self) -> Option<&OsStr> {
         match &self.path {
             Some(path) => Some(path),
             None => None,
         }
+    }
+
+    pub fn set_path(&mut self, new_path: OsString) {
+        let path = Path::new(&new_path);
+        let abs_path = if path.is_relative() {
+            let cwd = env::current_dir().unwrap();
+            &cwd.join(path)
+        } else {
+            path
+        };
+        self.path = Some(abs_path.as_os_str().to_owned());
     }
 
     pub fn untitled() -> Self {

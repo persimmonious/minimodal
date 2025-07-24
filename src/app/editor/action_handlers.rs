@@ -177,7 +177,7 @@ impl Editor {
         if self.current_buffer().read_name().is_some() {
             self.current_buffer().save().unwrap();
         } else {
-            self.enter_floating_menu(Box::new(SavingUnnamed()));
+            self.enter_floating_menu(Box::new(SavingUnnamed::default()));
         }
         self.exit_menu();
     }

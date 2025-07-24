@@ -125,7 +125,7 @@ impl Editor {
 
         if let Some(ref floating) = self.floating_window {
             let area = Self::floating_window_area(frame);
-            floating.render(&area, frame.buffer_mut());
+            floating.render(&area, frame);
         }
     }
 
