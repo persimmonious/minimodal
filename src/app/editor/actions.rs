@@ -2,6 +2,7 @@ use crate::app::buffer::{HorizontalDirection, RectilinearDirection, VerticalDire
 use crate::app::editor::Mode;
 use crate::app::ui::floating_window::FloatingContent;
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Clone)]
 pub enum EditorAction {
     Append,
