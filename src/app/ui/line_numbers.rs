@@ -52,10 +52,8 @@ impl LineNumbers {
                 .map(|&x| {
                     if x == self.selected {
                         x
-                    } else if x > self.selected {
-                        x - self.selected
                     } else {
-                        self.selected - x
+                        x.abs_diff(self.selected)
                     }
                 })
                 .collect(),
