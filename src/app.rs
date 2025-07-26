@@ -57,7 +57,7 @@ pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
     Ok(())
 }
 
-pub fn graceful_exit(msg: Option<&str>) {
+pub fn graceful_exit(msg: Option<&str>) -> ! {
     execute!(stdout(), LeaveAlternateScreen).unwrap();
     disable_raw_mode().unwrap();
     ratatui::restore();

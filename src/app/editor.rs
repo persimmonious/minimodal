@@ -28,7 +28,7 @@ use crate::app::{
     },
 };
 
-use super::ui::floating_window::FloatingContent;
+use super::{graceful_exit, ui::floating_window::FloatingContent};
 
 mod action_handlers;
 pub mod actions;
@@ -141,7 +141,14 @@ impl Editor {
                 tab.buffer
                     .borrow()
                     .read_name()
-                    .map_or("Untitled", |x| x.try_into().expect("invalid file name!"))
+                    .map_or("Untitled", |x| {
+                        let tab_str = x.try_into();
+                        if tab_str.is_err() {
+                            let err = tab_str.unwrap_err();
+                            graceful_exit(Some(&format!("file name is not valid Unicode! {err}")));
+                        }
+                        tab_str.unwrap()
+                    })
                     .to_owned()
             })
             .map(|name| format!(" {name} "));
