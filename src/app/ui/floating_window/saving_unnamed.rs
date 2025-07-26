@@ -17,6 +17,8 @@ use crate::app::{
 
 use super::{EditorCallback, FloatingContent};
 
+const STANDARD_WINDOW_HEIGHT: u16 = 6;
+
 #[derive(Clone, Default)]
 pub(crate) struct SavingUnnamed<'a> {
     filename: TextArea<'a>,
@@ -46,12 +48,12 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
     }
 
     fn render(&self, area: &Rect, frame: &mut Frame, theme: Rc<Theme>) {
-        if area.height < 6 {
+        if area.height < STANDARD_WINDOW_HEIGHT {
             return;
         }
         let outer_layout = Layout::vertical([
             Constraint::Fill(1),
-            Constraint::Length(6),
+            Constraint::Length(STANDARD_WINDOW_HEIGHT),
             Constraint::Fill(1),
         ]);
         let window_area = outer_layout.split(*area)[1];
