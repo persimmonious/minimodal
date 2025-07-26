@@ -1,9 +1,9 @@
-use std::ffi::OsString;
+use std::{ffi::OsString, rc::Rc};
 
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     layout::{Constraint, Layout, Margin, Rect},
-    style::{Color, Style, Stylize},
+    style::{Style, Stylize},
     text::Line,
     widgets::{Block, BorderType, Borders},
     Frame,
@@ -17,7 +17,7 @@ use crate::app::{
 
 use super::{EditorCallback, FloatingContent};
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub(crate) struct SavingUnnamed<'a> {
     filename: TextArea<'a>,
 }
@@ -45,7 +45,7 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
         }
     }
 
-    fn render(&self, area: &Rect, frame: &mut Frame) {
+    fn render(&self, area: &Rect, frame: &mut Frame, theme: Rc<Theme>) {
         if area.height < 6 {
             return;
         }
@@ -55,7 +55,6 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
             Constraint::Fill(1),
         ]);
         let window_area = outer_layout.split(*area)[1];
-        let theme = Theme::default();
         let background = Block::new()
             .borders(Borders::all())
             .border_type(BorderType::Rounded)
@@ -68,6 +67,12 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
         let message_area = inner_layout[0];
         let input_area = inner_layout[1];
         frame.render_widget(Line::from("Save the buffer as:"), message_area);
+        let mut filename = self.filename.to_owned();
+        filename.set_style(
+            Style::default()
+                .bg(theme.menu_background)
+                .fg(theme.menu_key_foreground),
+        );
         frame.render_widget(&self.filename, input_area);
     }
 
@@ -75,13 +80,5 @@ impl<'b> FloatingContent for SavingUnnamed<'b> {
         let mut filename = TextArea::new(self.filename.lines().to_vec());
         filename.set_style(self.filename.style());
         Box::new(SavingUnnamed { filename })
-    }
-}
-
-impl<'b> Default for SavingUnnamed<'b> {
-    fn default() -> Self {
-        let mut filename = TextArea::default();
-        filename.set_style(Style::default().bg(Color::Black).fg(Color::LightBlue));
-        Self { filename }
     }
 }
