@@ -58,11 +58,11 @@ pub fn run(terminal: &mut DefaultTerminal, config: Config) -> io::Result<()> {
 }
 
 pub fn graceful_exit(msg: Option<&str>) -> ! {
-    execute!(stdout(), LeaveAlternateScreen).unwrap();
-    disable_raw_mode().unwrap();
+    execute!(stdout(), LeaveAlternateScreen).expect("cleanup failed during graceful exit");
+    disable_raw_mode().expect("cleanup failed during graceful exit");
     ratatui::restore();
     if let Some(msg) = msg {
-        eprintln!("{}", msg);
+        eprintln!("{msg}");
     }
     exit(GRACEFUL_EXIT_CODE);
 }
