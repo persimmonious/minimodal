@@ -28,10 +28,10 @@ pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
     let mut buffers: Vec<Buffer> = vec![];
     for name in &config.file_names {
         let path = Path::new(name);
-        let name = path
-            .file_name()
-            .expect("cannot open a directory!")
-            .to_owned();
+        if path.is_dir() {
+            graceful_exit(Some("Opening directories is not supported"))
+        }
+        let name = path.file_name().expect("cannot open a file!").to_owned();
         if path.try_exists()? {
             buffers.push(Buffer::load(name, path.into())?);
         } else {
