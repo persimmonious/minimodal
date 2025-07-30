@@ -1,4 +1,4 @@
-use std::{io::stdout, process::exit};
+use std::{fmt::Debug, io::stdout, process::exit};
 
 use crossterm::{
     execute,
@@ -37,6 +37,27 @@ impl<T> CleanUnwrap<T> for Option<T> {
             Some(x) => x,
             None => {
                 graceful_exit(Some(msg));
+            }
+        }
+    }
+}
+
+impl<T, E> CleanUnwrap<T> for Result<T, E>
+where
+    E: Debug,
+{
+    fn clean_unwrap(self) -> T {
+        match self {
+            Ok(x) => x,
+            Err(e) => graceful_exit(Some(&format!("{e:?}"))),
+        }
+    }
+
+    fn clean_expect(self, msg: &str) -> T {
+        match self {
+            Ok(x) => x,
+            Err(e) => {
+                graceful_exit(Some(&format!("{msg}\n{e:?}")));
             }
         }
     }
