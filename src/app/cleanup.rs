@@ -18,13 +18,13 @@ pub fn graceful_exit(msg: Option<&str>) -> ! {
 }
 
 pub trait CleanUnwrap<T> {
-    fn clean_unwrap(opt: Option<T>) -> T;
-    fn clean_expect(opt: Option<T>, msg: &str) -> T;
+    fn clean_unwrap(self) -> T;
+    fn clean_expect(self, msg: &str) -> T;
 }
 
 impl<T> CleanUnwrap<T> for Option<T> {
-    fn clean_unwrap(opt: Self) -> T {
-        match opt {
+    fn clean_unwrap(self) -> T {
+        match self {
             Some(x) => x,
             None => {
                 graceful_exit(None);
@@ -32,8 +32,8 @@ impl<T> CleanUnwrap<T> for Option<T> {
         }
     }
 
-    fn clean_expect(opt: Self, msg: &str) -> T {
-        match opt {
+    fn clean_expect(self, msg: &str) -> T {
+        match self {
             Some(x) => x,
             None => {
                 graceful_exit(Some(msg));
