@@ -7,7 +7,7 @@ pub(crate) mod ui;
 
 use crate::config::Config;
 use buffer::Buffer;
-use cleanup::graceful_exit;
+use cleanup::{graceful_exit, CleanUnwrap};
 use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -30,10 +30,10 @@ pub fn initialize_buffers(config: &Config) -> Result<Vec<Buffer>, io::Error> {
         if path.is_dir() {
             graceful_exit(Some("Opening directories is not supported"))
         }
-        let name = match path.file_name() {
-            Some(filename) => filename.to_owned(),
-            None => graceful_exit(Some("File name is not valid")),
-        };
+        let name = path
+            .file_name()
+            .clean_expect("File name is not valid")
+            .to_owned();
         if path.try_exists()? {
             buffers.push(Buffer::load(name, path.into())?);
         } else {

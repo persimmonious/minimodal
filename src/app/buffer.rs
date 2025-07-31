@@ -6,6 +6,8 @@ use std::{
     path::Path,
 };
 
+use super::cleanup::CleanUnwrap;
+
 #[derive(Debug, Clone)]
 pub enum HorizontalDirection {
     Forward,
@@ -61,7 +63,7 @@ impl Buffer {
     pub fn set_path(&mut self, new_path: OsString) {
         let path = Path::new(&new_path);
         let abs_path = if path.is_relative() {
-            let cwd = env::current_dir().unwrap();
+            let cwd = env::current_dir().clean_unwrap();
             &cwd.join(path)
         } else {
             path
@@ -79,7 +81,7 @@ impl Buffer {
 
     pub fn save(&self) -> io::Result<()> {
         let linebreak = "\n";
-        let path = self.path.as_ref().unwrap();
+        let path = self.path.as_ref().clean_unwrap();
         let mut file = io::LineWriter::new(File::create(path)?);
         for line in &self.lines {
             file.write_all(line.as_bytes())?;

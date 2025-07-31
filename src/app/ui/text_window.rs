@@ -2,6 +2,7 @@ use super::line_numbers::LineNumberType::Relative;
 use super::line_numbers::LineNumbers;
 use crate::app::{
     buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
+    cleanup::CleanUnwrap,
     editor::Mode,
     theme::Theme,
 };
@@ -383,7 +384,7 @@ impl TextWindowState {
     pub fn lines_count(&self) -> usize {
         self.buffer
             .upgrade()
-            .expect("counting lines in a dead buffer!")
+            .clean_expect("counting lines in a dead buffer!")
             .borrow()
             .lines
             .len()
@@ -392,7 +393,7 @@ impl TextWindowState {
     fn line_length(&self, line: usize) -> usize {
         self.buffer
             .upgrade()
-            .expect("checking line length in a dead buffer!")
+            .clean_expect("checking line length in a dead buffer!")
             .borrow()
             .lines[line]
             .len()
@@ -421,8 +422,11 @@ impl TextWindow {
         let buffer = self
             .buffer
             .upgrade()
-            .expect("building lines from a dead buffer!");
-        let theme = self.theme.upgrade().expect("referencing dropped theme!");
+            .clean_expect("building lines from a dead buffer!");
+        let theme = self
+            .theme
+            .upgrade()
+            .clean_expect("referencing dropped theme!");
 
         state.last_height = height.into();
         state.last_width = width;
@@ -462,7 +466,10 @@ impl TextWindow {
             return;
         }
 
-        let theme = self.theme.upgrade().expect("referencing dropped theme!");
+        let theme = self
+            .theme
+            .upgrade()
+            .clean_expect("referencing dropped theme!");
         let line_style = Style::default()
             .bg(theme.selected_line_background)
             .fg(theme.selected_line_foreground);
@@ -482,7 +489,7 @@ impl StatefulWidget for TextWindow {
     fn render(self, area: Rect, tui_buf: &mut TUI_Buffer, state: &mut Self::State) {
         let line_numbers_width: u16 = (format!("{}", state.lines_count()).chars().count() + 1)
             .try_into()
-            .expect("line number too large!");
+            .clean_expect("line number too large!");
         let window_layout = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(vec![
@@ -491,7 +498,10 @@ impl StatefulWidget for TextWindow {
                 Constraint::Fill(1),
             ])
             .split(area);
-        let theme = self.theme.upgrade().expect("referencing dropped theme!");
+        let theme = self
+            .theme
+            .upgrade()
+            .clean_expect("referencing dropped theme!");
         let lines_area = window_layout[2];
         let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
         self.highlight_cursor(&mut lines, state);

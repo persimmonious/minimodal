@@ -3,6 +3,7 @@ use crate::app::{
         BufferPosition, HorizontalDirection as Horizontal, RectilinearDirection as Rectilinear,
         VerticalDirection,
     },
+    cleanup::CleanUnwrap,
     ui::{
         floating_window::{saving_unnamed::SavingUnnamed, FloatingContent},
         leader_menu::SubMenu,
@@ -175,7 +176,9 @@ impl Editor {
 
     fn save_current_buffer(&mut self) {
         if self.current_buffer().read_name().is_some() {
-            self.current_buffer().save().unwrap();
+            self.current_buffer()
+                .save()
+                .clean_expect("Saving the buffer failed");
         } else {
             self.enter_floating_menu(Box::new(SavingUnnamed::default()));
         }

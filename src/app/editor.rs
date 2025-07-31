@@ -18,17 +18,17 @@ use ratatui::{
 
 use crate::app::{
     buffer::{Buffer, BufferPosition},
+    cleanup::{graceful_exit, CleanUnwrap},
     keymap::KeyMap,
     theme::Theme,
     ui::{
+        floating_window::FloatingContent,
         leader_menu::{LeaderMenu, SubMenu},
         status_bar::StatusBar,
         text_window::TextWindowState,
         Tab, TabState,
     },
 };
-
-use super::{graceful_exit, ui::floating_window::FloatingContent};
 
 mod action_handlers;
 pub mod actions;
@@ -96,7 +96,7 @@ impl Editor {
             let mut tab_area = layout[indices.tab];
             let menu_area = layout[indices
                 .menu
-                .expect("mismatch between editor mode and layout!")];
+                .clean_expect("mismatch between editor mode and layout!")];
 
             tab_area.height += menu_area.height;
             frame.render_stateful_widget(

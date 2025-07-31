@@ -1,5 +1,5 @@
 use super::text_window::TextWindowState;
-use crate::app::{editor::Mode, theme::Theme};
+use crate::app::{cleanup::CleanUnwrap, editor::Mode, theme::Theme};
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     prelude::{Buffer as TUI_Buffer, Rect},
@@ -39,14 +39,20 @@ impl StatusBar {
 
 impl Widget for &StatusBar {
     fn render(self, area: Rect, buf: &mut TUI_Buffer) {
-        let theme = self.theme.upgrade().expect("referencing a dead theme!");
+        let theme = self
+            .theme
+            .upgrade()
+            .clean_expect("referencing a dead theme!");
         let mode_span = match self.mode {
             Mode::Normal => Span::styled(" NORMAL ", theme.styles.status_mode_normal),
             Mode::Command => Span::styled(" COMMAND ", theme.styles.status_mode_command),
             Mode::Insert => Span::styled(" INSERT ", theme.styles.status_mode_insert),
         }
         .add_modifier(Modifier::BOLD);
-        let mode_width = mode_span.width().try_into().expect("mode span too long!");
+        let mode_width = mode_span
+            .width()
+            .try_into()
+            .clean_expect("mode span too long!");
         let pos_span = Span::styled(
             format!("{}:{}", self.line + 1, self.col + 1),
             Style::default()
@@ -56,7 +62,7 @@ impl Widget for &StatusBar {
         let pos_width = pos_span
             .width()
             .try_into()
-            .expect("position span too long!");
+            .clean_expect("position span too long!");
         let percent_span = Span::styled(
             match self.percent {
                 0 => "Top".to_owned(),
