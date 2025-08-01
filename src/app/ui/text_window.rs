@@ -19,6 +19,8 @@ use std::{
     rc::Weak,
 };
 
+pub(crate) mod selection;
+
 #[derive(Debug, Clone)]
 pub struct TextWindow {
     buffer: Weak<RefCell<Buffer>>,
