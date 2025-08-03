@@ -30,6 +30,8 @@ use crate::app::{
     },
 };
 
+use super::ui::text_window::selection::Selection;
+
 mod action_handlers;
 pub mod actions;
 
@@ -38,6 +40,7 @@ pub enum Mode {
     Normal,
     Command,
     Insert,
+    Select(Selection),
 }
 
 #[derive(Debug)]

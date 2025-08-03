@@ -1,7 +1,7 @@
 use crate::app::buffer::BufferPosition;
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct Selection {
+pub struct Selection {
     fixed_point: BufferPosition,
     moving_point: BufferPosition,
 }

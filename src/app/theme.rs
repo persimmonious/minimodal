@@ -8,6 +8,7 @@ pub struct Styles {
     pub status_mode_command: Style,
     pub status_mode_insert: Style,
     pub status_mode_menu: Style,
+    pub status_mode_select: Style,
 }
 
 #[derive(Debug)]
@@ -30,6 +31,8 @@ pub struct Theme {
     pub status_mode_command_foreground: Color,
     pub status_mode_insert_background: Color,
     pub status_mode_insert_foreground: Color,
+    pub status_mode_select_foreground: Color,
+    pub status_mode_select_background: Color,
     pub status_background: Color,
     pub status_foreground: Color,
     pub menu_background: Color,
@@ -60,8 +63,10 @@ impl Default for Theme {
         let status_mode_command_foreground = text_background;
         let status_mode_insert_background = Color::Rgb(120, 240, 140);
         let status_mode_insert_foreground = text_background;
-        let status_mode_menu_background = Color::Rgb(220, 240, 140);
+        let status_mode_menu_background = Color::Rgb(240, 60, 170);
         let status_mode_menu_foreground = text_background;
+        let status_mode_select_background = Color::Rgb(220, 150, 20);
+        let status_mode_select_foreground = text_background;
         let status_background = Color::Rgb(10, 10, 10);
         let status_foreground = text_foreground;
         let menu_background = Color::Rgb(20, 20, 20);
@@ -89,6 +94,9 @@ impl Default for Theme {
         let status_mode_menu = Style::default()
             .fg(status_mode_menu_foreground)
             .bg(status_mode_menu_background);
+        let status_mode_select = Style::default()
+            .fg(status_mode_select_foreground)
+            .bg(status_mode_select_background);
 
         let styles = Styles {
             line_numbers_normal,
@@ -97,6 +105,7 @@ impl Default for Theme {
             status_mode_command,
             status_mode_insert,
             status_mode_menu,
+            status_mode_select,
         };
 
         Theme {
@@ -118,6 +127,8 @@ impl Default for Theme {
             status_mode_command_foreground,
             status_mode_insert_background,
             status_mode_insert_foreground,
+            status_mode_select_background,
+            status_mode_select_foreground,
             status_background,
             status_foreground,
             menu_background,

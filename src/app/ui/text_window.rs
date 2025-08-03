@@ -65,7 +65,7 @@ impl TextWindowState {
 
     pub fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
         match (mode, dir) {
-            (Mode::Normal | Mode::Insert, Rectilinear::Up) => {
+            (Mode::Normal | Mode::Select(_) | Mode::Insert, Rectilinear::Up) => {
                 if self.cursor.line == 0 {
                     return;
                 }
@@ -104,7 +104,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Normal | Mode::Insert, Rectilinear::Down) => {
+            (Mode::Normal | Mode::Select(_) | Mode::Insert, Rectilinear::Down) => {
                 if self.cursor.line + 1 >= self.lines_count() {
                     return;
                 }
@@ -144,7 +144,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Normal, Rectilinear::Right) => {
+            (Mode::Normal | Mode::Select(_), Rectilinear::Right) => {
                 if self.lines_count() == 0 {
                     return;
                 }
@@ -184,7 +184,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Normal, Rectilinear::Left) => {
+            (Mode::Normal | Mode::Select(_), Rectilinear::Left) => {
                 if self.cursor.col == 0 {
                     return;
                 }

@@ -15,6 +15,7 @@ pub struct KeyMap {
     normal_mode: HashMap<KeyCode, EditorAction>,
     insert_mode: HashMap<KeyCode, EditorAction>,
     root_menu: HashMap<KeyCode, EditorAction>,
+    select_mode: HashMap<KeyCode, EditorAction>,
 }
 
 impl KeyMap {
@@ -25,6 +26,8 @@ impl KeyMap {
             Mode::Normal => self.normal_mode.get(&key.code).cloned(),
 
             Mode::Command => todo!("commands not implemented yet"),
+
+            Mode::Select(_) => self.select_mode.get(&key.code).cloned(),
         }
     }
 
@@ -48,6 +51,7 @@ impl Default for KeyMap {
         let mut normal_mode = HashMap::new();
         let mut root_menu = HashMap::new();
         let mut insert_mode = HashMap::new();
+        let mut select_mode = HashMap::new();
         normal_mode.insert(KeyCode::Char(' '), EnterMenu);
         normal_mode.insert(KeyCode::Char('i'), EnterInsert);
         normal_mode.insert(KeyCode::Char('I'), MoveToHomeAndEnterInsert);
@@ -83,6 +87,7 @@ impl Default for KeyMap {
         normal_mode.insert(KeyCode::Char('O'), InsertNewLine(Vertical::Up));
         normal_mode.insert(KeyCode::Char('x'), RemoveChar(Forward));
         normal_mode.insert(KeyCode::Char('X'), RemoveChar(Backward));
+        normal_mode.insert(KeyCode::Char('v'), EnterSelect);
         normal_mode.insert(KeyCode::Enter, NextLine);
         normal_mode.insert(KeyCode::Backspace, Back);
         insert_mode.insert(KeyCode::Esc, ExitInsert);
@@ -99,10 +104,21 @@ impl Default for KeyMap {
         root_menu.insert(KeyCode::Char(' '), ExitMenu);
         root_menu.insert(KeyCode::Char('q'), ExitEditor);
         root_menu.insert(KeyCode::Char('w'), SaveBuffer);
+        select_mode.insert(KeyCode::Char('I'), MoveToHomeAndEnterInsert);
+        select_mode.insert(KeyCode::Char('S'), ReplaceLine);
+        select_mode.insert(KeyCode::Right, MoveCursor(Mode::Normal, Rectilinear::Right));
+        select_mode.insert(KeyCode::Char('$'), EOL);
+        select_mode.insert(KeyCode::Char('0'), Home);
+        select_mode.insert(KeyCode::Char('G'), EndOfBuffer);
+        select_mode.insert(KeyCode::Enter, NextLine);
+        select_mode.insert(KeyCode::Backspace, Back);
+        select_mode.insert(KeyCode::Esc, ExitSelect);
+
         KeyMap {
             insert_mode,
             normal_mode,
             root_menu,
+            select_mode,
         }
     }
 }

@@ -7,6 +7,7 @@ use crate::app::{
     ui::{
         floating_window::{saving_unnamed::SavingUnnamed, FloatingContent},
         leader_menu::SubMenu,
+        text_window::selection::Selection,
     },
 };
 
@@ -23,9 +24,11 @@ impl Editor {
             EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterMenu => self.enter_menu(),
             EditorAction::EnterFloatingMenu(menu) => self.enter_floating_menu(menu),
+            EditorAction::EnterSelect => self.enter_select(),
             EditorAction::ExitInsert => self.exit_insert(),
             EditorAction::ExitEditor => self.exit(),
             EditorAction::ExitMenu => self.exit_menu(),
+            EditorAction::ExitSelect => self.exit_select(),
             EditorAction::InsertChar(c) => self.insert_char(c),
             EditorAction::MoveToHomeAndEnterInsert => {
                 self.jump_to_home();
@@ -241,5 +244,13 @@ impl Editor {
             self.move_cursor(&mode, Rectilinear::Up);
             self.jump_to_EOL();
         }
+    }
+
+    fn enter_select(&mut self) {
+        self.mode = Mode::Select(Selection::from_single(&self.current_bufpos()));
+    }
+
+    fn exit_select(&mut self) {
+        self.mode = Mode::Normal;
     }
 }
