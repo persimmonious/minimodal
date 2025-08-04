@@ -303,4 +303,11 @@ impl Editor {
     pub(crate) fn clear_floating_window(&mut self) {
         self.floating_window = None;
     }
+
+    pub(crate) fn update_selection(&mut self) {
+        let bufpos = self.current_bufpos();
+        if let Mode::Select(sel) = &mut self.mode {
+            sel.moving_point = bufpos;
+        }
+    }
 }

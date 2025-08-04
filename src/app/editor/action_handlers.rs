@@ -204,6 +204,9 @@ impl Editor {
 
     fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
         self.current_winstate_mut().move_cursor(mode, dir);
+        if matches!(mode, Mode::Select(_)) {
+            self.update_selection();
+        }
     }
 
     fn jump_to_EOL(&mut self) {

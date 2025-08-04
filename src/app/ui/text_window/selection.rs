@@ -2,8 +2,8 @@ use crate::app::buffer::BufferPosition;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Selection {
-    fixed_point: BufferPosition,
-    moving_point: BufferPosition,
+    pub(crate) fixed_point: BufferPosition,
+    pub(crate) moving_point: BufferPosition,
 }
 
 impl Selection {
