@@ -51,7 +51,7 @@ impl Default for Theme {
     fn default() -> Self {
         let text_background = Color::Rgb(35, 35, 40);
         let text_foreground = Color::Rgb(220, 200, 180);
-        let selected_text_background = Color::Rgb(80, 55, 80);
+        let selected_text_background = Color::Rgb(88, 60, 10);
         let selected_text_foreground = text_foreground;
         let selected_line_background = Color::Rgb(50, 50, 55);
         let selected_line_foreground = text_foreground;
