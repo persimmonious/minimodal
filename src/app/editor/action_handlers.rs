@@ -204,7 +204,7 @@ impl Editor {
 
     fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
         self.current_winstate_mut().move_cursor(mode, dir);
-        if matches!(mode, Mode::Select(_)) {
+        if matches!(self.get_mode(), Mode::Select(_)) {
             self.update_selection();
         }
     }

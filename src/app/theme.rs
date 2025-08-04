@@ -2,6 +2,8 @@ use ratatui::style::{Color, Modifier, Style};
 
 #[derive(Debug)]
 pub struct Styles {
+    pub regular_text: Style,
+    pub selected_text: Style,
     pub line_numbers_normal: Style,
     pub line_numbers_selected: Style,
     pub status_mode_normal: Style,
@@ -15,6 +17,8 @@ pub struct Styles {
 pub struct Theme {
     pub text_background: Color,
     pub text_foreground: Color,
+    pub selected_text_background: Color,
+    pub selected_text_foreground: Color,
     pub selected_line_background: Color,
     pub selected_line_foreground: Color,
     pub tabline_foreground: Color,
@@ -47,6 +51,8 @@ impl Default for Theme {
     fn default() -> Self {
         let text_background = Color::Rgb(35, 35, 40);
         let text_foreground = Color::Rgb(220, 200, 180);
+        let selected_text_background = Color::Rgb(80, 55, 80);
+        let selected_text_foreground = text_foreground;
         let selected_line_background = Color::Rgb(50, 50, 55);
         let selected_line_foreground = text_foreground;
         let tabline_foreground = Color::Rgb(144, 190, 255);
@@ -75,6 +81,10 @@ impl Default for Theme {
         let menu_separator_foreground = Color::Rgb(80, 80, 80);
         let menu_action_foreground = Color::Rgb(200, 160, 200);
 
+        let regular_text = Style::default().fg(text_foreground).bg(text_background);
+        let selected_text = Style::default()
+            .fg(selected_text_foreground)
+            .bg(selected_text_background);
         let line_numbers_normal = Style::default()
             .fg(line_numbers_normal_foreground)
             .bg(line_numbers_normal_background);
@@ -99,6 +109,8 @@ impl Default for Theme {
             .bg(status_mode_select_background);
 
         let styles = Styles {
+            regular_text,
+            selected_text,
             line_numbers_normal,
             line_numbers_selected,
             status_mode_normal,
@@ -111,6 +123,8 @@ impl Default for Theme {
         Theme {
             text_background,
             text_foreground,
+            selected_text_background,
+            selected_text_foreground,
             selected_line_background,
             selected_line_foreground,
             tabline_foreground,

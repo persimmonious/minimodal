@@ -106,6 +106,25 @@ impl Default for KeyMap {
         root_menu.insert(KeyCode::Char('w'), SaveBuffer);
         select_mode.insert(KeyCode::Char('I'), MoveToHomeAndEnterInsert);
         select_mode.insert(KeyCode::Char('S'), ReplaceLine);
+        select_mode.insert(
+            KeyCode::Char('h'),
+            MoveCursor(Mode::Normal, Rectilinear::Left),
+        );
+        select_mode.insert(KeyCode::Left, MoveCursor(Mode::Normal, Rectilinear::Left));
+        select_mode.insert(
+            KeyCode::Char('j'),
+            MoveCursor(Mode::Normal, Rectilinear::Down),
+        );
+        select_mode.insert(KeyCode::Down, MoveCursor(Mode::Normal, Rectilinear::Down));
+        select_mode.insert(
+            KeyCode::Char('k'),
+            MoveCursor(Mode::Normal, Rectilinear::Up),
+        );
+        select_mode.insert(KeyCode::Up, MoveCursor(Mode::Normal, Rectilinear::Up));
+        select_mode.insert(
+            KeyCode::Char('l'),
+            MoveCursor(Mode::Normal, Rectilinear::Right),
+        );
         select_mode.insert(KeyCode::Right, MoveCursor(Mode::Normal, Rectilinear::Right));
         select_mode.insert(KeyCode::Char('$'), EOL);
         select_mode.insert(KeyCode::Char('0'), Home);

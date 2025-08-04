@@ -25,12 +25,10 @@ use crate::app::{
         floating_window::FloatingContent,
         leader_menu::{LeaderMenu, SubMenu},
         status_bar::StatusBar,
-        text_window::TextWindowState,
+        text_window::{selection::Selection, TextWindowState},
         Tab, TabState,
     },
 };
-
-use super::ui::text_window::selection::Selection;
 
 mod action_handlers;
 pub mod actions;
@@ -79,7 +77,7 @@ impl Editor {
             tabs: buffers.iter().map(|_| Tab::new()).collect(),
             tab_states: buffers
                 .into_iter()
-                .map(|buffer| TabState::new(buffer, Rc::downgrade(&theme_rc)))
+                .map(|buffer| TabState::new(buffer, Rc::downgrade(&theme_rc), Mode::Normal))
                 .collect(),
             lower_menu: None,
             floating_window: None,
@@ -87,6 +85,10 @@ impl Editor {
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
+        // Must be the first step to ensure that other widgets are in the right
+        // mode
+        self.propagate_mode();
+
         let (layout, indices) = match self.lower_menu {
             Some(ref submenu) => self.leader_menu_layout(submenu, frame),
             _ => Self::standard_layout(frame),
@@ -114,7 +116,7 @@ impl Editor {
             frame.render_stateful_widget(
                 self.tabs[self.current_tab].clone(),
                 layout[indices.tab],
-                &mut self.tab_states[self.current_tab],
+                self.current_tabstate_mut(),
             );
         }
 
@@ -129,6 +131,13 @@ impl Editor {
         if let Some(ref floating) = self.floating_window {
             let area = Self::floating_window_area(frame);
             floating.render(&area, frame, self.theme.clone());
+        }
+    }
+
+    pub fn propagate_mode(&mut self) {
+        let mode = self.get_mode().to_owned();
+        for tabstate in &mut self.tab_states {
+            tabstate.propagate_mode(mode.clone());
         }
     }
 

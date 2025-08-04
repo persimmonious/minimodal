@@ -2,7 +2,7 @@ use super::line_numbers::LineNumberType::Relative;
 use super::line_numbers::LineNumbers;
 use crate::app::{
     buffer::{Buffer, BufferPosition, RectilinearDirection as Rectilinear},
-    cleanup::CleanUnwrap,
+    cleanup::{graceful_exit, CleanUnwrap},
     editor::Mode,
     theme::Theme,
 };
@@ -13,9 +13,11 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
-use std::{cell::RefCell, iter::repeat_n};
+use selection::Selection;
 use std::{
+    cell::RefCell,
     cmp::{max, min},
+    iter::repeat_n,
     rc::Weak,
 };
 
@@ -45,11 +47,12 @@ pub struct TextWindowState {
     pub cursor: BufferPosition,
     pub last_manual_col: usize,
     pub stick_to_EOL: bool,
+    mode: Mode,
     buffer: Weak<RefCell<Buffer>>,
 }
 
 impl TextWindowState {
-    pub fn new(buffer: Weak<RefCell<Buffer>>) -> Self {
+    pub fn new(buffer: Weak<RefCell<Buffer>>, mode: Mode) -> Self {
         TextWindowState {
             top_line: 0,
             leftmost_col: 0,
@@ -60,7 +63,16 @@ impl TextWindowState {
             last_manual_col: 0,
             stick_to_EOL: false,
             buffer,
+            mode,
         }
+    }
+
+    pub fn mode(&self) -> &Mode {
+        &self.mode
+    }
+
+    pub fn set_mode(&mut self, mode: Mode) {
+        self.mode = mode;
     }
 
     pub fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
@@ -483,6 +495,56 @@ impl TextWindow {
         }
         lines[line] = Line::from(Span::styled(old_line, line_style));
     }
+
+    fn highlight_selection(&self, lines: &mut Vec<Line>, state: &mut TextWindowState) {
+        if lines.is_empty() {
+            graceful_exit(Some("attempted to highlight selection in empty buffer"));
+        }
+
+        let Selection {
+            fixed_point,
+            moving_point,
+        } = if let Mode::Select(sel) = state.mode() {
+            sel
+        } else {
+            graceful_exit(Some("attempted to highlight selection in wrong mode"));
+        };
+
+        let upper = min(fixed_point, moving_point);
+        let lower = max(fixed_point, moving_point);
+        if lower.line < state.top_line || upper.line >= state.top_line + lines.len() {
+            return;
+        }
+
+        let theme = self
+            .theme
+            .upgrade()
+            .clean_expect("referencing dropped theme!");
+        let selection_style = theme.styles.selected_text;
+
+        if upper.line == lower.line {
+            let line = upper.line - state.top_line;
+            let old_line = lines[line].to_owned().to_string();
+            if old_line.is_empty() {
+                lines[line] = Line::styled(" ", selection_style);
+                return;
+            }
+            let old_line: Vec<_> = old_line.chars().collect();
+            let start_unselected = Span::styled(
+                old_line[..upper.col].iter().collect::<String>(),
+                theme.styles.regular_text,
+            );
+            let selected = Span::styled(
+                old_line[upper.col..=lower.col].iter().collect::<String>(),
+                selection_style,
+            );
+            let end_unselected = Span::styled(
+                old_line[lower.col + 1..].iter().collect::<String>(),
+                theme.styles.regular_text,
+            );
+            lines[line] = Line::from(vec![start_unselected, selected, end_unselected]);
+        }
+    }
 }
 
 impl StatefulWidget for TextWindow {
@@ -506,7 +568,11 @@ impl StatefulWidget for TextWindow {
             .clean_expect("referencing dropped theme!");
         let lines_area = window_layout[2];
         let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
-        self.highlight_cursor(&mut lines, state);
+        if matches!(state.mode(), Mode::Select(_)) {
+            self.highlight_selection(&mut lines, state);
+        } else {
+            self.highlight_cursor(&mut lines, state);
+        }
         let line_numbers_area = window_layout[0];
         let line_hints_area = window_layout[1];
         let line_hints = Paragraph::new("").style(Style::default().bg(theme.text_background));
