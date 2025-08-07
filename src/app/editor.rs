@@ -319,4 +319,8 @@ impl Editor {
             sel.moving_point = bufpos;
         }
     }
+
+    pub(crate) fn switch_mode(&mut self, mode: Mode) {
+        self.mode = mode;
+    }
 }
