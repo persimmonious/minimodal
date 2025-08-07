@@ -29,4 +29,5 @@ pub enum EditorAction {
     ReplaceLine,
     RemoveChar(HorizontalDirection),
     SaveBuffer,
+    SwitchToMode(Mode),
 }

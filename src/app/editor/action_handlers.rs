@@ -46,6 +46,7 @@ impl Editor {
             EditorAction::InsertLineBreak => self.insert_line_break(),
             EditorAction::NextLine => self.jump_to_next_line(),
             EditorAction::Back => self.back(),
+            EditorAction::SwitchToMode(mode) => self.switch_mode(mode),
         }
     }
 
@@ -255,5 +256,9 @@ impl Editor {
 
     fn exit_select(&mut self) {
         self.mode = Mode::Normal;
+    }
+
+    fn switch_mode(&mut self, mode: Mode) {
+        self.mode = mode;
     }
 }
