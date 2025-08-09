@@ -23,11 +23,11 @@ pub enum EditorAction {
     InsertChar(char),
     InsertLineBreak,
     InsertNewLine(VerticalDirection),
-    MoveToHomeAndEnterInsert,
     MoveCursor(Mode, RectilinearDirection),
+    MoveToHomeAndEnterInsert,
     NextLine,
-    ReplaceLine,
     RemoveChar(HorizontalDirection),
+    ReplaceLine,
     SaveBuffer,
     SwitchToMode(Mode),
 }
