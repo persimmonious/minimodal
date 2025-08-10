@@ -77,7 +77,7 @@ impl TextWindowState {
 
     pub fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
         match (mode, dir) {
-            (Mode::Normal | Mode::Select(_) | Mode::Insert, Rectilinear::Up) => {
+            (Mode::Normal | Mode::Visual(_) | Mode::Insert, Rectilinear::Up) => {
                 if self.cursor.line == 0 {
                     return;
                 }
@@ -116,7 +116,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Normal | Mode::Select(_) | Mode::Insert, Rectilinear::Down) => {
+            (Mode::Normal | Mode::Visual(_) | Mode::Insert, Rectilinear::Down) => {
                 if self.cursor.line + 1 >= self.lines_count() {
                     return;
                 }
@@ -156,7 +156,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Normal | Mode::Select(_), Rectilinear::Right) => {
+            (Mode::Normal | Mode::Visual(_), Rectilinear::Right) => {
                 if self.lines_count() == 0 {
                     return;
                 }
@@ -196,7 +196,7 @@ impl TextWindowState {
                 }
             }
 
-            (Mode::Normal | Mode::Select(_), Rectilinear::Left) => {
+            (Mode::Normal | Mode::Visual(_), Rectilinear::Left) => {
                 if self.cursor.col == 0 {
                     return;
                 }
@@ -504,7 +504,7 @@ impl TextWindow {
         let Selection {
             fixed_point,
             moving_point,
-        } = if let Mode::Select(sel) = state.mode() {
+        } = if let Mode::Visual(sel) = state.mode() {
             sel
         } else {
             graceful_exit(Some("attempted to highlight selection in wrong mode"));
@@ -568,7 +568,7 @@ impl StatefulWidget for TextWindow {
             .clean_expect("referencing dropped theme!");
         let lines_area = window_layout[2];
         let mut lines = self.build_lines(lines_area.height, lines_area.width.into(), state);
-        if matches!(state.mode(), Mode::Select(_)) {
+        if matches!(state.mode(), Mode::Visual(_)) {
             self.highlight_selection(&mut lines, state);
         } else {
             self.highlight_cursor(&mut lines, state);

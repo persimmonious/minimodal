@@ -27,12 +27,12 @@ impl Editor {
             EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterFloatingMenu(menu) => self.enter_floating_menu(menu),
             EditorAction::EnterMenu => self.enter_menu(),
-            EditorAction::EnterSelect => self.enter_select(),
+            EditorAction::EnterVisual => self.enter_select(),
             EditorAction::EOL => self.sticky_jump_to_EOL(),
             EditorAction::ExitInsert => self.exit_insert(),
             EditorAction::ExitEditor => self.exit(),
             EditorAction::ExitMenu => self.exit_menu(),
-            EditorAction::ExitSelect => self.exit_select(),
+            EditorAction::ExitVisual => self.exit_select(),
             EditorAction::Home => self.jump_to_home(),
             EditorAction::InsertChar(c) => self.insert_char(c),
             EditorAction::InsertLineBreak => self.insert_line_break(),
@@ -92,7 +92,7 @@ impl Editor {
     }
 
     fn enter_select(&mut self) {
-        self.mode = Mode::Select(Selection::from_single(&self.current_bufpos()));
+        self.mode = Mode::Visual(Selection::from_single(&self.current_bufpos()));
     }
 
     fn exit(&mut self) {
@@ -183,7 +183,7 @@ impl Editor {
 
     fn move_cursor(&mut self, mode: &Mode, dir: Rectilinear) {
         self.current_winstate_mut().move_cursor(mode, dir);
-        if matches!(self.get_mode(), Mode::Select(_)) {
+        if matches!(self.get_mode(), Mode::Visual(_)) {
             self.update_selection();
         }
     }

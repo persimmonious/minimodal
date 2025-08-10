@@ -47,7 +47,7 @@ impl Widget for &StatusBar {
             Mode::Normal => Span::styled(" NORMAL ", theme.styles.status_mode_normal),
             Mode::Command => Span::styled(" COMMAND ", theme.styles.status_mode_command),
             Mode::Insert => Span::styled(" INSERT ", theme.styles.status_mode_insert),
-            Mode::Select(_) => Span::styled(" SELECT ", theme.styles.status_mode_select),
+            Mode::Visual(_) => Span::styled(" VISUAL ", theme.styles.status_mode_select),
         }
         .add_modifier(Modifier::BOLD);
         let mode_width = mode_span
@@ -103,7 +103,7 @@ impl Widget for &StatusBar {
                 Mode::Normal => theme.status_mode_normal_background,
                 Mode::Command => theme.status_mode_command_background,
                 Mode::Insert => theme.status_mode_insert_background,
-                Mode::Select(_) => theme.status_mode_select_background,
+                Mode::Visual(_) => theme.status_mode_select_background,
             })
             .render(rightmost_padding, buf);
     }

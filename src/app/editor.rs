@@ -38,7 +38,7 @@ pub enum Mode {
     Normal,
     Command,
     Insert,
-    Select(Selection),
+    Visual(Selection),
 }
 
 #[derive(Debug)]
@@ -315,7 +315,7 @@ impl Editor {
 
     pub(crate) fn update_selection(&mut self) {
         let bufpos = self.current_bufpos();
-        if let Mode::Select(sel) = &mut self.mode {
+        if let Mode::Visual(sel) = &mut self.mode {
             sel.moving_point = bufpos;
         }
     }
