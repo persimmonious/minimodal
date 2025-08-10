@@ -132,6 +132,7 @@ impl Default for KeyMap {
         select_mode.insert(KeyCode::Enter, NextLine);
         select_mode.insert(KeyCode::Backspace, Back);
         select_mode.insert(KeyCode::Esc, ExitSelect);
+        select_mode.insert(KeyCode::Char('v'), ExitSelect);
 
         KeyMap {
             insert_mode,
