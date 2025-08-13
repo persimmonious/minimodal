@@ -27,7 +27,7 @@ impl Editor {
             EditorAction::EnterInsert => self.enter_insert(),
             EditorAction::EnterFloatingMenu(menu) => self.enter_floating_menu(menu),
             EditorAction::EnterMenu => self.enter_menu(),
-            EditorAction::EnterVisual => self.enter_select(),
+            EditorAction::EnterVisual => self.enter_visual(),
             EditorAction::EOL => self.sticky_jump_to_EOL(),
             EditorAction::ExitInsert => self.exit_insert(),
             EditorAction::ExitEditor => self.exit(),
@@ -91,8 +91,10 @@ impl Editor {
         self.lower_menu = Some(SubMenu::Root);
     }
 
-    fn enter_select(&mut self) {
-        self.mode = Mode::Visual(Selection::from_single(&self.current_bufpos()));
+    fn enter_visual(&mut self) {
+        if self.current_buffer().lines_count() != 0 {
+            self.mode = Mode::Visual(Selection::from_single(&self.current_bufpos()));
+        }
     }
 
     fn exit(&mut self) {
