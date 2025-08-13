@@ -9,7 +9,7 @@ use crate::app::{
 use ratatui::{
     buffer::Buffer as TUI_Buffer,
     layout::{Constraint, Direction, Layout, Position, Rect},
-    style::{Style, Stylize},
+    style::{Style, Styled, Stylize},
     text::{Line, Span},
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
@@ -512,7 +512,9 @@ impl TextWindow {
 
         let upper = min(fixed_point, moving_point);
         let lower = max(fixed_point, moving_point);
-        if lower.line < state.top_line || upper.line >= state.top_line + lines.len() {
+        let selection_off_screen =
+            lower.line < state.top_line || upper.line >= state.top_line + lines.len();
+        if selection_off_screen {
             return;
         }
 
@@ -543,6 +545,30 @@ impl TextWindow {
                 theme.styles.regular_text,
             );
             lines[line] = Line::from(vec![start_unselected, selected, end_unselected]);
+        } else {
+            for i in 0..lines.len() {
+                let index = i + state.top_line;
+                if index == upper.line {
+                    let old_line = lines[index].to_string();
+                    let start_unselected =
+                        Span::styled(old_line[..upper.col].to_string(), theme.styles.regular_text);
+                    let selected = Span::styled(old_line[upper.col..].to_string(), selection_style);
+                    lines[index] = Line::from(vec![start_unselected, selected]);
+                } else if index > upper.line && index < lower.line {
+                    let old_line = lines[index].to_string();
+                    let new_line = Line::styled(old_line, selection_style);
+                    lines[index] = new_line;
+                } else if index == lower.line {
+                    let old_line = lines[index].to_string();
+                    let selected =
+                        Span::styled(old_line[..=lower.col].to_string(), selection_style);
+                    let end_unselected = Span::styled(
+                        old_line[lower.col + 1..].to_string(),
+                        theme.styles.regular_text,
+                    );
+                    lines[index] = Line::from(vec![selected, end_unselected]);
+                }
+            }
         }
     }
 }
