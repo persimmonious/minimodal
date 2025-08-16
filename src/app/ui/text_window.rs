@@ -496,7 +496,7 @@ impl TextWindow {
         lines[line] = Line::from(Span::styled(old_line, line_style));
     }
 
-    fn highlight_selection(&self, lines: &mut Vec<Line>, state: &mut TextWindowState) {
+    fn highlight_selection(&self, lines: &mut [Line], state: &mut TextWindowState) {
         if lines.is_empty() {
             graceful_exit(Some("attempted to highlight selection in empty buffer"));
         }
