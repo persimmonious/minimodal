@@ -28,20 +28,10 @@ pub enum RectilinearDirection {
     Left,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct BufferPosition {
     pub line: usize,
     pub col: usize,
-}
-
-impl PartialOrd for BufferPosition {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(if self.line != other.line {
-            self.line.cmp(&other.line)
-        } else {
-            self.col.cmp(&other.col)
-        })
-    }
 }
 
 #[derive(Debug, PartialEq)]
