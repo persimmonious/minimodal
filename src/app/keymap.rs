@@ -138,7 +138,7 @@ impl Default for KeyMap {
             insert_mode,
             normal_mode,
             root_menu,
-            visual_mode: visual_mode,
+            visual_mode,
         }
     }
 }
