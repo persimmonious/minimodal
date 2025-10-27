@@ -145,7 +145,7 @@ impl Editor {
         self.active
     }
 
-    fn generate_tabline(&self) -> Tabs {
+    fn generate_tabline(&self) -> Tabs<'_> {
         let buffer_titles = self
             .tab_states
             .iter()
@@ -250,11 +250,11 @@ impl Editor {
         &self.current_tabstate().window_states
     }
 
-    pub(crate) fn current_buffer(&self) -> Ref<Buffer> {
+    pub(crate) fn current_buffer(&self) -> Ref<'_, Buffer> {
         self.current_tabstate().buffer.borrow()
     }
 
-    pub(crate) fn current_buffer_mut(&self) -> RefMut<Buffer> {
+    pub(crate) fn current_buffer_mut(&self) -> RefMut<'_, Buffer> {
         self.current_tabstate().buffer.borrow_mut()
     }
 

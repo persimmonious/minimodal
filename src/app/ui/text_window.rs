@@ -432,7 +432,7 @@ impl TextWindow {
         TextWindow { buffer, theme }
     }
 
-    fn build_lines(&self, height: u16, width: usize, state: &mut TextWindowState) -> Vec<Line> {
+    fn build_lines(&self, height: u16, width: usize, state: &mut TextWindowState) -> Vec<Line<'_>> {
         let buffer = self
             .buffer
             .upgrade()
