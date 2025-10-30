@@ -155,8 +155,7 @@ impl Editor {
                     .read_name()
                     .map_or("Untitled", |x| {
                         let tab_str = x.try_into();
-                        if tab_str.is_err() {
-                            let err = tab_str.unwrap_err();
+                        if let Err(err) = tab_str {
                             graceful_exit(Some(&format!("file name is not valid Unicode! {err}")));
                         }
                         tab_str.unwrap()
